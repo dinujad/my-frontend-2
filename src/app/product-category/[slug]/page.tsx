@@ -7,7 +7,6 @@ import { notFound } from "next/navigation";
 import {
   getCategoryBySlug,
   getProductsByCategorySlug,
-  getAllCategorySlugs,
   SITE_URL,
 } from "@/lib/products-data";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
@@ -58,10 +57,6 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   };
 }
 
-export async function generateStaticParams(): Promise<{ slug: string }[]> {
-  const slugs = await getAllCategorySlugs();
-  return slugs.map((slug) => ({ slug }));
-}
 export default async function CategoryPage({ params, searchParams }: Props) {
   const { slug } = await params;
   const category = await getCategoryBySlug(slug);
