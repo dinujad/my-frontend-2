@@ -4,9 +4,10 @@ import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
-function PaymentReturnContent() {
-  const params = useSearchParams();
-  const orderNumber = params.get("order") ?? "";
+// Component that uses URL search params — must render under <Suspense> (App Router build safety).
+function ReturnContent() {
+  const searchParams = useSearchParams();
+  const orderNumber = searchParams.get("order") ?? "";
   const [status, setStatus] = useState<"loading" | "paid" | "pending" | "failed">("loading");
 
   useEffect(() => {
@@ -15,7 +16,7 @@ function PaymentReturnContent() {
       return;
     }
 
-    // Poll for payment status — do NOT trust the return URL itself for paid status
+    // Poll for payment status — do NOT trust the return URL alone for paid status (PayHere).
     let attempts = 0;
     const maxAttempts = 8;
 
@@ -41,14 +42,13 @@ function PaymentReturnContent() {
       }
     };
 
-    // Give PayHere notify a head-start before first poll
     setTimeout(check, 2000);
   }, [orderNumber]);
 
   if (status === "loading") {
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
-        <div className="text-center max-w-md">
+      <main className="flex min-h-[400px] flex-col items-center justify-center bg-gray-50 px-4">
+        <div className="max-w-md text-center">
           <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-blue-100">
             <span className="h-8 w-8 animate-spin rounded-full border-4 border-blue-400 border-t-transparent" />
           </div>
@@ -61,8 +61,8 @@ function PaymentReturnContent() {
 
   if (status === "paid") {
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
-        <div className="w-full max-w-md overflow-hidden rounded-3xl border border-emerald-100 bg-white shadow-xl text-center">
+      <main className="flex min-h-[400px] flex-col items-center justify-center bg-gray-50 px-4">
+        <div className="w-full max-w-md overflow-hidden rounded-3xl border border-emerald-100 bg-white text-center shadow-xl">
           <div className="bg-gradient-to-br from-emerald-500 to-teal-600 px-8 py-10 text-white">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white/20">
               <i className="bi bi-check-lg text-3xl" />
@@ -76,13 +76,13 @@ function PaymentReturnContent() {
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
               <Link
                 href="/products"
-                className="inline-flex items-center justify-center rounded-xl bg-brand-red px-5 py-3 text-sm font-bold text-white shadow hover:bg-red-700 transition"
+                className="inline-flex items-center justify-center rounded-xl bg-brand-red px-5 py-3 text-sm font-bold text-white shadow transition hover:bg-red-700"
               >
                 Continue Shopping
               </Link>
               <Link
                 href="/dashboard"
-                className="inline-flex items-center justify-center rounded-xl border-2 border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition"
+                className="inline-flex items-center justify-center rounded-xl border-2 border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
               >
                 My Orders
               </Link>
@@ -93,10 +93,9 @@ function PaymentReturnContent() {
     );
   }
 
-  // Pending or failed — payment not yet confirmed (notify_url may still be processing)
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md overflow-hidden rounded-3xl border border-amber-100 bg-white shadow-xl text-center">
+    <main className="flex min-h-[400px] flex-col items-center justify-center bg-gray-50 px-4">
+      <div className="w-full max-w-md overflow-hidden rounded-3xl border border-amber-100 bg-white text-center shadow-xl">
         <div className="bg-gradient-to-br from-amber-400 to-orange-500 px-8 py-10 text-white">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white/20">
             <i className="bi bi-clock-history text-3xl" />
@@ -106,20 +105,20 @@ function PaymentReturnContent() {
         </div>
         <div className="px-8 py-6">
           <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Order Number</p>
-          <p className="mt-1 font-mono text-xl font-bold text-gray-900">{orderNumber}</p>
+          <p className="mt-1 font-mono text-xl font-bold text-gray-900">{orderNumber || "—"}</p>
           <p className="mt-4 text-sm text-gray-500">
             If payment was made, it will be confirmed shortly. We will contact you to verify.
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
             <Link
               href="/products"
-              className="inline-flex items-center justify-center rounded-xl bg-brand-red px-5 py-3 text-sm font-bold text-white shadow hover:bg-red-700 transition"
+              className="inline-flex items-center justify-center rounded-xl bg-brand-red px-5 py-3 text-sm font-bold text-white shadow transition hover:bg-red-700"
             >
               Continue Shopping
             </Link>
             <Link
               href="/dashboard"
-              className="inline-flex items-center justify-center rounded-xl border-2 border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition"
+              className="inline-flex items-center justify-center rounded-xl border-2 border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
             >
               My Orders
             </Link>
@@ -132,14 +131,16 @@ function PaymentReturnContent() {
 
 export default function PaymentReturnPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-          <p className="text-gray-500">Loading payment details…</p>
-        </div>
-      }
-    >
-      <PaymentReturnContent />
-    </Suspense>
+    <div className="min-h-screen bg-gray-50 pt-20">
+      <Suspense
+        fallback={
+          <div className="flex min-h-[400px] items-center justify-center">
+            <p className="text-gray-500">Loading payment details...</p>
+          </div>
+        }
+      >
+        <ReturnContent />
+      </Suspense>
+    </div>
   );
 }
