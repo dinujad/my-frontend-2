@@ -49,7 +49,6 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 }
 
 // No generateStaticParams: avoids API fetch during `next build` (ECONNREFUSED when backend is offline).
-
 export default async function CategoryPage({ params, searchParams }: Props) {
   const { slug } = await params;
   const page = Math.max(1, parseInt((await searchParams).page ?? "1", 10) || 1);

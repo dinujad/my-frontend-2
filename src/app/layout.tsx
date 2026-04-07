@@ -10,7 +10,6 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://printworks.lk";
 
 /** Avoid static prerender of the whole tree; prevents build failures (ReactCurrentBatchConfig) with client layout + RSC pages. */
 export const dynamic = "force-dynamic";
-
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {

@@ -547,7 +547,6 @@ function ProductsClientInner({
     </main>
   );
 }
-
 function ProductsSearchParamsReader(props: ProductsClientProps) {
   const searchParams = useSearchParams();
   return (

@@ -14,7 +14,6 @@ export function PaymentReturnClient() {
       setStatus("failed");
       return;
     }
-
     let attempts = 0;
     const maxAttempts = 8;
 
