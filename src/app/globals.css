@@ -1,0 +1,118 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground: #0a0a0a;
+  --background: #fafafa;
+  --brand-red: #ff1f40;
+  --brand-red-dark: #be0029;
+  --nav-dark: #626262;
+  --muted: #96989a;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+}
+
+@keyframes line-draw {
+  from {
+    stroke-dashoffset: 2000;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-line-draw {
+  animation: line-draw 1.5s ease-out forwards;
+}
+
+@keyframes scroll-x {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-50% - 0.5rem)); /* 0.5rem = 8px = half of gap-4 */
+  }
+}
+
+.animate-scroll-x {
+  animation: scroll-x 25s linear infinite;
+}
+
+.animate-scroll-x-reverse {
+  animation: scroll-x 30s linear infinite reverse;
+}
+
+/* AI Helper Robot – bottom right, no background */
+.ai-helper-robot #body {
+  animation: robot-hover 1.1s ease-in-out 0s infinite alternate;
+}
+.ai-helper-robot #head {
+  animation: robot-hover 1.1s ease-in-out 0.05s infinite alternate;
+}
+.ai-helper-robot #left_arm {
+  transform-origin: center right;
+  animation: robot-arms-left 1.1s ease-in-out 0s infinite alternate;
+}
+.ai-helper-robot #right_arm {
+  transform-origin: center left;
+  animation: robot-arms-right 1.1s ease-in-out 0s infinite alternate;
+}
+.ai-helper-robot #eyes ellipse {
+  transform-origin: center center;
+  animation: robot-eyes-blink 2s ease-out 0s infinite;
+}
+.ai-helper-robot #shadow {
+  transform-origin: center center;
+  animation: robot-shadow 1.1s ease-in-out 0s infinite alternate;
+}
+
+@keyframes robot-hover {
+  0% {
+    transform: translate3d(0, 80px, 0);
+  }
+  100% {
+    transform: translate3d(0, 30px, 0);
+  }
+}
+@keyframes robot-shadow {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1.5, 1.2);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1, 1);
+    opacity: 0.2;
+  }
+}
+@keyframes robot-arms-left {
+  0% {
+    transform: translate3d(0, 80px, 0) rotate(0deg);
+  }
+  100% {
+    transform: translate3d(0, 30px, 0) rotate(-10deg);
+  }
+}
+@keyframes robot-arms-right {
+  0% {
+    transform: translate3d(0, 80px, 0) rotate(0deg);
+  }
+  100% {
+    transform: translate3d(0, 30px, 0) rotate(10deg);
+  }
+}
+@keyframes robot-eyes-blink {
+  0%,
+  90% {
+    transform: scale(1, 1);
+  }
+  95% {
+    transform: scale(0.8, 0);
+  }
+  100% {
+    transform: scale(1, 1);
+  }
+}
