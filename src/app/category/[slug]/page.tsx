@@ -2,18 +2,8 @@
 // /category/[slug] -> redirects to /product-category/[slug]
 
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import {
-  getCategoryBySlug,
-  getProductsByCategorySlug,
-  getAllCategorySlugs,
-  SITE_URL,
-} from "@/lib/products-data";
-import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
-import { catalogImageSrc } from "@/lib/media-url";
-
-const PRODUCTS_PER_PAGE = 12;
+import { getCategoryBySlug, SITE_URL } from "@/lib/products-data";
 
 // Always render fresh so newly-added/updated category descriptions show immediately.
 export const dynamic = "force-dynamic";
@@ -32,7 +22,8 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const baseUrl = `${SITE_URL}/product-category/${slug}`;
   const canonical = page === 1 ? baseUrl : `${baseUrl}?page=${page}`;
 
-  const title = page === 1 ? `${category.name} | Print Works.LK` : `${category.name} (Page ${page}) | Print Works.LK`;
+  const title =
+    page === 1 ? `${category.name} | Print Works.LK` : `${category.name} (Page ${page}) | Print Works.LK`;
   const descriptionText = category.description || "";
   const description =
     descriptionText.slice(0, 155) + (descriptionText.length > 155 ? "…" : "");
@@ -57,13 +48,9 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   };
 }
 
-export async function generateStaticParams(): Promise<{ slug: string }[]> {
-  const slugs = await getAllCategorySlugs();
-  return slugs.map((slug) => ({ slug }));
-}
+// No generateStaticParams: avoids API fetch during `next build` (ECONNREFUSED when backend is offline).
 
 export default async function CategoryPage({ params, searchParams }: Props) {
-  // Deprecated: /category/[slug] -> redirect to /product-category/[slug]
   const { slug } = await params;
   const page = Math.max(1, parseInt((await searchParams).page ?? "1", 10) || 1);
   const query = page > 1 ? `?page=${page}` : "";
