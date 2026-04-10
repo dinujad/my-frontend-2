@@ -86,42 +86,65 @@ function apiUrl(endpoint: string): string {
   return `${API_BASE_URL}/api/v1${endpoint}`;
 }
 
+/** Next.js throws this during static prerender when no-store fetch is used — must rethrow, not treat as network failure */
+function isNextDynamicServerError(e: unknown): boolean {
+  if (!e || typeof e !== "object") return false;
+  const err = e as Error & { digest?: string };
+  const msg = err.message ?? "";
+  return msg.includes("Dynamic server usage") || err.digest === "DYNAMIC_SERVER_USAGE";
+}
+
 /**
  * JSON array endpoints (categories list, products list, by-category).
  */
 async function apiFetchList<T>(endpoint: string): Promise<T[]> {
-  const res = await fetch(apiUrl(endpoint), fetchOptions);
-  // 404 is normal (empty list / missing category) — never log (Next.js dev overlay treats console.error as fatal-looking)
-  if (res.status === 404) {
+  try {
+    const res = await fetch(apiUrl(endpoint), fetchOptions);
+    // 404 is normal (empty list / missing category) — never log (Next.js dev overlay treats console.error as fatal-looking)
+    if (res.status === 404) {
+      return [];
+    }
+    if (!res.ok) {
+      const detail = await res.text().catch(() => "");
+      console.warn(`[products-data] ${endpoint} → ${res.status}`, detail.slice(0, 300));
+      return [];
+    }
+    const data: unknown = await res.json();
+    return Array.isArray(data) ? (data as T[]) : [];
+  } catch (e) {
+    if (isNextDynamicServerError(e)) throw e;
+    // ECONNREFUSED / DNS / TLS when API is down or wrong NEXT_PUBLIC_API_URL — do not crash SSR
+    const code = e && typeof e === "object" && "cause" in e ? (e as { cause?: { code?: string } }).cause?.code : undefined;
+    console.warn(`[products-data] ${endpoint} fetch failed`, code ?? e);
     return [];
   }
-  if (!res.ok) {
-    const detail = await res.text().catch(() => "");
-    console.warn(`[products-data] ${endpoint} → ${res.status}`, detail.slice(0, 300));
-    return [];
-  }
-  const data: unknown = await res.json();
-  return Array.isArray(data) ? (data as T[]) : [];
 }
 
 /**
  * Single resource (product or category by slug). Never returns [] on error — that broke callers that treated truthy [] as a product.
  */
 async function apiFetchOne<T extends object>(endpoint: string): Promise<T | null> {
-  const res = await fetch(apiUrl(endpoint), fetchOptions);
-  if (res.status === 404) {
+  try {
+    const res = await fetch(apiUrl(endpoint), fetchOptions);
+    if (res.status === 404) {
+      return null;
+    }
+    if (!res.ok) {
+      const detail = await res.text().catch(() => "");
+      console.warn(`[products-data] ${endpoint} → ${res.status}`, detail.slice(0, 300));
+      return null;
+    }
+    const data: unknown = await res.json();
+    if (!data || typeof data !== "object" || Array.isArray(data)) {
+      return null;
+    }
+    return data as T;
+  } catch (e) {
+    if (isNextDynamicServerError(e)) throw e;
+    const code = e && typeof e === "object" && "cause" in e ? (e as { cause?: { code?: string } }).cause?.code : undefined;
+    console.warn(`[products-data] ${endpoint} fetch failed`, code ?? e);
     return null;
   }
-  if (!res.ok) {
-    const detail = await res.text().catch(() => "");
-    console.warn(`[products-data] ${endpoint} → ${res.status}`, detail.slice(0, 300));
-    return null;
-  }
-  const data: unknown = await res.json();
-  if (!data || typeof data !== "object" || Array.isArray(data)) {
-    return null;
-  }
-  return data as T;
 }
 
 export async function getAllCategories(): Promise<CategoryItem[]> {
