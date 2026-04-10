@@ -79,6 +79,94 @@ export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://printworks.
 /** Laravel API origin. Production: point at your API host, e.g. https://api.printworks.lk */
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
+/**
+ * Fallback when the API omits `image` or returns a bad URL.
+ * (Avoid `/images/placeholder.jpg` — that file is not in the repo.)
+ */
+export const PRODUCT_IMAGE_PLACEHOLDER = "/images/logo.png";
+
+/**
+ * Laravel often returns absolute media URLs (e.g. `http://172.20.10.3:8000/storage/...`) while
+ * `NEXT_PUBLIC_API_URL` may still be `http://localhost:8000`. `next/image` only allows configured
+ * hosts, so those LAN URLs throw at render time. Same-origin paths use `next.config` rewrites to the API.
+ */
+function isPrivateOrLanHost(hostname: string): boolean {
+  const h = hostname.toLowerCase();
+  if (h === "localhost" || h === "127.0.0.1") return true;
+  return /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(h);
+}
+
+/**
+ * Map API/LAN media to same-origin paths for `next/image` + rewrites.
+ * Any other absolute URL that is not in `images.remotePatterns` will crash the client — use placeholder.
+ */
+function normalizeProductImageSrc(url: string | null | undefined): string {
+  if (!url?.trim()) return PRODUCT_IMAGE_PLACEHOLDER;
+  let raw = url.trim();
+  // Protocol-relative URLs: new URL("//host/...") throws without a base
+  if (raw.startsWith("//")) {
+    raw = `https:${raw}`;
+  }
+  if (raw.startsWith("/")) return raw;
+
+  const base = API_BASE_URL.replace(/\/$/, "");
+  if (raw.startsWith(`${base}/`)) {
+    return raw.slice(base.length);
+  }
+
+  let parsed: URL;
+  try {
+    parsed = new URL(raw);
+  } catch {
+    return PRODUCT_IMAGE_PLACEHOLDER;
+  }
+
+  let api: URL;
+  try {
+    api = new URL(API_BASE_URL);
+  } catch {
+    return PRODUCT_IMAGE_PLACEHOLDER;
+  }
+
+  if (parsed.origin === api.origin) {
+    return `${parsed.pathname}${parsed.search}`;
+  }
+
+  const path = `${parsed.pathname}${parsed.search}`;
+  const isMediaPath =
+    parsed.pathname.startsWith("/storage/") || parsed.pathname.startsWith("/images/");
+
+  if (isMediaPath) {
+    const h = parsed.hostname.toLowerCase();
+    const apiHost = api.hostname.toLowerCase();
+    if (h === apiHost || isPrivateOrLanHost(h)) {
+      return path;
+    }
+  }
+
+  const host = parsed.hostname.toLowerCase();
+  if (host === "images.unsplash.com") return raw;
+  if (host === "printworks.lk" || host.endsWith(".printworks.lk")) return raw;
+
+  if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+    return PRODUCT_IMAGE_PLACEHOLDER;
+  }
+
+  return PRODUCT_IMAGE_PLACEHOLDER;
+}
+
+function normalizeProduct(p: ProductItem): ProductItem {
+  return {
+    ...p,
+    image: normalizeProductImageSrc(p.image),
+    gallery: p.gallery?.map((g) => normalizeProductImageSrc(g)),
+    variations: p.variations?.map((v) => ({
+      ...v,
+      image: v.image != null ? normalizeProductImageSrc(v.image) : null,
+    })),
+  };
+}
+
 // Disable fetch caching so category/product pages reflect admin changes immediately.
 const fetchOptions = { cache: "no-store" } as const;
 
@@ -163,13 +251,14 @@ export async function getAllCategorySlugs(): Promise<string[]> {
 }
 
 export async function getAllProducts(): Promise<ProductItem[]> {
-  return apiFetchList<ProductItem>("/products");
+  const list = await apiFetchList<ProductItem>("/products");
+  return list.map(normalizeProduct);
 }
 
 export async function getProductBySlug(slug: string): Promise<ProductItem | undefined> {
   if (!slug?.trim()) return undefined;
   const prod = await apiFetchOne<ProductItem>(`/products/${encodeURIComponent(slug)}`);
-  return prod ?? undefined;
+  return prod ? normalizeProduct(prod) : undefined;
 }
 
 export async function getAllProductSlugs(): Promise<string[]> {
@@ -179,7 +268,10 @@ export async function getAllProductSlugs(): Promise<string[]> {
 
 export async function getProductsByCategorySlug(categorySlug: string): Promise<ProductItem[]> {
   if (!categorySlug?.trim()) return [];
-  return apiFetchList<ProductItem>(`/products/by-category/${encodeURIComponent(categorySlug)}`);
+  const list = await apiFetchList<ProductItem>(
+    `/products/by-category/${encodeURIComponent(categorySlug)}`
+  );
+  return list.map(normalizeProduct);
 }
 
 /**

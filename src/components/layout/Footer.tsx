@@ -1,60 +1,8 @@
 "use client";
 
-import { useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Stars, Float, MeshDistortMaterial, Sphere } from "@react-three/drei";
-import * as THREE from "three";
 import { usePathname } from "next/navigation";
-
-function FooterBackground() {
-  const groupRef = useRef<THREE.Group>(null);
-
-  useFrame((_, delta) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y += delta * 0.05;
-      groupRef.current.rotation.x -= delta * 0.02;
-    }
-  });
-
-  return (
-    <group ref={groupRef}>
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[5, 5, 5]} intensity={2} />
-
-      <Stars radius={100} depth={50} count={2000} factor={3} saturation={0} fade speed={1} />
-
-      <Float speed={1.5} rotationIntensity={1} floatIntensity={1}>
-        <Sphere args={[2, 64, 64]} position={[5, -1, -3]}>
-          <MeshDistortMaterial
-            color="#FF1F40"
-            attach="material"
-            distort={0.4}
-            speed={2}
-            roughness={0.2}
-            metalness={0.8}
-            wireframe
-          />
-        </Sphere>
-      </Float>
-
-      <Float speed={2} rotationIntensity={1} floatIntensity={1.5}>
-        <Sphere args={[1.5, 64, 64]} position={[-6, 1, -4]}>
-          <MeshDistortMaterial
-            color="#ffffff"
-            attach="material"
-            distort={0.3}
-            speed={1.5}
-            roughness={0.5}
-            metalness={0.8}
-            wireframe
-          />
-        </Sphere>
-      </Float>
-    </group>
-  );
-}
 
 const SERVICES = [
     "Acrylic Laser Cutting",
@@ -78,12 +26,12 @@ export function Footer() {
             suppressHydrationWarning
         >
             <div
-                className="absolute inset-0 z-0 opacity-40 pointer-events-none"
+                className="pointer-events-none absolute inset-0 z-0 opacity-40"
+                aria-hidden
                 suppressHydrationWarning
             >
-                <Canvas camera={{ position: [0, 0, 8], fov: 60 }}>
-                    <FooterBackground />
-                </Canvas>
+                <div className="absolute -right-16 top-1/4 h-72 w-72 rounded-full bg-brand-red/25 blur-[100px]" />
+                <div className="absolute -left-20 bottom-1/3 h-64 w-64 rounded-full bg-white/10 blur-[90px]" />
             </div>
 
             <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">

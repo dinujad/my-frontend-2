@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { Suspense, useRef } from "react";
 import gsap from "gsap";
 // @ts-ignore
 import { Flip } from "gsap/Flip";
@@ -108,9 +108,11 @@ export function AnimatedCategories() {
         <section ref={containerRef} className="relative w-full h-[80vh] min-h-[600px] bg-black overflow-hidden select-none font-sans">
             {/* 3D Background */}
             <div className="absolute inset-0 z-0 opacity-80 pointer-events-none">
-                <Canvas camera={{ position: [0, 0, 6], fov: 60 }}>
-                    <DynamicBackground />
-                </Canvas>
+                <Suspense fallback={null}>
+                    <Canvas camera={{ position: [0, 0, 6], fov: 60 }}>
+                        <DynamicBackground />
+                    </Canvas>
+                </Suspense>
             </div>
 
             <style jsx>{`

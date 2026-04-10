@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { Suspense, useRef, useState } from "react";
 import gsap from "gsap";
 import { Observer } from "gsap/all";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -101,10 +101,27 @@ export function AnimatedShowcase() {
     const [isHovered, setIsHovered] = useState(false);
 
     useGSAP(() => {
-        const sections = gsap.utils.toArray<HTMLElement>(".showcase-slide");
-        const outerWrappers = gsap.utils.toArray<HTMLElement>(".showcase-outer");
-        const innerWrappers = gsap.utils.toArray<HTMLElement>(".showcase-inner");
-        const sectionChars = sections.map(sec => gsap.utils.toArray<HTMLElement>(".split-char", sec));
+        const root = containerRef.current;
+        if (!root) return;
+
+        const sections = Array.from(root.querySelectorAll<HTMLElement>(".showcase-slide"));
+        const outerWrappers = Array.from(root.querySelectorAll<HTMLElement>(".showcase-outer"));
+        const innerWrappers = Array.from(root.querySelectorAll<HTMLElement>(".showcase-inner"));
+
+        if (
+            sections.length === 0 ||
+            sections.length !== outerWrappers.length ||
+            sections.length !== innerWrappers.length
+        ) {
+            return;
+        }
+
+        const sectionChars = sections.map((sec) =>
+            Array.from(sec.querySelectorAll<HTMLElement>(".split-char"))
+        );
+        if (sectionChars.some((chars) => chars.length === 0)) {
+            return;
+        }
 
         // Initial setup
         gsap.set(outerWrappers, { yPercent: 100 });
@@ -116,12 +133,12 @@ export function AnimatedShowcase() {
 
         const tl = gsap.timeline({
             scrollTrigger: {
-                trigger: containerRef.current,
+                trigger: root,
                 start: "top top",
                 end: `+=${sections.length * 100}%`,
                 scrub: 1, // Smooth scrub
                 pin: true,
-            }
+            },
         });
 
         sections.forEach((sec, idx) => {
@@ -131,26 +148,38 @@ export function AnimatedShowcase() {
             tl.set(sections[idx - 1], { autoAlpha: 0 }, `slide${idx}+=1`);
 
             tl.set(sections[idx], { autoAlpha: 1, zIndex: 1 }, `slide${idx}`)
-                .fromTo([outerWrappers[idx], innerWrappers[idx]],
-                    { yPercent: i => i ? -100 : 100 },
-                    { yPercent: 0, ease: "none", duration: 1 }, `slide${idx}`);
+                .fromTo(
+                    [outerWrappers[idx], innerWrappers[idx]],
+                    { yPercent: (i) => (i ? -100 : 100) },
+                    { yPercent: 0, ease: "none", duration: 1 },
+                    `slide${idx}`
+                );
 
             // Text stagger effect inside the slide
-            tl.fromTo(sectionChars[idx], {
-                autoAlpha: 0,
-                yPercent: 150
-            }, {
-                autoAlpha: 1,
-                yPercent: 0,
-                stagger: 0.1,
-                ease: "power2.out",
-                duration: 0.5
-            }, `slide${idx}+=0.3`);
+            tl.fromTo(
+                sectionChars[idx],
+                {
+                    autoAlpha: 0,
+                    yPercent: 150,
+                },
+                {
+                    autoAlpha: 1,
+                    yPercent: 0,
+                    stagger: 0.1,
+                    ease: "power2.out",
+                    duration: 0.5,
+                },
+                `slide${idx}+=0.3`
+            );
 
             // Add a buffer so the user has time to read the text before it immediately scrolls away
             tl.to({}, { duration: 0.5 });
         });
 
+        return () => {
+            tl.scrollTrigger?.kill();
+            tl.kill();
+        };
     }, { scope: containerRef });
 
     return (
@@ -163,9 +192,11 @@ export function AnimatedShowcase() {
         >
             {/* 3D Canvas Background */}
             <div className="absolute inset-0 z-0 pointer-events-none">
-                <Canvas camera={{ position: [0, 0, 10], fov: 50 }}>
-                    <AbstractShapes />
-                </Canvas>
+                <Suspense fallback={null}>
+                    <Canvas camera={{ position: [0, 0, 10], fov: 50 }}>
+                        <AbstractShapes />
+                    </Canvas>
+                </Suspense>
             </div>
 
             {/* Overlay hint purely for UX */}

@@ -10,7 +10,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { dispatchProductHover } from "@/components/ai/aiChatCopy";
 
-import type { ProductItem } from "@/lib/products-data";
+import { PRODUCT_IMAGE_PLACEHOLDER, type ProductItem } from "@/lib/products-data";
 
 const tabs = ["Featured", "On Sale", "Top Rated"];
 
@@ -22,7 +22,12 @@ export function FeaturedProducts({ products = [] }: { products: ProductItem[] })
     const featured = [...products].reverse().slice(0, 8); // Latest added products
     
     // On Sale (products with badge or oldPrice)
-    const saleItems = products.filter(p => p.oldPrice || p.badge || p.price.toString().includes('–'));
+    const saleItems = products.filter(
+        (p) =>
+            p.oldPrice ||
+            p.badge ||
+            (p.price != null && String(p.price).includes("–"))
+    );
     const onSale = saleItems.length > 0 ? saleItems.slice(0, 8) : featured;
     
     // Top Rated (fallback to featured if ratings miss)
@@ -56,24 +61,24 @@ export function FeaturedProducts({ products = [] }: { products: ProductItem[] })
     };
 
     return (
-        <section className="bg-white py-12 border-t border-gray-100">
+        <section className="border-t border-gray-100 bg-white py-10 sm:py-12">
             <div className="mx-auto max-w-[90rem] px-4 sm:px-6 lg:px-8">
-                <div className="flex flex-col lg:flex-row gap-6">
+                <div className="flex flex-col gap-6 lg:flex-row">
 
                     {/* Left Sidebar - Special Offer */}
-                    <div className="relative w-full lg:w-1/4 xl:w-1/5 shrink-0 z-10 lg:ml-6 mt-8 lg:mt-[48px] lg:self-start flex flex-col gap-6">
+                    <div className="relative z-10 mt-3 flex w-full shrink-0 flex-col gap-4 sm:mt-5 lg:ml-6 lg:mt-[48px] lg:w-1/4 lg:gap-6 lg:self-start xl:w-1/5">
                         {specialOffers.map((offer) => (
-                            <Link href={`/product/${offer.slug}`} key={offer.id} className="block border border-brand-red rounded-xl pt-6 pb-6 px-6 flex flex-col bg-white hover:shadow-lg transition-shadow duration-300">
+                            <Link href={`/product/${offer.slug}`} key={offer.id} className="block rounded-xl border border-brand-red bg-white px-4 pb-4 pt-4 transition-shadow duration-300 hover:shadow-lg sm:px-5 sm:pb-5 sm:pt-5 lg:px-6 lg:pb-6 lg:pt-6">
 
                                 <div className="w-full text-left mb-4">
-                                    <h3 className="text-2xl text-gray-900 font-normal tracking-wide">Special Offer</h3>
+                                    <h3 className="text-xl font-normal tracking-wide text-gray-900 sm:text-2xl">Special Offer</h3>
                                 </div>
 
                                 <div className="relative w-full flex-grow flex items-center justify-center">
                                     {/* Constrain aspect ratio nicely tightly to layout */}
                                     <div className="relative w-full pt-[90%]">
                                         <Image
-                                            src={offer.image || '/images/placeholder.jpg'}
+                                            src={offer.image || PRODUCT_IMAGE_PLACEHOLDER}
                                             alt={offer.title}
                                             fill
                                             className="object-contain hover:scale-105 transition-transform duration-500 cursor-pointer"
@@ -82,10 +87,10 @@ export function FeaturedProducts({ products = [] }: { products: ProductItem[] })
                                 </div>
 
                                 <div className="text-center w-full px-2 mt-2">
-                                    <h4 className="text-gray-900 font-bold text-[13px] mb-6 cursor-pointer hover:text-brand-red transition-colors line-clamp-2 leading-tight">
+                                    <h4 className="mb-4 line-clamp-2 cursor-pointer text-[13px] font-bold leading-tight text-gray-900 transition-colors hover:text-brand-red sm:mb-6">
                                         {offer.title}
                                     </h4>
-                                    <div className="text-[34px] font-normal text-gray-900 tracking-tight leading-none">
+                                    <div className="text-[30px] font-normal leading-none tracking-tight text-gray-900 sm:text-[34px]">
                                         {offer.price}
                                     </div>
                                 </div>
@@ -97,12 +102,12 @@ export function FeaturedProducts({ products = [] }: { products: ProductItem[] })
                     <div className="w-full lg:w-3/4 xl:w-4/5 flex flex-col">
 
                         {/* Tabs Header */}
-                        <div className="flex justify-center sm:justify-center lg:justify-center border-b border-gray-200 mb-6 relative">
+                        <div className="relative mb-5 flex justify-start overflow-x-auto border-b border-gray-200 sm:mb-6 sm:justify-center">
                             {tabs.map((tab) => (
                                 <button
                                     key={tab}
                                     onClick={() => handleTabChange(tab)}
-                                    className={`relative px-6 py-3 text-sm lg:text-base font-bold transition-colors duration-300 ${activeTab === tab ? "text-gray-900" : "text-gray-500 hover:text-gray-900"
+                                    className={`relative shrink-0 px-4 py-3 text-sm font-bold transition-colors duration-300 sm:px-6 lg:text-base ${activeTab === tab ? "text-gray-900" : "text-gray-500 hover:text-gray-900"
                                         }`}
                                 >
                                     {tab}
@@ -123,11 +128,11 @@ export function FeaturedProducts({ products = [] }: { products: ProductItem[] })
                         <div
                             className={`flex-1 transition-opacity duration-300 ${isAnimating ? 'opacity-0' : 'opacity-100'}`}
                         >
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 border-t border-l border-gray-200">
+                            <div className="grid grid-cols-1 border-t border-l border-gray-200 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                                 {currentTabProducts.map((product) => (
                                     <Link href={`/product/${product.slug}`}
                                         key={product.id}
-                                        className="block group relative flex flex-col bg-white border-r border-b border-gray-200 p-5 hover:shadow-[0_0_20px_rgba(0,0,0,0.08)] hover:z-10 transition-shadow duration-300"
+                                        className="group relative block flex flex-col border-r border-b border-gray-200 bg-white p-4 transition-shadow duration-300 hover:z-10 hover:shadow-[0_0_20px_rgba(0,0,0,0.08)] sm:p-5"
                                     >
                                         <div className="mb-2 flex items-center gap-2 flex-wrap">
                                             <span className="text-[11px] text-gray-400 font-medium truncate block">
@@ -149,7 +154,7 @@ export function FeaturedProducts({ products = [] }: { products: ProductItem[] })
 
                                         <div className="relative aspect-square w-full mb-6 flex items-center justify-center">
                                             <Image
-                                                src={product.image || '/images/placeholder.jpg'}
+                                                src={product.image || PRODUCT_IMAGE_PLACEHOLDER}
                                                 alt={product.title}
                                                 fill
                                                 className="object-contain transition-transform duration-500 group-hover:scale-105 cursor-pointer p-4 mix-blend-multiply"

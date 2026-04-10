@@ -50,29 +50,29 @@ export function PromotionalBanners() {
     ];
 
     return (
-        <section className="bg-white py-12 border-t border-gray-100 overflow-hidden">
+        <section className="overflow-hidden border-t border-gray-100 bg-white py-10 sm:py-12">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[2px] bg-white">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-[2px] lg:grid-cols-4">
                     {banners.map((banner, index) => (
                         <Link
                             key={index}
                             href={banner.href}
-                            className="group relative flex items-center bg-[#f5f6f8] h-[150px] px-4 py-4 overflow-hidden transition-all hover:shadow-md"
+                            className="group relative flex min-h-[148px] items-center overflow-hidden rounded-xl bg-[#f5f6f8] px-3.5 py-3.5 transition-all hover:shadow-md sm:h-[150px] sm:rounded-none sm:px-4 sm:py-4"
                         >
                             {/* Product Image on Left */}
-                            <div className="relative z-10 w-[45%] h-full flex items-center justify-center -ml-2 transition-transform duration-300 group-hover:scale-105">
+                            <div className="relative z-10 -ml-1 flex h-full w-[42%] items-center justify-center transition-transform duration-300 group-hover:scale-105 sm:-ml-2 sm:w-[45%]">
                                 <Image
                                     src={banner.image}
                                     alt={banner.alt}
                                     width={150}
                                     height={150}
-                                    className="object-contain w-full max-h-[100px] drop-shadow-md mix-blend-multiply"
+                                    className="max-h-[88px] w-full object-contain drop-shadow-md mix-blend-multiply sm:max-h-[100px]"
                                 />
                             </div>
 
                             {/* Text Content on Right */}
-                            <div className="relative z-20 w-[55%] flex flex-col justify-center pl-2">
-                                <h3 className="text-[12px] sm:text-[13px] text-gray-500 tracking-wide leading-[1.3] font-medium uppercase">
+                            <div className="relative z-20 flex w-[58%] flex-col justify-center pl-2 sm:w-[55%]">
+                                <h3 className="text-[11px] font-medium uppercase leading-[1.25] tracking-wide text-gray-500 sm:text-[13px]">
                                     {banner.title}
 
                                     {!banner.hasDiscount && banner.boldText && (
@@ -92,7 +92,7 @@ export function PromotionalBanners() {
                                     )}
                                 </h3>
 
-                                <div className="mt-3 flex items-center h-8">
+                                <div className="mt-2.5 flex h-8 items-center sm:mt-3">
                                     {banner.hasDiscount ? (
                                         <div className="flex items-start text-brand-red">
                                             <div className="flex flex-col justify-end h-full pb-1 mr-1">
