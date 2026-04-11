@@ -11,7 +11,7 @@ import Image from "next/image";
 import { useCartStore } from "@/stores/cart-store";
 import { useWishlistStore } from "@/stores/wishlist-store";
 import { useQuoteCartStore } from "@/stores/quote-cart-store";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { getAllCategories, type CategoryItem } from "@/lib/products-data";
 import { useAuthStore } from "@/stores/auth-store";
@@ -121,6 +121,7 @@ export function Header() {
   const pathname = usePathname();
   const isHomePage = pathname === "/";
   const [departments, setDepartments] = useState<CategoryItem[]>([]);
+  const departmentsNavRef = useRef<HTMLDivElement>(null);
 
   // Department list (names + slugs) from backend API so adding a new category
   // in admin automatically shows up in the header menu on next page load.
@@ -165,6 +166,26 @@ export function Header() {
     document.addEventListener("click", close);
     return () => document.removeEventListener("click", close);
   }, [categoryOpen]);
+
+  useEffect(() => {
+    setShopCategoriesOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!shopCategoriesOpen) return;
+    const handlePointerDown = (e: MouseEvent | TouchEvent) => {
+      const el = departmentsNavRef.current;
+      if (el && !el.contains(e.target as Node)) {
+        setShopCategoriesOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("touchstart", handlePointerDown, { passive: true });
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("touchstart", handlePointerDown);
+    };
+  }, [shopCategoriesOpen]);
 
   if (pathname?.startsWith("/admin")) return null;
 
@@ -423,24 +444,28 @@ export function Header() {
         >
           {/* Shop By Categories / All Departments */}
           <div
-            className="group relative w-full md:w-[280px] shrink-0"
+            ref={departmentsNavRef}
+            className="group relative w-full shrink-0 md:w-[280px]"
             onMouseEnter={() => !isHomePage && setShopCategoriesOpen(true)}
             onMouseLeave={() => !isHomePage && setShopCategoriesOpen(false)}
           >
             <button
               type="button"
-              className="flex w-full items-center gap-3 bg-brand-red text-white py-3.5 px-6 font-bold transition-colors hover:bg-brand-red-dark h-full text-sm md:text-base border-r border-gray-100"
+              className="flex h-full w-full items-center gap-3 border-r border-gray-100 bg-brand-red px-6 py-3.5 text-sm font-bold text-white transition-colors hover:bg-brand-red-dark md:text-base"
+              aria-expanded={shopCategoriesOpen}
+              aria-controls="departments-menu"
+              onClick={() => setShopCategoriesOpen((o) => !o)}
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
               All Departments
             </button>
 
-            {/* Dropdown Menu */}
+            {/* Dropdown: mobile = toggle only; md+ home = always open; md+ other = hover via shopCategoriesOpen */}
             <div
-              className={`absolute left-0 top-full z-50 w-full bg-white border-b border-l border-r border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.08)] text-sm ${isHomePage || shopCategoriesOpen
-                ? "block"
-                : "hidden"
-                }`}
+              id="departments-menu"
+              className={`absolute left-0 top-full z-50 w-full border-b border-l border-r border-gray-100 bg-white text-sm shadow-[0_8px_30px_rgb(0,0,0,0.08)] ${
+                shopCategoriesOpen ? "block" : "hidden"
+              } ${isHomePage ? "md:block" : ""}`}
               suppressHydrationWarning
             >
               <div className="flex flex-col w-full relative divide-y divide-gray-50/50">
