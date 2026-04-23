@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import * as Dialog from "@radix-ui/react-dialog";
 import type { ProductItem, ProductVariationItem } from "@/lib/products-data";
@@ -10,6 +10,7 @@ import { useQuoteCartStore } from "@/stores/quote-cart-store";
 import { useToast } from "@/components/ui/ToastProvider";
 import { clsx } from "clsx";
 import { ProductCustomizationFields } from "./ProductCustomizationFields";
+import { useProductGalleryStore } from "@/stores/product-gallery-store";
 
 function fmtRs(n: number) {
   return `Rs. ${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -73,10 +74,33 @@ export default function ProductInteractive({ product }: { product: ProductItem }
   const inWishlist = useWishlistStore((s) => s.has(wishlistId));
   const addWishlist = useWishlistStore((s) => s.add);
   const removeWishlist = useWishlistStore((s) => s.remove);
+  const setVariationImage = useProductGalleryStore((s) => s.setVariationImage);
+  const resetGallery = useProductGalleryStore((s) => s.reset);
   const hasVariations = Boolean(product.variations && product.variations.length > 0);
   const [selectedVariationId, setSelectedVariationId] = useState<number | null>(
     hasVariations ? product.variations![0].id : null
   );
+
+  // Sync gallery with first variation image on mount, then on change
+  useEffect(() => {
+    if (!hasVariations) {
+      resetGallery();
+      return;
+    }
+    const firstVar = product.variations?.find((v) => v.id === selectedVariationId);
+    if (firstVar?.image) {
+      setVariationImage(firstVar.image);
+    } else {
+      resetGallery();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedVariationId]);
+
+  // Reset store on unmount (navigating away)
+  useEffect(() => {
+    return () => resetGallery();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [qty, setQty] = useState(1);
   const [customizationValues, setCustomizationValues] = useState<Record<number, string>>({});
   const [customizationFiles, setCustomizationFiles] = useState<Record<number, File>>({});
@@ -269,16 +293,16 @@ export default function ProductInteractive({ product }: { product: ProductItem }
 
   return (
     <>
-      <div className="mt-8 space-y-6 border-t border-gray-100 pt-8">
+      <div className="mt-5 space-y-5 border-t border-gray-100 pt-5 sm:mt-8 sm:space-y-6 sm:pt-8">
         {/* 1. Price */}
         <section aria-label="Price">
           <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Price</p>
-          <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <span className="text-4xl font-extrabold tracking-tight text-gray-900 tabular-nums sm:text-[2.5rem] sm:leading-none">
+          <div className="mt-1.5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <span className="text-3xl font-extrabold tracking-tight text-gray-900 tabular-nums sm:text-4xl sm:leading-none">
               {fmtRs(currentPricePerUnit)}
             </span>
             {product.oldPrice ? (
-              <span className="text-lg font-medium text-gray-400 line-through">{product.oldPrice}</span>
+              <span className="text-base font-medium text-gray-400 line-through sm:text-lg">{product.oldPrice}</span>
             ) : null}
           </div>
           {activeTiers.length > 0 ? (
@@ -524,7 +548,7 @@ export default function ProductInteractive({ product }: { product: ProductItem }
 
         {/* 4. Quantity + Total (same row desktop) */}
         <section
-          className="flex flex-col gap-4 rounded-2xl border border-gray-100 bg-gray-50/50 p-5 sm:flex-row sm:items-end sm:justify-between sm:gap-6"
+          className="flex flex-row items-end justify-between gap-4 rounded-2xl border border-gray-100 bg-gray-50/50 p-4 sm:p-5"
           aria-label="Quantity and total"
         >
           <div className="shrink-0">
@@ -565,9 +589,9 @@ export default function ProductInteractive({ product }: { product: ProductItem }
             </div>
           </div>
 
-          <div className="flex flex-1 flex-col items-stretch sm:items-end sm:text-right">
+          <div className="flex flex-1 flex-col items-end text-right">
             <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Total</span>
-            <p className="mt-1 text-3xl font-extrabold tracking-tight text-gray-900 tabular-nums sm:text-4xl">
+            <p className="mt-1 text-2xl font-extrabold tracking-tight text-gray-900 tabular-nums sm:text-3xl">
               {fmtRs(total)}
             </p>
             {customizationFilled && customizationFee > 0 ? (
@@ -579,8 +603,8 @@ export default function ProductInteractive({ product }: { product: ProductItem }
         </section>
 
         {/* 5. Actions */}
-        <section className="space-y-3" aria-label="Purchase actions">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch sm:gap-3">
+        <section className="space-y-2.5 sm:space-y-3" aria-label="Purchase actions">
+          <div className="flex flex-col gap-2.5 sm:flex-row sm:items-stretch sm:gap-3">
             <button
               type="button"
               onClick={handleWishlistToggle}

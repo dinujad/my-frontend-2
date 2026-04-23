@@ -165,11 +165,11 @@ export default async function ProductPage({ params }: Props) {
         {/* subtle top gradient */}
         <div className="pointer-events-none absolute inset-x-0 top-0 h-96 bg-gradient-to-b from-violet-100/40 via-transparent to-transparent" aria-hidden />
 
-        <div className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
+        <div className="relative mx-auto max-w-7xl px-3 py-5 sm:px-6 sm:py-8 lg:px-8 lg:py-12">
           <Breadcrumbs items={breadcrumbs} />
 
-          <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-14 lg:items-start">
-            {/* Gallery */}
+          <div className="mt-5 grid gap-6 sm:mt-8 sm:gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-14 lg:items-start">
+            {/* Gallery — constrained height on small phones so summary is still visible above the fold */}
             <div className="lg:sticky lg:top-24">
               <ProductGallery
                 title={product.title}
@@ -181,8 +181,8 @@ export default async function ProductPage({ params }: Props) {
 
             {/* Product summary */}
             <div className="flex flex-col">
-              <div className="rounded-3xl border border-white/60 bg-white/90 p-6 shadow-[0_25px_80px_-32px_rgba(15,23,42,0.18)] backdrop-blur-md sm:p-8">
-                <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-[2.35rem] lg:leading-tight">
+              <div className="rounded-2xl border border-white/60 bg-white/90 p-4 shadow-[0_25px_80px_-32px_rgba(15,23,42,0.18)] backdrop-blur-md sm:rounded-3xl sm:p-6 lg:p-8">
+                <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl lg:text-[2.35rem] lg:leading-tight">
                   {product.title}
                 </h1>
 
