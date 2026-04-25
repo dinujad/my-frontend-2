@@ -11,6 +11,7 @@ import { useToast } from "@/components/ui/ToastProvider";
 import { clsx } from "clsx";
 import { ProductCustomizationFields } from "./ProductCustomizationFields";
 import { useProductGalleryStore } from "@/stores/product-gallery-store";
+import { catalogImageSrc } from "@/lib/media-url";
 
 function fmtRs(n: number) {
   return `Rs. ${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -334,15 +335,33 @@ export default function ProductInteractive({ product }: { product: ProductItem }
                 <button
                   key={v.id}
                   type="button"
-                  onClick={() => setSelectedVariationId(v.id)}
+                  onClick={() => {
+                    setSelectedVariationId(v.id);
+                    const vimg = v.image?.trim();
+                    if (vimg) {
+                      setVariationImage(vimg);
+                    } else {
+                      resetGallery();
+                    }
+                  }}
                   className={clsx(
-                    "rounded-xl border px-4 py-2.5 text-sm font-semibold transition-all duration-200",
+                    "inline-flex max-w-full items-center gap-2 rounded-xl border px-3 py-2 text-sm font-semibold transition-all duration-200 sm:px-4 sm:py-2.5",
                     selectedVariationId === v.id
                       ? "border-brand-red bg-brand-red/5 text-brand-red shadow-sm ring-1 ring-brand-red/20"
                       : "border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50"
                   )}
                 >
-                  {Object.values(v.attributes || {}).join(" - ") || v.sku || `Option ${v.id}`}
+                  {v.image?.trim() ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={catalogImageSrc(v.image)}
+                      alt={v.image_alt?.trim() || `${product.title} option image`}
+                      className="h-9 w-9 shrink-0 rounded-lg border border-gray-200/80 bg-white object-contain p-0.5 sm:h-10 sm:w-10"
+                    />
+                  ) : null}
+                  <span className="min-w-0 truncate">
+                    {Object.values(v.attributes || {}).join(" - ") || v.sku || `Option ${v.id}`}
+                  </span>
                 </button>
               ))}
             </div>
@@ -351,14 +370,15 @@ export default function ProductInteractive({ product }: { product: ProductItem }
 
         {/* 3. Wholesale card */}
         {activeTiers.length > 0 && product.page_settings?.hide_tier_pricing != 1 && (
-          <section aria-label="Wholesale pricing">
-            <div className="overflow-hidden rounded-2xl border border-gray-200/90 bg-white shadow-[0_8px_30px_-12px_rgba(15,23,42,0.15)]">
-              <div className="flex items-center gap-2 border-b border-gray-100 bg-gradient-to-r from-slate-50 via-white to-slate-50/80 px-5 py-3.5">
+          <section aria-label="Wholesale pricing" className="min-w-0">
+            {/* Do not use overflow-hidden on the card — it clips horizontal scroll on mobile */}
+            <div className="rounded-2xl border border-gray-200/90 bg-white shadow-[0_8px_30px_-12px_rgba(15,23,42,0.15)]">
+              <div className="flex items-center gap-2 border-b border-gray-100 bg-gradient-to-r from-slate-50 via-white to-slate-50/80 px-4 py-3 sm:px-5 sm:py-3.5">
                 <i className="bi bi-tags-fill text-brand-red" aria-hidden />
                 <h3 className="text-sm font-bold text-gray-900">Volume pricing</h3>
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[280px] text-left text-sm">
+              <div className="-mx-px overflow-x-auto overscroll-x-contain px-2 pb-2 pt-0 sm:px-0 sm:pb-0">
+                <table className="w-full min-w-[300px] text-left text-sm sm:min-w-[280px]">
                   <thead>
                     <tr className="border-b border-gray-100 bg-gray-50/60 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
                       <th className="px-5 py-3">Quantity</th>
@@ -602,8 +622,8 @@ export default function ProductInteractive({ product }: { product: ProductItem }
           </div>
         </section>
 
-        {/* 5. Actions */}
-        <section className="space-y-2.5 sm:space-y-3" aria-label="Purchase actions">
+        {/* 5. Actions — extra bottom padding on mobile so content clears the fixed dock + Request Quote stays scrollable */}
+        <section className="space-y-2.5 pb-6 sm:space-y-3 sm:pb-0" aria-label="Purchase actions">
           <div className="flex flex-col gap-2.5 sm:flex-row sm:items-stretch sm:gap-3">
             <button
               type="button"
@@ -685,16 +705,16 @@ export default function ProductInteractive({ product }: { product: ProductItem }
         </section>
       </div>
 
-      {/* Mobile sticky */}
+      {/* Mobile sticky — z-50 so it stays above page chrome; full "Request quote" label */}
       <div
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200/90 bg-white/95 p-4 shadow-[0_-12px_40px_rgba(15,23,42,0.12)] backdrop-blur-md md:hidden pb-[max(1rem,env(safe-area-inset-bottom))]"
+        className="fixed inset-x-0 bottom-0 z-50 border-t border-gray-200/90 bg-white/95 p-3 shadow-[0_-12px_40px_rgba(15,23,42,0.12)] backdrop-blur-md md:hidden pb-[max(0.75rem,env(safe-area-inset-bottom))]"
         role="region"
-        aria-label="Quick add to cart"
+        aria-label="Quick purchase"
       >
-        <div className="mx-auto flex max-w-lg items-stretch gap-3">
-          <div className="min-w-0 flex-1 py-0.5">
+        <div className="mx-auto flex max-w-lg items-stretch gap-2.5">
+          <div className="min-w-0 flex-1 py-0.5 pr-1">
             <p className="text-[10px] font-bold uppercase tracking-wide text-gray-500">Total</p>
-            <p className="truncate text-xl font-extrabold tabular-nums text-gray-900">{fmtRs(total)}</p>
+            <p className="truncate text-lg font-extrabold tabular-nums text-gray-900 sm:text-xl">{fmtRs(total)}</p>
           </div>
           <button
             type="button"
@@ -721,19 +741,25 @@ export default function ProductInteractive({ product }: { product: ProductItem }
               });
               if (!alreadyInQuote) showToast("Added to quote request!", "success");
             }}
-            className="flex h-12 min-h-[48px] items-center justify-center gap-2 rounded-xl border-2 border-brand-red bg-red-50 px-3 text-sm font-bold text-brand-red transition active:scale-[0.98]"
+            className="flex min-h-[48px] min-w-[7.25rem] shrink-0 items-center justify-center gap-1 rounded-xl border-2 border-brand-red bg-red-50 px-3 py-2 text-[11px] font-extrabold leading-none text-brand-red transition active:scale-[0.98] sm:text-xs"
           >
-            <i className="bi bi-file-earmark-text text-base" aria-hidden />
-            {inQuoteCart(product.id, selectedVariationId) ? "View Quote" : "Quote"}
+            <i className="bi bi-file-earmark-text shrink-0 text-base" aria-hidden />
+            <span className="text-center whitespace-nowrap">
+              {inQuoteCart(product.id, selectedVariationId) ? (
+                <>View Quote</>
+              ) : (
+                <>Request Quote</>
+              )}
+            </span>
           </button>
           <button
             type="button"
             disabled={cannotBuy}
             onClick={() => handleAddToCart()}
-            className="flex h-12 min-h-[48px] flex-[1.15] items-center justify-center gap-2 rounded-xl bg-brand-red px-4 text-sm font-bold text-white shadow-lg shadow-brand-red/30 transition active:scale-[0.98] disabled:opacity-50"
+            className="flex h-12 min-h-[48px] min-w-0 flex-1 items-center justify-center gap-1.5 rounded-xl bg-brand-red px-3 text-sm font-bold text-white shadow-lg shadow-brand-red/30 transition active:scale-[0.98] disabled:opacity-50"
           >
-            <i className="bi bi-cart-plus text-lg" aria-hidden />
-            Add to cart
+            <i className="bi bi-cart-plus shrink-0 text-lg" aria-hidden />
+            <span className="truncate">Add to cart</span>
           </button>
         </div>
       </div>

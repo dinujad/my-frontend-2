@@ -55,7 +55,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
               url: absolutePublicMediaUrl(product.image, SITE_URL),
               width: 800,
               height: 800,
-              alt: product.title,
+              alt: product.image_alt?.trim() || product.title,
             },
           ]
         : undefined,
@@ -161,7 +161,7 @@ export default async function ProductPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
       />
-      <main className="relative min-h-screen bg-[#f6f5f8] pb-28 md:pb-16">
+      <main className="relative min-h-screen bg-[#f6f5f8] pb-40 md:pb-16">
         {/* subtle top gradient */}
         <div className="pointer-events-none absolute inset-x-0 top-0 h-96 bg-gradient-to-b from-violet-100/40 via-transparent to-transparent" aria-hidden />
 
@@ -174,7 +174,9 @@ export default async function ProductPage({ params }: Props) {
               <ProductGallery
                 title={product.title}
                 image={product.image ?? ""}
+                imageAlt={product.image_alt}
                 gallery={product.gallery}
+                galleryItems={product.gallery_items}
                 badge={product.badge}
               />
             </div>

@@ -23,8 +23,14 @@ export type ProductVariationItem = {
   sale_price: number | null;
   stock_quantity: number | null;
   image: string | null;
+  image_alt?: string | null;
   priceTiers: TierPrice[];
   attributes: Record<string, string>;
+};
+
+export type ProductGalleryItem = {
+  src: string;
+  alt?: string | null;
 };
 
 export type ProductCustomizationField = {
@@ -56,7 +62,9 @@ export type ProductItem = {
   numericPrice: number;
   oldPrice: string | null;
   image: string;
+  image_alt?: string | null;
   gallery?: string[];
+  gallery_items?: ProductGalleryItem[];
   badge: string | null;
   sku: string;
   material?: string | null;
@@ -156,10 +164,16 @@ function normalizeProductImageSrc(url: string | null | undefined): string {
 }
 
 function normalizeProduct(p: ProductItem): ProductItem {
+  const normalizedGalleryItems = p.gallery_items?.map((g) => ({
+    ...g,
+    src: normalizeProductImageSrc(g.src),
+  }));
+
   return {
     ...p,
     image: normalizeProductImageSrc(p.image),
-    gallery: p.gallery?.map((g) => normalizeProductImageSrc(g)),
+    gallery: normalizedGalleryItems?.map((g) => g.src) ?? p.gallery?.map((g) => normalizeProductImageSrc(g)),
+    gallery_items: normalizedGalleryItems,
     variations: p.variations?.map((v) => ({
       ...v,
       image: v.image != null ? normalizeProductImageSrc(v.image) : null,
