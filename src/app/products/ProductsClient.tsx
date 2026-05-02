@@ -7,7 +7,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { dispatchProductHover } from "@/components/ai/aiChatCopy";
-import { PRODUCT_IMAGE_PLACEHOLDER, type CategoryItem } from "@/lib/products-data";
+import { productGridImageSrc } from "@/lib/media-url";
+import type { CategoryItem } from "@/lib/products-data";
 import type { Product } from "./page";
 // Hardcoded categories removed. We use dynamic initialCategories from props.
 
@@ -408,13 +409,14 @@ function ProductsClientInner({
                       {product.title}
                     </h3>
 
-                    <div className="pointer-events-none relative z-[2] mb-6 aspect-square w-full">
-                      <Image
-                        src={product.image?.trim() ? product.image : PRODUCT_IMAGE_PLACEHOLDER}
+                    <div className="pointer-events-none relative z-[2] mb-6 flex aspect-square w-full items-center justify-center">
+                      {/* eslint-disable-next-line @next/next/no-img-element -- direct API URL; avoids /_next/image + rewrite edge cases on this page */}
+                      <img
+                        src={productGridImageSrc(product.image)}
                         alt={product.title}
-                        fill
-                        className="object-contain p-4 mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+                        className="max-h-full max-w-full object-contain p-4 mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
+                        loading="lazy"
+                        decoding="async"
                       />
                     </div>
 
