@@ -9,7 +9,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { dispatchProductHover } from "@/components/ai/aiChatCopy";
-
+import { productGridImageSrc } from "@/lib/media-url";
 import type { ProductItem } from "@/lib/products-data";
 
 const tabs = ["Featured", "On Sale", "Top Rated"];
@@ -73,9 +73,11 @@ export function FeaturedProducts({ products = [] }: { products: ProductItem[] })
                                     {/* Constrain aspect ratio nicely tightly to layout */}
                                     <div className="relative w-full pt-[90%]">
                                         <Image
-                                            src={offer.image || '/images/placeholder.jpg'}
+                                            src={productGridImageSrc(offer.image)}
                                             alt={offer.title}
                                             fill
+                                            unoptimized
+                                            sizes="(max-width: 1024px) 90vw, 320px"
                                             className="object-contain hover:scale-105 transition-transform duration-500 cursor-pointer"
                                         />
                                     </div>
@@ -149,9 +151,11 @@ export function FeaturedProducts({ products = [] }: { products: ProductItem[] })
 
                                         <div className="relative aspect-square w-full mb-6 flex items-center justify-center">
                                             <Image
-                                                src={product.image || '/images/placeholder.jpg'}
+                                                src={productGridImageSrc(product.image)}
                                                 alt={product.title}
                                                 fill
+                                                unoptimized
+                                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                                                 className="object-contain transition-transform duration-500 group-hover:scale-105 cursor-pointer p-4 mix-blend-multiply"
                                             />
                                         </div>
