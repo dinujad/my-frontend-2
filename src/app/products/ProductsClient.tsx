@@ -7,9 +7,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { dispatchProductHover } from "@/components/ai/aiChatCopy";
-import { catalogImageSrc } from "@/lib/media-url";
+import { PRODUCT_IMAGE_PLACEHOLDER, type CategoryItem } from "@/lib/products-data";
 import type { Product } from "./page";
-import type { CategoryItem } from "@/lib/products-data";
 // Hardcoded categories removed. We use dynamic initialCategories from props.
 
 // Materials are now dynamic, computed from initialProducts
@@ -409,19 +408,14 @@ function ProductsClientInner({
                       {product.title}
                     </h3>
 
-                    <div className="pointer-events-none relative z-[2] mb-6 flex aspect-square w-full items-center justify-center">
-                      {product.image?.trim() ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={catalogImageSrc(product.image)}
-                          alt={product.title}
-                          className="max-h-full max-w-full cursor-pointer object-contain p-4 mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
-                          loading="lazy"
-                          decoding="async"
-                        />
-                      ) : (
-                        <span className="text-xs text-gray-400">No image</span>
-                      )}
+                    <div className="pointer-events-none relative z-[2] mb-6 aspect-square w-full">
+                      <Image
+                        src={product.image?.trim() ? product.image : PRODUCT_IMAGE_PLACEHOLDER}
+                        alt={product.title}
+                        fill
+                        className="object-contain p-4 mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+                      />
                     </div>
 
                     <div className="relative z-[2] mt-auto flex items-end justify-between">
