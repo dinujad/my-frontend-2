@@ -8,8 +8,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { dispatchProductHover } from "@/components/ai/aiChatCopy";
-import { productGridImageSrc } from "@/lib/media-url";
-import type { ProductItem } from "@/lib/products-data";
+
+import { PRODUCT_IMAGE_PLACEHOLDER, type ProductItem } from "@/lib/products-data";
 
 function ProductCard({ product }: { product: any }) {
     return (
@@ -17,11 +17,9 @@ function ProductCard({ product }: { product: any }) {
             {/* Left Image Area */}
             <div className="relative mr-3 flex h-[96px] w-[96px] shrink-0 items-center justify-center p-1.5 sm:mr-4 sm:h-[120px] sm:w-[120px] sm:p-2">
                 <Image
-                    src={productGridImageSrc(product.image)}
+                    src={product.image || PRODUCT_IMAGE_PLACEHOLDER}
                     alt={product.title}
                     fill
-                    unoptimized
-                    sizes="120px"
                     className="object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
                 />
             </div>

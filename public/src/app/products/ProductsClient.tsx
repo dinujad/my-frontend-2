@@ -7,12 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { dispatchProductHover } from "@/components/ai/aiChatCopy";
-<<<<<<< HEAD
-import { productGridImageSrc } from "@/lib/media-url";
-import type { CategoryItem } from "@/lib/products-data";
-=======
 import { catalogImageSrc } from "@/lib/media-url";
->>>>>>> parent of 40af920 (image fix)
 import type { Product } from "./page";
 import type { CategoryItem } from "@/lib/products-data";
 // Hardcoded categories removed. We use dynamic initialCategories from props.
@@ -410,16 +405,6 @@ export function ProductsClient({ initialProducts, initialCategories }: ProductsC
                     </h3>
 
                     <div className="pointer-events-none relative z-[2] mb-6 flex aspect-square w-full items-center justify-center">
-<<<<<<< HEAD
-                      {/* eslint-disable-next-line @next/next/no-img-element -- direct API URL; avoids /_next/image + rewrite edge cases on this page */}
-                      <img
-                        src={productGridImageSrc(product.image)}
-                        alt={product.title}
-                        className="max-h-full max-w-full object-contain p-4 mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
-                        loading="lazy"
-                        decoding="async"
-                      />
-=======
                       {product.image?.trim() ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -432,7 +417,6 @@ export function ProductsClient({ initialProducts, initialCategories }: ProductsC
                       ) : (
                         <span className="text-xs text-gray-400">No image</span>
                       )}
->>>>>>> parent of 40af920 (image fix)
                     </div>
 
                     <div className="relative z-[2] mt-auto flex items-end justify-between">
