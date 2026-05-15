@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { dispatchProductHover } from "@/components/ai/aiChatCopy";
-import { catalogImageSrc } from "@/lib/media-url";
+import { catalogImageSrc, onCatalogImageError } from "@/lib/media-url";
 import type { Product } from "./page";
 import type { CategoryItem } from "@/lib/products-data";
 // Hardcoded categories removed. We use dynamic initialCategories from props.
@@ -418,6 +418,7 @@ function ProductsClientInner({
                           className="max-h-full max-w-full cursor-pointer object-contain p-4 mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
                           loading="lazy"
                           decoding="async"
+                          onError={onCatalogImageError}
                         />
                       ) : (
                         <span className="text-xs text-gray-400">No image</span>

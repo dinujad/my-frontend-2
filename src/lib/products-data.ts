@@ -94,27 +94,22 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 export const PRODUCT_IMAGE_PLACEHOLDER = "/images/logo.png";
 
 /**
- * Laravel often returns absolute media URLs (e.g. `http://172.20.10.3:8000/storage/...`) while
- * `NEXT_PUBLIC_API_URL` may still be `http://localhost:8000`. `next/image` only allows configured
- * hosts, so those LAN URLs throw at render time. Same-origin paths use `next.config` rewrites to the API.
- */
-function isPrivateOrLanHost(hostname: string): boolean {
-  const h = hostname.toLowerCase();
-  if (h === "localhost" || h === "127.0.0.1") return true;
-  return /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(h);
-}
-
-/**
- * Map API/LAN media to same-origin paths for `next/image` + rewrites.
- * Any other absolute URL that is not in `images.remotePatterns` will crash the client — use placeholder.
+ * Map API media URLs to same-origin `/storage/*` and `/images/*` paths (Next rewrites → Laravel).
+ * Unknown external hosts fall back to placeholder so the UI never breaks on bad URLs.
  */
 function normalizeProductImageSrc(url: string | null | undefined): string {
   if (!url?.trim()) return PRODUCT_IMAGE_PLACEHOLDER;
-  let raw = url.trim();
+  let raw = url.trim().replace(/\\/g, "/");
   // Protocol-relative URLs: new URL("//host/...") throws without a base
   if (raw.startsWith("//")) {
     raw = `https:${raw}`;
   }
+
+  const bare = raw.replace(/^\/+/, "");
+  if (bare.startsWith("storage/") || bare.startsWith("images/")) {
+    return `/${bare}`;
+  }
+
   if (raw.startsWith("/")) return raw;
 
   const base = API_BASE_URL.replace(/\/$/, "");
@@ -136,25 +131,15 @@ function normalizeProductImageSrc(url: string | null | undefined): string {
     return PRODUCT_IMAGE_PLACEHOLDER;
   }
 
-  if (parsed.origin === api.origin) {
-    return `${parsed.pathname}${parsed.search}`;
-  }
-
   const path = `${parsed.pathname}${parsed.search}`;
   const isMediaPath =
     parsed.pathname.startsWith("/storage/") || parsed.pathname.startsWith("/images/");
 
-  if (isMediaPath) {
-    const h = parsed.hostname.toLowerCase();
-    const apiHost = api.hostname.toLowerCase();
-    if (h === apiHost || isPrivateOrLanHost(h)) {
-      return path;
-    }
-  }
+  if (isMediaPath) return path;
+  if (parsed.origin === api.origin) return path;
 
   const host = parsed.hostname.toLowerCase();
   if (host === "images.unsplash.com") return raw;
-  if (host === "printworks.lk" || host.endsWith(".printworks.lk")) return raw;
 
   if (parsed.protocol === "http:" || parsed.protocol === "https:") {
     return PRODUCT_IMAGE_PLACEHOLDER;

@@ -1,3 +1,5 @@
+import type { SyntheticEvent } from "react";
+
 /**
  * Product images from the API are often absolute URLs (Laravel `asset()`).
  * Using **same-origin** `/storage/*` and `/images/*` paths lets Next.js rewrites
@@ -7,7 +9,16 @@
  */
 export function catalogImageSrc(path: string | null | undefined): string {
   if (!path?.trim()) return "";
-  let p = path.trim();
+  let p = path.trim().replace(/\\/g, "/");
+
+  if (p.startsWith("//")) {
+    p = `https:${p}`;
+  }
+
+  const bare = p.replace(/^\/+/, "");
+  if (bare.startsWith("storage/") || bare.startsWith("images/")) {
+    return `/${bare}`;
+  }
 
   if (process.env.NEXT_PUBLIC_MEDIA_ABSOLUTE === "1") {
     if (!p.startsWith("http://") && !p.startsWith("https://")) {
@@ -33,6 +44,18 @@ export function catalogImageSrc(path: string | null | undefined): string {
   }
 
   return p.startsWith("/") ? p : `/${p}`;
+}
+
+/** Retry on API host when same-origin `/storage` proxy fails (dev / misconfigured rewrites). */
+export function onCatalogImageError(e: SyntheticEvent<HTMLImageElement>): void {
+  const el = e.currentTarget;
+  if (el.dataset.fallbackTried === "1") return;
+  el.dataset.fallbackTried = "1";
+  const src = el.getAttribute("src") || "";
+  const api = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+  if (api && src.startsWith("/")) {
+    el.src = `${api}${src}`;
+  }
 }
 
 /** Canonical / OG URLs when the site serves (or proxies) media under the same host */

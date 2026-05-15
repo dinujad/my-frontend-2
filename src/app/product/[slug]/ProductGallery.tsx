@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
-import { catalogImageSrc } from "@/lib/media-url";
+import { catalogImageSrc, onCatalogImageError } from "@/lib/media-url";
 import { motion } from "framer-motion";
 import { useProductGalleryStore } from "@/stores/product-gallery-store";
 
@@ -54,7 +54,9 @@ export default function ProductGallery({ title, image, imageAlt, gallery, galler
   const galleryEpoch = useProductGalleryStore((s) => s.galleryEpoch);
 
   // When a variation image is set, that image is the hero first; gallery follows (deduped).
-  const effectiveImage = variationImage ? catalogImageSrc(variationImage) : (image?.trim() ? image : "");
+  const effectiveImage = variationImage
+    ? catalogImageSrc(variationImage)
+    : catalogImageSrc(image?.trim() ? image : "");
 
   const slides = useMemo(
     () => buildSlides(effectiveImage, imageAlt, gallery, galleryItems, title),
@@ -103,15 +105,7 @@ export default function ProductGallery({ title, image, imageAlt, gallery, galler
           loading="eager"
           decoding="async"
           fetchPriority="high"
-          onError={(e) => {
-            const el = e.currentTarget;
-            if (el.dataset.fallbackTried === "1") return;
-            el.dataset.fallbackTried = "1";
-            const api = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
-            if (api && src.startsWith("/")) {
-              el.src = `${api}${src}`;
-            }
-          }}
+          onError={onCatalogImageError}
         />
       </motion.div>
       {slides.length > 1 && (
@@ -138,15 +132,7 @@ export default function ProductGallery({ title, image, imageAlt, gallery, galler
                   className="h-full w-full object-contain p-1"
                   loading="lazy"
                   decoding="async"
-                  onError={(e) => {
-                    const el = e.currentTarget;
-                    if (el.dataset.fallbackTried === "1") return;
-                    el.dataset.fallbackTried = "1";
-                    const api = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
-                    if (api && tsrc.startsWith("/")) {
-                      el.src = `${api}${tsrc}`;
-                    }
-                  }}
+                  onError={onCatalogImageError}
                 />
               </button>
             );

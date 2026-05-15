@@ -6,9 +6,9 @@
 // rendered in a future split, but the tab animation tightly couples them for now.
 
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { dispatchProductHover } from "@/components/ai/aiChatCopy";
+import { catalogImageSrc, onCatalogImageError } from "@/lib/media-url";
 
 import { PRODUCT_IMAGE_PLACEHOLDER, type ProductItem } from "@/lib/products-data";
 
@@ -77,11 +77,14 @@ export function FeaturedProducts({ products = [] }: { products: ProductItem[] })
                                 <div className="relative w-full flex-grow flex items-center justify-center">
                                     {/* Constrain aspect ratio nicely tightly to layout */}
                                     <div className="relative w-full pt-[90%]">
-                                        <Image
-                                            src={offer.image || PRODUCT_IMAGE_PLACEHOLDER}
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img
+                                            src={catalogImageSrc(offer.image) || PRODUCT_IMAGE_PLACEHOLDER}
                                             alt={offer.title}
-                                            fill
-                                            className="object-contain hover:scale-105 transition-transform duration-500 cursor-pointer"
+                                            className="absolute inset-0 h-full w-full object-contain transition-transform duration-500 hover:scale-105 cursor-pointer"
+                                            loading="lazy"
+                                            decoding="async"
+                                            onError={onCatalogImageError}
                                         />
                                     </div>
                                 </div>
@@ -153,11 +156,14 @@ export function FeaturedProducts({ products = [] }: { products: ProductItem[] })
                                         </h3>
 
                                         <div className="relative aspect-square w-full mb-6 flex items-center justify-center">
-                                            <Image
-                                                src={product.image || PRODUCT_IMAGE_PLACEHOLDER}
+                                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                                            <img
+                                                src={catalogImageSrc(product.image) || PRODUCT_IMAGE_PLACEHOLDER}
                                                 alt={product.title}
-                                                fill
-                                                className="object-contain transition-transform duration-500 group-hover:scale-105 cursor-pointer p-4 mix-blend-multiply"
+                                                className="max-h-full max-w-full object-contain p-4 mix-blend-multiply transition-transform duration-500 group-hover:scale-105 cursor-pointer"
+                                                loading="lazy"
+                                                decoding="async"
+                                                onError={onCatalogImageError}
                                             />
                                         </div>
 

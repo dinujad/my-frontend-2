@@ -5,9 +5,9 @@
 // App Router. The CSS-only marquee animation itself would be fine server-side, but the
 // interactive hover handler on each card forces the whole component to be a client boundary.
 
-import Image from "next/image";
 import Link from "next/link";
 import { dispatchProductHover } from "@/components/ai/aiChatCopy";
+import { catalogImageSrc, onCatalogImageError } from "@/lib/media-url";
 
 import { PRODUCT_IMAGE_PLACEHOLDER, type ProductItem } from "@/lib/products-data";
 
@@ -16,11 +16,14 @@ function ProductCard({ product }: { product: any }) {
         <Link href={`/product/${product.slug}`} className="group block flex w-[88vw] max-w-[340px] shrink-0 items-center rounded-xl border border-gray-100 bg-white p-2 transition-transform duration-300 hover:-translate-y-1 sm:w-[400px] sm:max-w-none sm:rounded-none sm:border-0 sm:p-0">
             {/* Left Image Area */}
             <div className="relative mr-3 flex h-[96px] w-[96px] shrink-0 items-center justify-center p-1.5 sm:mr-4 sm:h-[120px] sm:w-[120px] sm:p-2">
-                <Image
-                    src={product.image || PRODUCT_IMAGE_PLACEHOLDER}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                    src={catalogImageSrc(product.image) || PRODUCT_IMAGE_PLACEHOLDER}
                     alt={product.title}
-                    fill
-                    className="object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
+                    className="absolute inset-0 h-full w-full object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                    decoding="async"
+                    onError={onCatalogImageError}
                 />
             </div>
 
