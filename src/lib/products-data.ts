@@ -47,6 +47,12 @@ export type ReviewSummary = {
   count: number;
 };
 
+export type ProductAttributeConfig = {
+  name?: string;
+  valuesStr?: string;
+  used_for_variations?: boolean;
+};
+
 export type ProductItem = {
   id: number;
   slug: string;
@@ -71,6 +77,8 @@ export type ProductItem = {
   variantsNote?: string;
   priceTiers?: TierPrice[];
   variations?: ProductVariationItem[];
+  /** Admin attribute order / labels for variation dimensions */
+  attributes_config?: ProductAttributeConfig[] | null;
   page_settings?: Record<string, any>;
   customization_settings?: Record<string, any>;
   customization_fields?: ProductCustomizationField[];

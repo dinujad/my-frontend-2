@@ -66,6 +66,95 @@ function pillClass(tone: "success" | "warn" | "danger") {
   }
 }
 
+function collectVariationAttributeKeys(variations: ProductVariationItem[] | undefined): string[] {
+  if (!variations?.length) return [];
+  const seen = new Set<string>();
+  const order: string[] = [];
+  for (const v of variations) {
+    for (const k of Object.keys(v.attributes || {})) {
+      if (!seen.has(k)) {
+        seen.add(k);
+        order.push(k);
+      }
+    }
+  }
+  return order;
+}
+
+/** Order from admin `attributes_config`, then any extra keys from variations. */
+function deriveVariationAttributeKeys(product: ProductItem): string[] {
+  const cfg = product.attributes_config;
+  if (Array.isArray(cfg) && cfg.length > 0) {
+    const fromConfig = cfg
+      .filter((a) => a && a.used_for_variations && String(a.name ?? "").trim())
+      .map((a) => String(a.name).trim());
+    if (fromConfig.length > 0) {
+      const fromVars = collectVariationAttributeKeys(product.variations);
+      const ordered = [...fromConfig];
+      for (const k of fromVars) {
+        if (!ordered.includes(k)) ordered.push(k);
+      }
+      return ordered;
+    }
+  }
+  return collectVariationAttributeKeys(product.variations);
+}
+
+function getOptionsForAttribute(
+  attrKey: string,
+  variations: ProductVariationItem[],
+  current: Record<string, string>,
+  allKeys: string[]
+): string[] {
+  const filtered = variations.filter((v) =>
+    allKeys.every((k) => {
+      if (k === attrKey) return true;
+      const sel = String(current[k] ?? "").trim();
+      if (!sel) return true;
+      return String(v.attributes?.[k] ?? "").trim() === sel;
+    })
+  );
+  const vals = new Set<string>();
+  for (const v of filtered) {
+    const val = v.attributes?.[attrKey];
+    if (val != null && String(val).trim() !== "") vals.add(String(val).trim());
+  }
+  return Array.from(vals).sort((a, b) => a.localeCompare(b));
+}
+
+function pickVariationAfterAttributeChange(
+  attrKey: string,
+  value: string,
+  variations: ProductVariationItem[],
+  prevAttrs: Record<string, string>,
+  allKeys: string[]
+): ProductVariationItem {
+  const want = value.trim();
+  const candidates = variations.filter((v) => String(v.attributes?.[attrKey] ?? "").trim() === want);
+  if (candidates.length === 0) {
+    return variations[0];
+  }
+  const scored = candidates.map((v) => ({
+    v,
+    score: allKeys.filter(
+      (k) =>
+        k !== attrKey &&
+        String(prevAttrs[k] ?? "").trim() &&
+        String(v.attributes?.[k] ?? "").trim() === String(prevAttrs[k]).trim()
+    ).length,
+  }));
+  scored.sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    return a.v.id - b.v.id;
+  });
+  return scored[0].v;
+}
+
+function slugifyAttrId(key: string): string {
+  const s = key.replace(/[^a-zA-Z0-9_-]+/g, "-").replace(/^-|-$/g, "");
+  return s.slice(0, 120) || "attr";
+}
+
 export default function ProductInteractive({ product }: { product: ProductItem }) {
   const router = useRouter();
   const { addItem } = useCartStore();
@@ -147,6 +236,37 @@ export default function ProductInteractive({ product }: { product: ProductItem }
     if (!hasVariations) return null;
     return product.variations?.find((v) => v.id === selectedVariationId) || null;
   }, [hasVariations, product.variations, selectedVariationId]);
+
+  const variationAttributeKeys = useMemo(() => deriveVariationAttributeKeys(product), [product]);
+
+  // If stored variation attributes don't match filtered options (data edge case), pick a valid variation.
+  useEffect(() => {
+    if (!hasVariations || variationAttributeKeys.length === 0 || !product.variations?.length) return;
+    const v = product.variations.find((x) => x.id === selectedVariationId);
+    if (!v) return;
+    const attrs = v.attributes || {};
+    for (const k of variationAttributeKeys) {
+      const opts = getOptionsForAttribute(k, product.variations, attrs, variationAttributeKeys);
+      const cur = String(attrs[k] ?? "").trim();
+      if (opts.length > 0 && cur && !opts.includes(cur)) {
+        const pick = pickVariationAfterAttributeChange(k, opts[0], product.variations, attrs, variationAttributeKeys);
+        if (pick.id !== selectedVariationId) {
+          setSelectedVariationId(pick.id);
+          const vimg = pick.image?.trim();
+          if (vimg) setVariationImage(vimg);
+          else resetGallery();
+        }
+        return;
+      }
+    }
+  }, [
+    hasVariations,
+    variationAttributeKeys,
+    product.variations,
+    selectedVariationId,
+    setVariationImage,
+    resetGallery,
+  ]);
 
   const activeTiers =
     selectedVariation?.priceTiers && selectedVariation.priceTiers.length > 0
@@ -326,8 +446,82 @@ export default function ProductInteractive({ product }: { product: ProductItem }
           </div>
         </section>
 
-        {/* Variations */}
-        {hasVariations && (
+        {/* Variations: attribute label + values dropdown (WooCommerce-style rows) */}
+        {hasVariations && variationAttributeKeys.length > 0 && (
+          <section className="space-y-4" aria-label="Product options">
+            <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Options</p>
+            <div className="space-y-4">
+              {variationAttributeKeys.map((attrKey) => {
+                const attrs = selectedVariation?.attributes || {};
+                const options = getOptionsForAttribute(
+                  attrKey,
+                  product.variations!,
+                  attrs,
+                  variationAttributeKeys
+                );
+                const curRaw = String(attrs[attrKey] ?? "").trim();
+                const cur =
+                  options.length === 0
+                    ? ""
+                    : options.includes(curRaw)
+                      ? curRaw
+                      : options[0];
+
+                return (
+                  <div
+                    key={attrKey}
+                    className="flex flex-col gap-2 sm:flex-row sm:items-stretch sm:gap-5 lg:gap-8"
+                  >
+                    <label
+                      htmlFor={`var-${product.id}-${slugifyAttrId(attrKey)}`}
+                      className="text-sm font-medium leading-6 text-gray-900 sm:flex sm:min-w-[160px] sm:max-w-[40%] sm:shrink-0 sm:items-center"
+                    >
+                      {attrKey}
+                    </label>
+                    <div className="min-w-0 flex-1 sm:max-w-xl">
+                      <select
+                        id={`var-${product.id}-${slugifyAttrId(attrKey)}`}
+                        value={cur}
+                        onChange={(e) => {
+                          const pick = pickVariationAfterAttributeChange(
+                            attrKey,
+                            e.target.value,
+                            product.variations!,
+                            selectedVariation?.attributes || {},
+                            variationAttributeKeys
+                          );
+                          setSelectedVariationId(pick.id);
+                          const vimg = pick.image?.trim();
+                          if (vimg) setVariationImage(vimg);
+                          else resetGallery();
+                        }}
+                        className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-900 shadow-sm outline-none transition focus:border-brand-red focus:ring-2 focus:ring-brand-red/20"
+                      >
+                        {options.length === 0 ? (
+                          <option value="">Choose an option</option>
+                        ) : (
+                          <>
+                            <option value="" disabled>
+                              Choose an option
+                            </option>
+                            {options.map((opt) => (
+                              <option key={opt} value={opt}>
+                                {opt}
+                              </option>
+                            ))}
+                          </>
+                        )}
+                      </select>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* Fallback: no structured attributes on variations — keep compact option buttons */}
+        {hasVariations && variationAttributeKeys.length === 0 && (
           <section className="space-y-3" aria-label="Product options">
             <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Option</p>
             <div className="flex flex-wrap gap-2">
