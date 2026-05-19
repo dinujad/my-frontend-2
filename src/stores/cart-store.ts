@@ -13,7 +13,7 @@ export interface CartItem {
   name: string;
   price: number;
   customization_fee: number;
-  additional_services_fee: number;
+  additional_services_fee?: number;
   additional_services?: CartAdditionalService[];
   quantity: number;
   image?: string;
@@ -48,7 +48,15 @@ export const useCartStore = create<CartState>((set) => ({
         };
       }
       return {
-        items: [...state.items, { ...item, quantity: item.quantity ?? 1 }],
+        items: [
+          ...state.items,
+          {
+            ...item,
+            quantity: item.quantity ?? 1,
+            additional_services_fee: item.additional_services_fee ?? 0,
+            additional_services: item.additional_services ?? [],
+          },
+        ],
       };
     }),
   removeItem: (id) =>

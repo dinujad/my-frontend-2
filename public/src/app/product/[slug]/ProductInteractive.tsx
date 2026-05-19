@@ -235,6 +235,8 @@ export default function ProductInteractive({ product }: { product: ProductItem }
         : product.title,
       price: currentPricePerUnit,
       customization_fee: customizationFilled ? customizationFee : 0,
+      additional_services_fee: 0,
+      additional_services: [],
       quantity: qty,
       image: selectedVariation?.image || product.image,
       customizations: formattedCustomizations,

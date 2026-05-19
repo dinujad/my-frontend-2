@@ -4,6 +4,10 @@ node_modules/
 # next build files
 .next/
 out/
+public/.next/
+
+# Accidental duplicate app copy (use /src only); kept out of typecheck via tsconfig exclude
+# public/src/
 
 # production build
 dist/

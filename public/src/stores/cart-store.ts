@@ -1,5 +1,11 @@
 import { create } from "zustand";
 
+export type CartAdditionalService = {
+  id: number;
+  name: string;
+  price: number;
+};
+
 export interface CartItem {
   id: string;
   product_id: number;
@@ -7,6 +13,8 @@ export interface CartItem {
   name: string;
   price: number;
   customization_fee: number;
+  additional_services_fee?: number;
+  additional_services?: CartAdditionalService[];
   quantity: number;
   image?: string;
   customizations?: Record<string, string>;
