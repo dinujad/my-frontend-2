@@ -1,5 +1,11 @@
 import { create } from "zustand";
 
+export type CartAdditionalService = {
+  id: number;
+  name: string;
+  price: number;
+};
+
 export interface CartItem {
   id: string;
   product_id: number;
@@ -7,6 +13,8 @@ export interface CartItem {
   name: string;
   price: number;
   customization_fee: number;
+  additional_services_fee: number;
+  additional_services?: CartAdditionalService[];
   quantity: number;
   image?: string;
   customizations?: Record<string, string>;
@@ -26,7 +34,11 @@ export const useCartStore = create<CartState>((set) => ({
   addItem: (item) =>
     set((state) => {
       const existing = state.items.find((i) => i.id === item.id);
-      if (existing && (!item.customization_files || item.customization_files.length === 0)) {
+      if (
+        existing &&
+        (!item.customization_files || item.customization_files.length === 0) &&
+        (!item.additional_services || item.additional_services.length === 0)
+      ) {
         return {
           items: state.items.map((i) =>
             i.id === item.id

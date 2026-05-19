@@ -53,6 +53,13 @@ export type ProductAttributeConfig = {
   used_for_variations?: boolean;
 };
 
+export type ProductAdditionalService = {
+  id: number;
+  name: string;
+  description?: string | null;
+  price: number;
+};
+
 export type ProductItem = {
   id: number;
   slug: string;
@@ -79,6 +86,7 @@ export type ProductItem = {
   variations?: ProductVariationItem[];
   /** Admin attribute order / labels for variation dimensions */
   attributes_config?: ProductAttributeConfig[] | null;
+  additional_services?: ProductAdditionalService[];
   page_settings?: Record<string, any>;
   customization_settings?: Record<string, any>;
   customization_fields?: ProductCustomizationField[];

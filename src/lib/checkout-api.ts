@@ -36,6 +36,8 @@ export async function submitOrder(
     product_id: item.product_id,
     quantity: item.quantity,
     customization_fee: item.customization_fee,
+    additional_services_fee: item.additional_services_fee ?? 0,
+    additional_services: item.additional_services ?? [],
     customizations: item.customizations ?? {},
     product_variation_id: item.variation_id ?? null,
     variation_id: item.variation_id ?? null,

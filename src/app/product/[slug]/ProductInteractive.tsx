@@ -192,6 +192,7 @@ export default function ProductInteractive({ product }: { product: ProductItem }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [qty, setQty] = useState(1);
+  const [selectedServiceIds, setSelectedServiceIds] = useState<number[]>([]);
   const [customizationValues, setCustomizationValues] = useState<Record<number, string>>({});
   const [customizationFiles, setCustomizationFiles] = useState<Record<number, File>>({});
   const [filePreviews, setFilePreviews] = useState<Record<number, string>>({});
@@ -282,7 +283,28 @@ export default function ProductInteractive({ product }: { product: ProductItem }
     return applicableTier ? applicableTier.unit_price : basePrice;
   }, [activeTiers, qty, basePrice]);
 
-  const total = currentPricePerUnit * qty + (customizationFilled ? customizationFee * qty : 0);
+  const availableServices = product.additional_services ?? [];
+
+  const selectedServices = useMemo(
+    () => availableServices.filter((s) => selectedServiceIds.includes(s.id)),
+    [availableServices, selectedServiceIds]
+  );
+
+  const additionalServicesFeePerUnit = useMemo(
+    () => selectedServices.reduce((sum, s) => sum + (Number(s.price) || 0), 0),
+    [selectedServices]
+  );
+
+  const total =
+    currentPricePerUnit * qty +
+    (customizationFilled ? customizationFee * qty : 0) +
+    additionalServicesFeePerUnit * qty;
+
+  const toggleAdditionalService = (serviceId: number) => {
+    setSelectedServiceIds((prev) =>
+      prev.includes(serviceId) ? prev.filter((id) => id !== serviceId) : [...prev, serviceId]
+    );
+  };
 
   const sortedTiers = useMemo(
     () => [...activeTiers].sort((a, b) => a.min_qty - b.min_qty),
@@ -366,10 +388,12 @@ export default function ProductInteractive({ product }: { product: ProductItem }
     }
 
     const isCustomized = Object.keys(formattedCustomizations).length > 0 || formattedFiles.length > 0;
+    const hasServiceExtras = selectedServices.length > 0;
 
-    const cartId = isCustomized
-      ? `${product.id}_${selectedVariationId || "base"}_${Date.now()}`
-      : `${product.id}_${selectedVariationId || "base"}`;
+    const cartId =
+      isCustomized || hasServiceExtras
+        ? `${product.id}_${selectedVariationId || "base"}_${selectedServiceIds.sort((a, b) => a - b).join("-") || "nosvc"}_${Date.now()}`
+        : `${product.id}_${selectedVariationId || "base"}`;
 
     addItem({
       id: cartId,
@@ -380,6 +404,12 @@ export default function ProductInteractive({ product }: { product: ProductItem }
         : product.title,
       price: currentPricePerUnit,
       customization_fee: customizationFilled ? customizationFee : 0,
+      additional_services_fee: additionalServicesFeePerUnit,
+      additional_services: selectedServices.map((s) => ({
+        id: s.id,
+        name: s.name,
+        price: Number(s.price) || 0,
+      })),
       quantity: qty,
       image: selectedVariation?.image || product.image,
       customizations: formattedCustomizations,
@@ -428,6 +458,11 @@ export default function ProductInteractive({ product }: { product: ProductItem }
           </div>
           {activeTiers.length > 0 ? (
             <p className="mt-2 text-sm text-gray-500">Unit price updates with quantity tiers below.</p>
+          ) : null}
+          {additionalServicesFeePerUnit > 0 ? (
+            <p className="mt-2 text-sm font-medium text-brand-red">
+              + {fmtRs(additionalServicesFeePerUnit)} add-on services per item
+            </p>
           ) : null}
         </section>
 
@@ -558,6 +593,52 @@ export default function ProductInteractive({ product }: { product: ProductItem }
                   </span>
                 </button>
               ))}
+            </div>
+          </section>
+        )}
+
+        {/* Additional services (optional add-ons) */}
+        {availableServices.length > 0 && (
+          <section className="space-y-3" aria-label="Additional services">
+            <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+              Additional services
+            </p>
+            <p className="text-sm text-gray-600">
+              Tick any extras you need — price is added per item to your total.
+            </p>
+            <div className="space-y-2">
+              {availableServices.map((svc) => {
+                const checked = selectedServiceIds.includes(svc.id);
+                return (
+                  <label
+                    key={svc.id}
+                    className={clsx(
+                      "flex cursor-pointer gap-3 rounded-xl border p-3 transition sm:p-4",
+                      checked
+                        ? "border-brand-red bg-brand-red/5 ring-1 ring-brand-red/20"
+                        : "border-gray-200 bg-white hover:border-gray-300"
+                    )}
+                  >
+                    <input
+                      type="checkbox"
+                      className="mt-1 h-4 w-4 shrink-0 rounded border-gray-300 text-brand-red focus:ring-brand-red"
+                      checked={checked}
+                      onChange={() => toggleAdditionalService(svc.id)}
+                    />
+                    <span className="min-w-0 flex-1">
+                      <span className="flex flex-wrap items-baseline justify-between gap-2">
+                        <span className="font-semibold text-gray-900">{svc.name}</span>
+                        <span className="shrink-0 font-bold tabular-nums text-brand-red">
+                          + {fmtRs(Number(svc.price) || 0)}
+                        </span>
+                      </span>
+                      {svc.description?.trim() ? (
+                        <span className="mt-1 block text-sm text-gray-500">{svc.description}</span>
+                      ) : null}
+                    </span>
+                  </label>
+                );
+              })}
             </div>
           </section>
         )}

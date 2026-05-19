@@ -68,7 +68,7 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 function lineTotal(item: CartItem): number {
-  return (item.price + item.customization_fee) * item.quantity;
+  return (item.price + item.customization_fee + (item.additional_services_fee ?? 0)) * item.quantity;
 }
 
 function fmtRs(n: number): string {
@@ -756,6 +756,18 @@ export default function CheckoutClient() {
                           <p className="mt-0.5 text-xs text-gray-500">
                             {fmtRs(item.price)} + <span className="text-brand-red">{fmtRs(item.customization_fee)} custom</span>
                           </p>
+                        )}
+                        {(item.additional_services_fee ?? 0) > 0 && (
+                          <p className="mt-0.5 text-xs text-gray-500">
+                            + <span className="text-brand-red">{fmtRs(item.additional_services_fee ?? 0)} services</span>
+                          </p>
+                        )}
+                        {item.additional_services && item.additional_services.length > 0 && (
+                          <ul className="mt-1 space-y-0.5 text-xs text-gray-400">
+                            {item.additional_services.map((s) => (
+                              <li key={s.id}>{s.name}</li>
+                            ))}
+                          </ul>
                         )}
                         {item.customizations && Object.keys(item.customizations).length > 0 && (
                           <ul className="mt-1 space-y-0.5 text-xs text-gray-400">

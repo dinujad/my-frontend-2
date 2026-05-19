@@ -5,7 +5,7 @@ import { useCartStore, type CartItem } from "@/stores/cart-store";
 import { catalogImageSrc } from "@/lib/media-url";
 
 function lineTotal(item: CartItem): number {
-  return (item.price + item.customization_fee) * item.quantity;
+  return (item.price + item.customization_fee + (item.additional_services_fee ?? 0)) * item.quantity;
 }
 
 export default function CartPageClient() {
@@ -98,7 +98,29 @@ export default function CartPageClient() {
                         customization / unit
                       </span>
                     )}
+                    {(item.additional_services_fee ?? 0) > 0 && (
+                      <span className="text-brand-red">
+                        {" "}
+                        + Rs.{" "}
+                        {(item.additional_services_fee ?? 0).toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                        })}{" "}
+                        add-on services / unit
+                      </span>
+                    )}
                   </p>
+
+                  {item.additional_services && item.additional_services.length > 0 && (
+                    <ul className="mt-2 space-y-0.5 text-xs text-gray-500">
+                      {item.additional_services.map((s) => (
+                        <li key={s.id}>
+                          <span className="font-medium text-gray-600">{s.name}</span>
+                          {" · "}
+                          Rs. {s.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
 
                   {item.customizations && Object.keys(item.customizations).length > 0 && (
                     <ul className="mt-2 space-y-0.5 text-xs text-gray-500">
