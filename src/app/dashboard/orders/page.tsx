@@ -3,23 +3,18 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { fetchAuthData } from "@/lib/auth-api";
+import type { DashboardOrderSummary } from "@/lib/dashboard-types";
+import { StatusBadge } from "@/components/dashboard/StatusBadge";
 
 export default function MyOrdersPage() {
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<DashboardOrderSummary[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadOrders() {
-      try {
-        const res = await fetchAuthData("/api/dashboard/orders");
-        setOrders(res.data || []);
-      } catch (e) {
-        console.error("Failed to load orders");
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadOrders();
+    fetchAuthData("/api/v1/dashboard/orders")
+      .then((res) => setOrders(res.data || []))
+      .catch(() => setOrders([]))
+      .finally(() => setLoading(false));
   }, []);
 
   if (loading) {
@@ -49,6 +44,7 @@ export default function MyOrdersPage() {
                 <th className="px-4 py-3 font-semibold rounded-tl-xl">Order #</th>
                 <th className="px-4 py-3 font-semibold">Date</th>
                 <th className="px-4 py-3 font-semibold">Status</th>
+                <th className="px-4 py-3 font-semibold">Delivery</th>
                 <th className="px-4 py-3 font-semibold">Total</th>
                 <th className="px-4 py-3 font-semibold rounded-tr-xl text-right">Action</th>
               </tr>
@@ -63,15 +59,19 @@ export default function MyOrdersPage() {
                     {new Date(order.created_at).toLocaleDateString()}
                   </td>
                   <td className="px-4 py-4">
-                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${
-                      order.status === 'completed' ? 'bg-emerald-100 text-emerald-800' :
-                      order.status === 'shipped' ? 'bg-indigo-100 text-indigo-800' :
-                      order.status === 'processing' ? 'bg-amber-100 text-amber-800' :
-                      order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
-                      {order.status}
-                    </span>
+                    <StatusBadge status={order.status} kind="order" />
+                  </td>
+                  <td className="px-4 py-4 text-xs text-gray-600">
+                    {order.delivery?.delivered_at ? (
+                      <span className="text-emerald-700">Delivered {new Date(order.delivery.delivered_at).toLocaleDateString()}</span>
+                    ) : order.delivery?.shipped_at ? (
+                      <span>Shipped {new Date(order.delivery.shipped_at).toLocaleDateString()}</span>
+                    ) : (
+                      <span className="text-gray-400">—</span>
+                    )}
+                    {order.delivery?.tracking_number && (
+                      <p className="mt-0.5 font-mono text-[11px] text-indigo-600">{order.delivery.tracking_number}</p>
+                    )}
                   </td>
                   <td className="px-4 py-4 font-medium text-gray-900">
                     Rs. {Number(order.total).toLocaleString(undefined, { minimumFractionDigits: 2 })}

@@ -43,9 +43,12 @@ export function RegisterPageClient() {
       }
 
       localStorage.setItem("token", data.token);
+      if (data.user?.role) {
+        localStorage.setItem("user_role", data.user.role);
+      }
       login(data.user);
 
-      router.push("/dashboard");
+      router.replace("/dashboard");
     } catch (error: unknown) {
       alert(error instanceof Error ? error.message : "Registration failed");
     } finally {
@@ -156,7 +159,7 @@ export function RegisterPageClient() {
                     ></path>
                   </svg>
                 ) : null}
-                {loading ? "Creating Account..." : "Create Account"}
+                {loading ? "Creating your account…" : "Create Account"}
               </button>
             </div>
           </form>

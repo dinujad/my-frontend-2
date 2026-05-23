@@ -22,7 +22,7 @@ export default function OrderDetailsPage() {
   useEffect(() => {
     async function loadOrder() {
       try {
-        const res = await fetchAuthData(`/api/dashboard/orders/${orderId}`);
+        const res = await fetchAuthData(`/api/v1/dashboard/orders/${orderId}`);
         setOrder(res);
       } catch (e) {
         console.error("Failed to load order details");
@@ -45,7 +45,7 @@ export default function OrderDetailsPage() {
 
   // Determine WhatsApp Link
   const waMsg = encodeURIComponent(`Hello PrintWorksLK, I need help with order #${order.order_number}`);
-  const whatsappUrl = `https://wa.me/94770000000?text=${waMsg}`; // Replace with actual number
+  const whatsappUrl = `https://wa.me/94706668885?text=${waMsg}`;
 
   return (
     <div className="space-y-6">
@@ -152,6 +152,31 @@ export default function OrderDetailsPage() {
 
         {/* Details sidebar */}
         <div className="space-y-6">
+          {order.shipments && order.shipments.length > 0 && (
+            <div className="rounded-2xl border border-indigo-100 bg-indigo-50/40 p-6 shadow-sm">
+              <h3 className="font-bold text-gray-900 mb-4">Delivery & tracking</h3>
+              <ul className="space-y-3">
+                {order.shipments.map((s: { id: number; shipping_method?: string; tracking_number?: string; shipped_at?: string; shipping_notes?: string }) => (
+                  <li key={s.id} className="rounded-xl bg-white p-4 text-sm border border-indigo-100">
+                    {s.shipping_method && <p className="font-semibold text-gray-900">{s.shipping_method}</p>}
+                    {s.tracking_number && (
+                      <p className="mt-1 font-mono text-indigo-700">Tracking: {s.tracking_number}</p>
+                    )}
+                    {s.shipped_at && (
+                      <p className="mt-1 text-gray-600">
+                        Shipped: {new Date(s.shipped_at).toLocaleString()}
+                      </p>
+                    )}
+                    {order.status === "completed" && (
+                      <p className="mt-1 text-emerald-700 font-medium">Delivered</p>
+                    )}
+                    {s.shipping_notes && <p className="mt-2 text-gray-500">{s.shipping_notes}</p>}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
             <h3 className="font-bold text-gray-900 mb-4">Delivery Address</h3>
             <div className="text-sm text-gray-600 space-y-1">

@@ -11,7 +11,7 @@ export default function InvoicesPage() {
   useEffect(() => {
     async function loadInvoices() {
       try {
-        const res = await fetchAuthData("/api/dashboard/invoices");
+        const res = await fetchAuthData("/api/v1/dashboard/invoices");
         setInvoices(res.data || []);
       } catch (e) {
         console.error("Failed to load invoices");
