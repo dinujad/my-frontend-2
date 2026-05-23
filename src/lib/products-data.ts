@@ -58,6 +58,7 @@ export type ProductAdditionalService = {
   name: string;
   description?: string | null;
   price: number;
+  pricing_type?: "per_item" | "per_order";
 };
 
 export type ProductItem = {

@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { useCartStore, type CartItem } from "@/stores/cart-store";
 import { catalogImageSrc } from "@/lib/media-url";
+import { cartLineTotal } from "@/lib/cart-services";
 
 function lineTotal(item: CartItem): number {
-  return (item.price + item.customization_fee + (item.additional_services_fee ?? 0)) * item.quantity;
+  return cartLineTotal(item);
 }
 
 export default function CartPageClient() {
@@ -117,6 +118,7 @@ export default function CartPageClient() {
                           <span className="font-medium text-gray-600">{s.name}</span>
                           {" · "}
                           Rs. {s.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                          {s.pricing_type === "per_order" ? " (once)" : " (× qty)"}
                         </li>
                       ))}
                     </ul>

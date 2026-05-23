@@ -1,10 +1,7 @@
 import { create } from "zustand";
+import type { CartAdditionalService } from "@/lib/cart-services";
 
-export type CartAdditionalService = {
-  id: number;
-  name: string;
-  price: number;
-};
+export type { CartAdditionalService };
 
 export interface CartItem {
   id: string;

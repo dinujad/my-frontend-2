@@ -9,6 +9,7 @@ import { z } from "zod";
 import { useCartStore, type CartItem } from "@/stores/cart-store";
 import { submitOrder } from "@/lib/checkout-api";
 import { catalogImageSrc } from "@/lib/media-url";
+import { cartLineTotal } from "@/lib/cart-services";
 import { useToast } from "@/components/ui/ToastProvider";
 import { useAuthStore } from "@/stores/auth-store";
 
@@ -68,7 +69,7 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 function lineTotal(item: CartItem): number {
-  return (item.price + item.customization_fee + (item.additional_services_fee ?? 0)) * item.quantity;
+  return cartLineTotal(item);
 }
 
 function fmtRs(n: number): string {

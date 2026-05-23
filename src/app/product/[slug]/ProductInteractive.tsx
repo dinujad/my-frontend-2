@@ -12,6 +12,12 @@ import { clsx } from "clsx";
 import { ProductCustomizationFields } from "./ProductCustomizationFields";
 import { useProductGalleryStore } from "@/stores/product-gallery-store";
 import { catalogImageSrc } from "@/lib/media-url";
+import {
+  additionalServicesTotal,
+  pricingTypeLabel,
+  splitAdditionalServiceFees,
+  type AdditionalServicePricingType,
+} from "@/lib/cart-services";
 
 function fmtRs(n: number) {
   return `Rs. ${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -290,15 +296,24 @@ export default function ProductInteractive({ product }: { product: ProductItem }
     [availableServices, selectedServiceIds]
   );
 
-  const additionalServicesFeePerUnit = useMemo(
-    () => selectedServices.reduce((sum, s) => sum + (Number(s.price) || 0), 0),
+  const serviceFees = useMemo(
+    () =>
+      splitAdditionalServiceFees(
+        selectedServices.map((s) => ({
+          id: s.id,
+          name: s.name,
+          price: Number(s.price) || 0,
+          pricing_type: (s.pricing_type === "per_order" ? "per_order" : "per_item") as AdditionalServicePricingType,
+        }))
+      ),
     [selectedServices]
   );
 
   const total =
     currentPricePerUnit * qty +
     (customizationFilled ? customizationFee * qty : 0) +
-    additionalServicesFeePerUnit * qty;
+    serviceFees.perItem * qty +
+    serviceFees.perOrder;
 
   const toggleAdditionalService = (serviceId: number) => {
     setSelectedServiceIds((prev) =>
@@ -404,11 +419,12 @@ export default function ProductInteractive({ product }: { product: ProductItem }
         : product.title,
       price: currentPricePerUnit,
       customization_fee: customizationFilled ? customizationFee : 0,
-      additional_services_fee: additionalServicesFeePerUnit,
+      additional_services_fee: serviceFees.perItem,
       additional_services: selectedServices.map((s) => ({
         id: s.id,
         name: s.name,
         price: Number(s.price) || 0,
+        pricing_type: s.pricing_type === "per_order" ? "per_order" : "per_item",
       })),
       quantity: qty,
       image: selectedVariation?.image || product.image,
@@ -459,9 +475,14 @@ export default function ProductInteractive({ product }: { product: ProductItem }
           {activeTiers.length > 0 ? (
             <p className="mt-2 text-sm text-gray-500">Unit price updates with quantity tiers below.</p>
           ) : null}
-          {additionalServicesFeePerUnit > 0 ? (
+          {serviceFees.perItem > 0 ? (
             <p className="mt-2 text-sm font-medium text-brand-red">
-              + {fmtRs(additionalServicesFeePerUnit)} add-on services per item
+              + {fmtRs(serviceFees.perItem)} add-on services per item
+            </p>
+          ) : null}
+          {serviceFees.perOrder > 0 ? (
+            <p className="mt-1 text-sm font-medium text-brand-red">
+              + {fmtRs(serviceFees.perOrder)} add-on services once per order
             </p>
           ) : null}
         </section>
@@ -604,7 +625,7 @@ export default function ProductInteractive({ product }: { product: ProductItem }
               Additional services
             </p>
             <p className="text-sm text-gray-600">
-              Tick any extras you need — price is added per item to your total.
+              Tick any extras you need. Per-item fees multiply by quantity; per-order fees are added once.
             </p>
             <div className="space-y-2">
               {availableServices.map((svc) => {
@@ -630,6 +651,9 @@ export default function ProductInteractive({ product }: { product: ProductItem }
                         <span className="font-semibold text-gray-900">{svc.name}</span>
                         <span className="shrink-0 font-bold tabular-nums text-brand-red">
                           + {fmtRs(Number(svc.price) || 0)}
+                          <span className="ml-1 text-xs font-normal text-gray-500">
+                            ({pricingTypeLabel(svc.pricing_type)})
+                          </span>
                         </span>
                       </span>
                       {svc.description?.trim() ? (
