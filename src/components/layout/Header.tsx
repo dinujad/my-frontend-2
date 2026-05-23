@@ -256,7 +256,7 @@ export function Header() {
                 alt="Print Works.LK"
                 width={180}
                 height={72}
-                className="h-11 w-auto object-contain object-left sm:h-12 md:h-14"
+                className="h-[3.25rem] w-auto max-w-[11rem] object-contain object-left sm:h-12 sm:max-w-none md:h-14"
                 priority
               />
             </Link>

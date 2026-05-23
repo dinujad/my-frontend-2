@@ -14,11 +14,11 @@ export default async function HomePage() {
   return (
     <main className="min-h-screen bg-white">
       <HeroSection />
-      <OurClientsSection logos={clientLogos} />
       <PromotionalBanners />
       <FeaturedProducts products={products} />
       <BestSellers products={products} />
       <HomeStaticSections />
+      <OurClientsSection logos={clientLogos} />
     </main>
   );
 }
