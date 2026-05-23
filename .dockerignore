@@ -1,0 +1,17 @@
+node_modules
+.next
+out
+.git
+.gitignore
+*.md
+.env
+.env.*
+!.env.example
+npm-debug.log*
+.DS_Store
+Thumbs.db
+# Duplicate app copy — not used in production (causes huge images / failed unpack on small VPS)
+public/src
+public/.next
+coverage
+.cursor

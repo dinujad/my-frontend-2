@@ -6,8 +6,8 @@ node_modules/
 out/
 public/.next/
 
-# Accidental duplicate app copy (use /src only); kept out of typecheck via tsconfig exclude
-# public/src/
+# Accidental duplicate app copy (use /src only) — do not commit
+public/src/
 
 # production build
 dist/
