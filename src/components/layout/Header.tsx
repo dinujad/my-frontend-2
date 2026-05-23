@@ -17,6 +17,7 @@ import { getAllCategories, type CategoryItem } from "@/lib/products-data";
 import { useAuthStore } from "@/stores/auth-store";
 import { HeaderSearchBar } from "@/components/layout/HeaderSearchBar";
 import { SocialIconLinks } from "@/components/layout/SocialIconLinks";
+import { DepartmentsMegaMenu } from "@/components/layout/DepartmentsMegaMenu";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -26,6 +27,33 @@ const navLinks = [
   { href: "/quote", label: "Request a Quote" },
   { href: "/career", label: "Career" },
 ];
+
+/** Active nav highlight follows the current page (not always Home). */
+function isNavLinkActive(href: string, pathname: string | null): boolean {
+  if (!pathname) return false;
+  if (href === "/") return pathname === "/";
+  if (href === "/products") {
+    return (
+      pathname === "/products" ||
+      pathname.startsWith("/product/") ||
+      pathname.startsWith("/product-category/")
+    );
+  }
+  if (href === "/about") {
+    return pathname === "/about" || pathname.startsWith("/about/");
+  }
+  if (href === "/quote") {
+    return pathname === "/quote" || pathname.startsWith("/quote/");
+  }
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+const navLinkClass = (active: boolean) =>
+  `block py-3 text-sm font-bold transition-colors duration-200 ${
+    active
+      ? "text-brand-red relative after:absolute after:bottom-1 after:left-0 after:right-0 after:h-0.5 after:rounded-full after:bg-brand-red after:content-['']"
+      : "text-gray-700 hover:text-brand-red"
+  }`;
 
 function BuildingIcon({ className }: { className?: string }) {
   return (
@@ -323,9 +351,9 @@ export function Header() {
       </div>
 
       {/* Main nav bar */}
-      <div className="border-b border-gray-200 bg-white">
+      <div className="overflow-visible border-b border-gray-200 bg-white">
         <nav
-          className="mx-auto flex max-w-7xl items-center relative"
+          className="relative mx-auto flex max-w-7xl items-center overflow-visible"
           aria-label="Main navigation"
         >
           {/* Shop By Categories / All Departments */}
@@ -346,45 +374,27 @@ export function Header() {
               All Departments
             </button>
 
-            {/* Dropdown: mobile = toggle only; md+ home = always open; md+ other = hover via shopCategoriesOpen */}
-            <div
-              id="departments-menu"
-              className={`absolute left-0 top-full z-50 w-full border-b border-l border-r border-gray-100 bg-white text-sm shadow-[0_8px_30px_rgb(0,0,0,0.08)] ${
-                shopCategoriesOpen ? "block" : "hidden"
-              } ${isHomePage ? "md:block" : ""}`}
-              suppressHydrationWarning
-            >
-              <div className="flex flex-col w-full relative divide-y divide-gray-50/50">
-                {departments.map((cat) => (
-                  <Link
-                    key={cat.slug}
-                    href={`/product-category/${encodeURIComponent(cat.slug)}`}
-                    className="flex justify-between items-center px-6 py-[14px] text-gray-700 font-medium hover:text-brand-red transition-colors hover:bg-gray-50 bg-white"
-                  >
-                    <span>{cat.name}</span>
-                    <svg className="h-4 w-4 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 18l6-6-6-6" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" /></svg>
-                  </Link>
-                ))}
-              </div>
-            </div>
+            <DepartmentsMegaMenu
+              categories={departments}
+              open={shopCategoriesOpen}
+              isHomePage={isHomePage}
+              onNavigate={() => setShopCategoriesOpen(false)}
+            />
           </div>
 
           {/* Desktop nav links */}
           <div className="hidden flex-1 items-center justify-between pl-8 md:flex pr-4">
             <ul className="flex items-center gap-6">
-              {navLinks.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className={`block py-3 text-sm font-bold transition ${item.href === "/"
-                      ? "text-brand-red"
-                      : "text-gray-700 hover:text-brand-red"
-                      }`}
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
+              {navLinks.map((item) => {
+                const active = isNavLinkActive(item.href, pathname);
+                return (
+                  <li key={item.href}>
+                    <Link href={item.href} className={navLinkClass(active)} aria-current={active ? "page" : undefined}>
+                      {item.label}
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
 
             <div className="flex flex-col items-end gap-1.5 border-l border-gray-200 pl-5">
@@ -482,19 +492,24 @@ export function Header() {
             )}
           </div>
 
-          {navLinks.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setMenuOpen(false)}
-              className={`block rounded-lg px-4 py-3 text-base font-medium transition ${item.href === "/"
-                ? "bg-brand-red text-white"
-                : "text-gray-800 hover:bg-gray-100"
+          {navLinks.map((item) => {
+            const active = isNavLinkActive(item.href, pathname);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setMenuOpen(false)}
+                className={`block rounded-lg px-4 py-3 text-base font-medium transition-colors duration-200 ${
+                  active
+                    ? "bg-brand-red text-white shadow-sm shadow-brand-red/20"
+                    : "text-gray-800 hover:bg-gray-100 hover:text-brand-red"
                 }`}
-            >
-              {item.label}
-            </Link>
-          ))}
+                aria-current={active ? "page" : undefined}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
           <div className="mt-4 border-t border-gray-200 px-4 pt-4">
             <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted">Follow us</p>
             <SocialIconLinks
