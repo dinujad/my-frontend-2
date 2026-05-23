@@ -15,6 +15,7 @@ import { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { getAllCategories, type CategoryItem } from "@/lib/products-data";
 import { useAuthStore } from "@/stores/auth-store";
+import { HeaderSearchBar } from "@/components/layout/HeaderSearchBar";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -72,23 +73,6 @@ function HeartIcon({ className }: { className?: string }) {
   );
 }
 
-function SearchIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-      <circle cx="11" cy="11" r="8" />
-      <path d="m21 21-4.35-4.35" />
-    </svg>
-  );
-}
-
-function ChevronDownIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <path d="M7 10l5 5 5-5H7z" />
-    </svg>
-  );
-}
-
 function BurgerIcon({ open }: { open: boolean }) {
   return (
     <span className="relative block h-5 w-6" aria-hidden>
@@ -114,9 +98,6 @@ export function Header() {
   const quoteCount = useQuoteCartStore((s) => s.items.reduce((sum, i) => sum + i.quantity, 0));
   const { isAuthenticated, logout } = useAuthStore();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [categoryOpen, setCategoryOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("All Categories");
-  const [searchQuery, setSearchQuery] = useState("");
   const [shopCategoriesOpen, setShopCategoriesOpen] = useState(false);
   const pathname = usePathname();
   const isHomePage = pathname === "/";
@@ -158,14 +139,6 @@ export function Header() {
       document.body.style.overflow = "";
     };
   }, [menuOpen]);
-
-  // Close category dropdown on click outside
-  useEffect(() => {
-    if (!categoryOpen) return;
-    const close = () => setCategoryOpen(false);
-    document.addEventListener("click", close);
-    return () => document.removeEventListener("click", close);
-  }, [categoryOpen]);
 
   useEffect(() => {
     setShopCategoriesOpen(false);
@@ -264,82 +237,7 @@ export function Header() {
 
           {/* Search bar (center) - hidden on mobile */}
           <div className="hidden min-w-0 flex-1 md:block md:max-w-xl lg:max-w-2xl px-4 lg:px-8">
-            <form
-              action="/products"
-              method="get"
-              className="group flex h-12 overflow-hidden rounded-full border-2 border-gray-200 bg-white shadow-[0_2px_10px_rgb(0,0,0,0.02)] transition-all focus-within:border-brand-red focus-within:shadow-[0_4px_20px_rgb(255,31,64,0.1)] hover:border-gray-300"
-            >
-              <div className="relative flex-shrink-0 border-r-2 border-gray-100 bg-gray-50/50 transition-colors group-hover:bg-gray-50">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setCategoryOpen((o) => !o);
-                  }}
-                  className="flex h-full items-center gap-1.5 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
-                  aria-haspopup="listbox"
-                  aria-expanded={categoryOpen}
-                >
-                  <span className="truncate">{selectedCategory}</span>
-                  <ChevronDownIcon className="h-4 w-4 shrink-0 text-gray-400" />
-                </button>
-                {categoryOpen && (
-                  <div
-                    className="absolute left-0 top-full z-50 mt-1 max-h-72 w-56 overflow-y-auto rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
-                    role="listbox"
-                    onClick={(e) => e.stopPropagation()}
-                    suppressHydrationWarning
-                  >
-                    <div className="border-l-4 border-brand-red pl-3">
-                      <button
-                        type="button"
-                        role="option"
-                        className="block w-full border-b border-gray-100 py-2.5 pr-2 text-left text-sm text-gray-800 hover:bg-gray-50"
-                        onClick={() => {
-                          setSelectedCategory("All Categories");
-                          setCategoryOpen(false);
-                        }}
-                      >
-                        All Categories
-                      </button>
-                      {departments.map((cat) => (
-                        <button
-                          key={cat.slug}
-                          type="button"
-                          role="option"
-                          className="block w-full border-b border-gray-100 py-2.5 pr-2 text-left text-sm text-gray-800 hover:bg-gray-50"
-                          onClick={() => {
-                            setSelectedCategory(cat.name);
-                            setCategoryOpen(false);
-                          }}
-                        >
-                          {cat.name}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                <input type="hidden" name="category" value={selectedCategory === "All Categories" ? "all" : selectedCategory} />
-              </div>
-              <input
-                type="search"
-                name="q"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search for a product, category, or brand..."
-                className="min-w-0 flex-1 bg-transparent px-5 text-sm font-medium text-gray-900 placeholder-gray-400 outline-none"
-                aria-label="Search"
-              />
-              <div className="p-1">
-                <button
-                  type="submit"
-                  className="flex h-full w-12 items-center justify-center rounded-full bg-brand-red text-white shadow-sm transition-all hover:bg-brand-red-dark hover:shadow-md active:scale-95"
-                  aria-label="Search"
-                >
-                  <SearchIcon className="h-5 w-5" />
-                </button>
-              </div>
-            </form>
+            <HeaderSearchBar categories={departments} />
           </div>
 
           {/* Right: Auth + Wishlist + Cart - hidden on mobile */}

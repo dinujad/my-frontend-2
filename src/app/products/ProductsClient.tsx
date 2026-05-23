@@ -2,7 +2,7 @@
 // Client Component: requires useState (filter/sort state), useSearchParams (URL query reading),
 // and event handlers (onClick, onChange). These APIs are browser-only and cannot run on the server.
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -32,21 +32,41 @@ interface ProductsClientProps {
 
 interface ProductsClientInnerProps extends ProductsClientProps {
   categoryQueryParam: string | null;
+  searchQueryParam: string | null;
+}
+
+function resolveCategoryNames(
+  param: string | null,
+  categories: CategoryItem[]
+): string[] {
+  if (!param || param === "all") return [];
+  const bySlug = categories.find((c) => c.slug === param);
+  if (bySlug) return [bySlug.name];
+  const byName = categories.find((c) => c.name === param);
+  if (byName) return [byName.name];
+  return [param];
 }
 
 function ProductsClientInner({
   initialProducts,
   initialCategories,
   categoryQueryParam,
+  searchQueryParam,
 }: ProductsClientInnerProps) {
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    categoryQueryParam && categoryQueryParam !== "all" ? [categoryQueryParam] : []
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(() =>
+    resolveCategoryNames(categoryQueryParam, initialCategories)
   );
   const [selectedMaterials, setSelectedMaterials] = useState<string[]>([]);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000]);
   const [sortBy, setSortBy] = useState("default");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
+  useEffect(() => {
+    setSelectedCategories(resolveCategoryNames(categoryQueryParam, initialCategories));
+  }, [categoryQueryParam, initialCategories]);
+
+  const searchTerm = searchQueryParam?.trim().toLowerCase() ?? "";
 
   // Derive available materials dynamically
   const initialDynamicMaterials = Array.from(new Set(initialProducts.map(p => p.material).filter(Boolean))) as string[];
@@ -80,13 +100,23 @@ function ProductsClientInner({
   let filteredProducts = initialProducts.filter((product) => {
     const passesCategory =
       selectedCategories.length === 0 ||
-      selectedCategories.some((sc) => product.category.includes(sc));
+      selectedCategories.some(
+        (sc) =>
+          product.category === sc ||
+          product.category.includes(sc) ||
+          (product.categorySlug && product.categorySlug === sc)
+      );
+    const passesSearch =
+      !searchTerm ||
+      product.title.toLowerCase().includes(searchTerm) ||
+      product.category.toLowerCase().includes(searchTerm) ||
+      (product.categorySlug?.toLowerCase().includes(searchTerm) ?? false);
     const passesMaterial = 
       selectedMaterials.length === 0 ||
       (product.material && selectedMaterials.includes(product.material));
     const passesPrice =
       product.numericPrice >= priceRange[0] && product.numericPrice <= priceRange[1];
-    return passesCategory && passesMaterial && passesPrice;
+    return passesCategory && passesMaterial && passesPrice && passesSearch;
   });
 
   if (sortBy === "price-low") filteredProducts.sort((a, b) => a.numericPrice - b.numericPrice);
@@ -551,7 +581,11 @@ function ProductsClientInner({
 function ProductsSearchParamsReader(props: ProductsClientProps) {
   const searchParams = useSearchParams();
   return (
-    <ProductsClientInner {...props} categoryQueryParam={searchParams.get("category")} />
+    <ProductsClientInner
+      {...props}
+      categoryQueryParam={searchParams.get("category")}
+      searchQueryParam={searchParams.get("q")}
+    />
   );
 }
 
