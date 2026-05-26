@@ -4,7 +4,9 @@ const apiOrigin = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 /** Allow next/image for product media served from the configured API host (Coolify sslip.io, api subdomain, etc.) */
 function remotePatternsForApi(origin: string) {
-  const patterns: NonNullable<NextConfig["images"]> extends { remotePatterns?: infer P } ? P : never> = [];
+  type RemotePatternOrUrl =
+    NonNullable<NonNullable<NextConfig["images"]>["remotePatterns"]>[number];
+  const patterns: RemotePatternOrUrl[] = [];
   try {
     const u = new URL(origin);
     const protocol = u.protocol.replace(":", "") as "http" | "https";
