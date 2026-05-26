@@ -22,6 +22,20 @@ type Conversation = {
   assigned_agent?: { name: string } | null;
 };
 
+type AssistantSuggestion = {
+  name: string;
+  slug: string;
+  reason?: string;
+};
+
+type AssistantMessage = {
+  id: number;
+  role: "user" | "assistant";
+  text: string;
+  suggestions?: AssistantSuggestion[];
+  created_at: string;
+};
+
 // Tiny beep using Web Audio API — no external files needed
 function playNotificationSound() {
   try {
@@ -54,7 +68,7 @@ export function LiveChatWidget() {
   const pathname = usePathname();
 
   const [open, setOpen] = useState(false);
-  const [view, setView] = useState<"home" | "form" | "chat">("home");
+  const [view, setView] = useState<"home" | "form" | "chat" | "assistant">("home");
   const [sessionId, setSessionId] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -67,6 +81,9 @@ export function LiveChatWidget() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [lastReadId, setLastReadId] = useState(0);
   const [retryCount, setRetryCount] = useState(0);
+  const [assistantMessages, setAssistantMessages] = useState<AssistantMessage[]>([]);
+  const [assistantInput, setAssistantInput] = useState("");
+  const [assistantLoading, setAssistantLoading] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -242,6 +259,61 @@ export function LiveChatWidget() {
     setView("form");
   };
 
+  const openAssistant = () => {
+    setError(null);
+    if (assistantMessages.length === 0) {
+      setAssistantMessages([
+        {
+          id: Date.now(),
+          role: "assistant",
+          text: "Tell me what you need (budget, use case, quantity, material), and I will suggest the best products from our catalog.",
+          created_at: new Date().toISOString(),
+        },
+      ]);
+    }
+    setView("assistant");
+  };
+
+  const handleAssistantSend = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const msg = assistantInput.trim();
+    if (!msg || assistantLoading) return;
+
+    const userMsg: AssistantMessage = {
+      id: Date.now(),
+      role: "user",
+      text: msg,
+      created_at: new Date().toISOString(),
+    };
+    setAssistantMessages((prev) => [...prev, userMsg]);
+    setAssistantInput("");
+    setAssistantLoading(true);
+
+    try {
+      const res = await chatApi.askAssistant(msg);
+      const aiMsg: AssistantMessage = {
+        id: Date.now() + 1,
+        role: "assistant",
+        text: String(res.reply ?? "").trim() || "I can help. Tell me a bit more about what you are looking for.",
+        suggestions: Array.isArray(res.suggestions) ? res.suggestions : [],
+        created_at: new Date().toISOString(),
+      };
+      setAssistantMessages((prev) => [...prev, aiMsg]);
+    } catch {
+      setAssistantMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          role: "assistant",
+          text: "Sorry, AI shopping help is unavailable right now. Please try again in a moment.",
+          created_at: new Date().toISOString(),
+        },
+      ]);
+    } finally {
+      setAssistantLoading(false);
+    }
+  };
+
   // Don't render on admin pages
   if (pathname?.startsWith("/admin")) return null;
 
@@ -258,6 +330,20 @@ export function LiveChatWidget() {
         <p className="text-sm text-gray-500">How can we help you today?</p>
       </div>
       <div className="space-y-3">
+        <button
+          onClick={openAssistant}
+          className="w-full bg-indigo-600 text-white font-semibold py-3 px-4 rounded-xl shadow-md shadow-indigo-500/20 hover:bg-indigo-700 transition-colors flex items-center justify-between group"
+        >
+          <div className="flex items-center gap-3">
+            <svg className="w-5 h-5 text-indigo-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 3v2.25M14.25 3v2.25M8.25 8.25h7.5M5.25 6.75h13.5A1.5 1.5 0 0120.25 8.25v10.5a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5V8.25a1.5 1.5 0 011.5-1.5zM9 12h.008v.008H9V12zm3 0h.008v.008H12V12zm3 0h.008v.008H15V12z" />
+            </svg>
+            AI Help Me Choose
+          </div>
+          <svg className="w-4 h-4 opacity-70 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
         <button
           onClick={() => setView("form")}
           className="w-full bg-brand-red text-white font-semibold py-3 px-4 rounded-xl shadow-md shadow-brand-red/20 hover:bg-red-700 transition-colors flex items-center justify-between group"
@@ -494,6 +580,83 @@ export function LiveChatWidget() {
     );
   };
 
+  const renderAssistant = () => (
+    <div className="flex-1 flex flex-col bg-gray-50 h-full overflow-hidden">
+      <div className="bg-white border-b border-gray-100 p-3 shadow-sm flex items-center gap-2.5 shrink-0">
+        <button onClick={() => setView("home")} className="text-gray-400 hover:text-gray-800 transition-colors p-1">
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <div>
+          <h3 className="text-sm font-bold text-gray-800">AI Shopping Assistant</h3>
+          <p className="text-[11px] text-gray-500">Product suggestions only (no internal business data)</p>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        {assistantMessages.map((msg) => {
+          const isUser = msg.role === "user";
+          return (
+            <div key={msg.id} className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
+              <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
+                isUser ? "bg-brand-red text-white rounded-br-sm" : "bg-white border border-gray-100 text-gray-800 rounded-bl-sm shadow-sm"
+              }`}>
+                <p>{msg.text}</p>
+                {!isUser && msg.suggestions && msg.suggestions.length > 0 && (
+                  <div className="mt-3 space-y-2 border-t border-gray-100 pt-2.5">
+                    {msg.suggestions.map((s, idx) => (
+                      <a
+                        key={`${s.slug}-${idx}`}
+                        href={`/product/${s.slug}`}
+                        onClick={() => setOpen(false)}
+                        className="block rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 hover:border-brand-red/40 hover:bg-red-50 transition-colors"
+                      >
+                        <p className="text-xs font-bold text-gray-800">{s.name}</p>
+                        {s.reason ? <p className="mt-0.5 text-[11px] text-gray-600">{s.reason}</p> : null}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+
+        {assistantLoading && (
+          <div className="flex justify-start">
+            <div className="bg-white border border-gray-100 rounded-2xl rounded-bl-sm px-4 py-3 flex items-center gap-1.5 shadow-sm">
+              <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" />
+              <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0.15s" }} />
+              <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0.3s" }} />
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="bg-white border-t border-gray-100 p-3 shrink-0">
+        <form onSubmit={handleAssistantSend} className="flex items-center gap-2">
+          <input
+            type="text"
+            value={assistantInput}
+            onChange={(e) => setAssistantInput(e.target.value)}
+            placeholder="E.g. wedding welcome board under Rs. 5000"
+            className="flex-1 bg-gray-50 border border-gray-200 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+          />
+          <button
+            type="submit"
+            disabled={!assistantInput.trim() || assistantLoading}
+            className="w-9 h-9 flex items-center justify-center bg-indigo-600 text-white rounded-full disabled:opacity-50 transition-all hover:bg-indigo-700 active:scale-95"
+          >
+            <svg className="w-4 h-4 translate-x-[1px]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+
   return (
     <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-3" suppressHydrationWarning>
       {/* Widget Window */}
@@ -522,6 +685,7 @@ export function LiveChatWidget() {
           {view === "home" && renderHome()}
           {view === "form" && renderForm()}
           {view === "chat" && renderChat()}
+          {view === "assistant" && renderAssistant()}
         </div>
       )}
 

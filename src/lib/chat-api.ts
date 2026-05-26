@@ -34,5 +34,15 @@ export const chatApi = {
       method: 'POST',
       headers: { 'Accept': 'application/json' }
     });
+  },
+
+  async askAssistant(message: string) {
+    const res = await fetch(`${this.baseUrl}/chat/assistant`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ message })
+    });
+    if (!res.ok) throw new Error('Failed to get AI help');
+    return res.json();
   }
 };
