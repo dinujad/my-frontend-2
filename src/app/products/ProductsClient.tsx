@@ -2,12 +2,14 @@
 // Client Component: requires useState (filter/sort state), useSearchParams (URL query reading),
 // and event handlers (onClick, onChange). These APIs are browser-only and cannot run on the server.
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { dispatchProductHover } from "@/components/ai/aiChatCopy";
 import { catalogImageSrc, onCatalogImageError } from "@/lib/media-url";
+import { useCartStore } from "@/stores/cart-store";
+import { useWishlistStore } from "@/stores/wishlist-store";
 import type { Product } from "./page";
 import type { CategoryItem } from "@/lib/products-data";
 // Hardcoded categories removed. We use dynamic initialCategories from props.
@@ -24,6 +26,143 @@ const colors = [
   { name: "Silver", bg: "bg-gray-300" },
   { name: "Gold", bg: "bg-yellow-600" },
 ];
+
+function parsePriceNumber(value: string | null | undefined): number | null {
+  if (!value) return null;
+  const n = Number(String(value).replace(/[^\d.]/g, ""));
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+function discountLabel(product: Product): string | null {
+  if (product.badge?.trim()) return product.badge.trim();
+  const current = parsePriceNumber(product.price);
+  const old = parsePriceNumber(product.oldPrice);
+  if (current != null && old != null && old > current) {
+    const pct = Math.round(((old - current) / old) * 100);
+    if (pct > 0) return `-${pct}%`;
+  }
+  return product.oldPrice ? "Sale" : null;
+}
+
+function ProductGridCard({ product }: { product: Product }) {
+  const addCart = useCartStore((s) => s.addItem);
+  const wishlistId = String(product.id);
+  const inWishlist = useWishlistStore((s) => s.has(wishlistId));
+  const addWishlist = useWishlistStore((s) => s.add);
+  const removeWishlist = useWishlistStore((s) => s.remove);
+  const discount = discountLabel(product);
+
+  const handleWishlist = (e: MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (inWishlist) {
+      removeWishlist(wishlistId);
+      return;
+    }
+    addWishlist({
+      id: wishlistId,
+      name: product.title,
+      price: product.numericPrice,
+      slug: product.slug,
+      image: product.image,
+    });
+  };
+
+  const handleQuickAdd = (e: MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addCart({
+      id: `product-${product.id}`,
+      product_id: product.id,
+      name: product.title,
+      price: product.numericPrice,
+      customization_fee: 0,
+      quantity: 1,
+      image: product.image,
+    });
+  };
+
+  return (
+    <div className="group relative flex flex-col bg-white border-r border-b border-gray-200 p-4 sm:p-5 hover:shadow-[0_0_20px_rgba(0,0,0,0.08)] hover:z-10 transition-shadow duration-300">
+      {product.slug ? (
+        <Link
+          href={`/product/${product.slug}`}
+          className="absolute inset-0 z-[1]"
+          aria-label={`View ${product.title}`}
+          onMouseEnter={() => dispatchProductHover(product.title)}
+        />
+      ) : null}
+
+      <div className="pointer-events-none relative z-[2] mb-2">
+        <span className="block truncate text-[11px] font-medium text-gray-400">{product.category}</span>
+      </div>
+
+      <h3 className="pointer-events-none relative z-[2] mb-3 min-h-[36px] text-[13px] font-bold leading-snug tracking-tight text-gray-900 line-clamp-2 group-hover:underline">
+        {product.title}
+      </h3>
+
+      <div className="relative z-[2] mb-4 flex aspect-square w-full items-center justify-center">
+        {discount && (
+          <span className="pointer-events-none absolute left-1.5 top-1.5 z-[3] rounded bg-brand-red px-1 py-0.5 text-[9px] font-bold leading-none text-white shadow-sm">
+            {discount}
+          </span>
+        )}
+        <button
+          type="button"
+          title={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
+          aria-pressed={inWishlist}
+          className={`absolute right-1.5 top-1.5 z-[3] flex h-7 w-7 pointer-events-auto items-center justify-center rounded-full border shadow-sm transition-colors ${
+            inWishlist
+              ? "border-brand-red/30 bg-brand-red/10 text-brand-red"
+              : "border-gray-200/80 bg-white/95 text-gray-500 hover:border-brand-red/40 hover:text-brand-red"
+          }`}
+          onClick={handleWishlist}
+        >
+          <svg viewBox="0 0 24 24" fill={inWishlist ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" className="h-3.5 w-3.5" aria-hidden>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
+        </button>
+        {product.image?.trim() ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={catalogImageSrc(product.image)}
+            alt={product.title}
+            className="pointer-events-none max-h-full max-w-full object-contain p-3 mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+            decoding="async"
+            onError={onCatalogImageError}
+          />
+        ) : (
+          <span className="text-xs text-gray-400">No image</span>
+        )}
+      </div>
+
+      <div className="relative z-[2] mt-auto flex items-end justify-between gap-2">
+        <div className="pointer-events-none flex min-w-0 flex-col">
+          {product.oldPrice && (
+            <span className="mb-0.5 text-[11px] text-gray-400 line-through">{product.oldPrice}</span>
+          )}
+          <span className={`text-base font-bold ${product.oldPrice ? "text-brand-red" : "text-gray-800"}`}>
+            {product.price}
+          </span>
+          {product.variantsNote && (
+            <span className="mt-0.5 line-clamp-2 text-[10px] text-gray-500">{product.variantsNote}</span>
+          )}
+        </div>
+        <button
+          type="button"
+          title="Add to cart"
+          className="relative z-[3] flex h-7 w-7 shrink-0 pointer-events-auto items-center justify-center rounded-full bg-gray-100 text-gray-500 shadow-sm transition-colors duration-300 hover:bg-brand-red hover:text-white"
+          onClick={handleQuickAdd}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-3.5 w-3.5" aria-hidden>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+}
 
 interface ProductsClientProps {
   initialProducts: Product[];
@@ -410,97 +549,7 @@ function ProductsClientInner({
             {filteredProducts.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 border-t border-l border-gray-200 bg-white">
                 {filteredProducts.map((product) => (
-                  <div
-                    key={product.id}
-                    className="group relative flex flex-col bg-white border-r border-b border-gray-200 p-5 hover:shadow-[0_0_20px_rgba(0,0,0,0.08)] hover:z-10 transition-shadow duration-300"
-                  >
-                    {/* Full-card link: content uses pointer-events-none so clicks reach this layer; cart stays clickable */}
-                    {product.slug ? (
-                      <Link
-                        href={`/product/${product.slug}`}
-                        className="absolute inset-0 z-[1]"
-                        aria-label={`View ${product.title}`}
-                        onMouseEnter={() => dispatchProductHover(product.title)}
-                      />
-                    ) : null}
-
-                    <div className="pointer-events-none relative z-[2] mb-2 flex flex-wrap items-center gap-2">
-                      <span className="block truncate text-[11px] font-medium text-gray-400">
-                        {product.category}
-                      </span>
-                      {product.badge && (
-                        <span className="rounded bg-brand-red px-1.5 py-0.5 text-[10px] font-bold text-white">
-                          {product.badge}
-                        </span>
-                      )}
-                    </div>
-
-                    <h3 className="pointer-events-none relative z-[2] mb-4 min-h-[40px] cursor-pointer text-[14px] font-bold leading-snug tracking-tight text-gray-900 line-clamp-2 group-hover:underline">
-                      {product.title}
-                    </h3>
-
-                    <div className="pointer-events-none relative z-[2] mb-6 flex aspect-square w-full items-center justify-center">
-                      {product.image?.trim() ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={catalogImageSrc(product.image)}
-                          alt={product.title}
-                          className="max-h-full max-w-full cursor-pointer object-contain p-4 mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
-                          loading="lazy"
-                          decoding="async"
-                          onError={onCatalogImageError}
-                        />
-                      ) : (
-                        <span className="text-xs text-gray-400">No image</span>
-                      )}
-                    </div>
-
-                    <div className="relative z-[2] mt-auto flex items-end justify-between">
-                      <div className="pointer-events-none flex min-w-0 flex-col">
-                        {product.oldPrice && (
-                          <span className="mb-0.5 text-[13px] text-gray-400 line-through">
-                            {product.oldPrice}
-                          </span>
-                        )}
-                        <span
-                          className={`text-lg font-bold ${
-                            product.oldPrice ? "text-brand-red" : "text-gray-800"
-                          }`}
-                        >
-                          {product.price}
-                        </span>
-                        {product.variantsNote && (
-                          <span className="mt-1 line-clamp-2 text-[11px] text-gray-500">
-                            {product.variantsNote}
-                          </span>
-                        )}
-                      </div>
-                      <button
-                        type="button"
-                        title="Quick add (coming soon)"
-                        className="relative z-[3] flex h-10 w-10 pointer-events-auto items-center justify-center rounded-full bg-gray-100 text-gray-500 shadow-sm transition-colors duration-300 hover:bg-brand-red hover:text-white"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                        }}
-                      >
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          className="h-5 w-5"
-                          aria-hidden
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                          />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
+                  <ProductGridCard key={product.id} product={product} />
                 ))}
               </div>
             ) : (

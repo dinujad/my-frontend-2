@@ -1,18 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { clsx } from "clsx";
 import StarRating from "./StarRating";
 import StarRatingInput from "./StarRatingInput";
 import { fetchProductReviews, submitProductReview, type ReviewItem } from "@/lib/reviews-api";
 import { useToast } from "@/components/ui/ToastProvider";
 
-type TabId = "description" | "reviews";
-
 type Props = {
   slug: string;
-  longDescription: string;
   enableReviews: boolean;
   /** From product API for initial display before client fetch */
   initialSummary?: { average: number; count: number };
@@ -32,11 +28,9 @@ function formatReviewDate(iso: string) {
 
 export default function ProductDetailsTabs({
   slug,
-  longDescription,
   enableReviews,
   initialSummary = { average: 0, count: 0 },
 }: Props) {
-  const [tab, setTab] = useState<TabId>("description");
   const { showToast } = useToast();
   const [reviews, setReviews] = useState<ReviewItem[]>([]);
   const [summary, setSummary] = useState(initialSummary);
@@ -65,10 +59,10 @@ export default function ProductDetailsTabs({
   }, [slug, enableReviews]);
 
   useEffect(() => {
-    if (tab === "reviews" && enableReviews) {
+    if (enableReviews) {
       void loadReviews();
     }
-  }, [tab, enableReviews, loadReviews]);
+  }, [enableReviews, loadReviews]);
 
   const validateForm = () => {
     const err: Record<string, string> = {};
@@ -111,112 +105,29 @@ export default function ProductDetailsTabs({
     }
   };
 
-  const tabs: { id: TabId; label: string }[] = [
-    { id: "description", label: "Description" },
-    ...(enableReviews ? [{ id: "reviews" as const, label: "Reviews" }] : []),
-  ];
-
-  // No reviews feature: single long description card
   if (!enableReviews) {
-    return (
-      <section
-        className="mt-12 rounded-3xl border border-gray-200/80 bg-white/80 p-8 shadow-[0_20px_60px_-24px_rgba(15,23,42,0.15)] backdrop-blur-sm sm:p-10"
-        aria-labelledby="pdp-desc-heading"
-        suppressHydrationWarning
-      >
-        <h2 id="pdp-desc-heading" className="text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
-          Product description
-        </h2>
-        <div className="mt-6 border-t border-gray-100 pt-6">
-          {longDescription?.trim() ? (
-            <div className="max-w-none text-[15px] leading-relaxed text-gray-600">
-              <p className="whitespace-pre-wrap">{longDescription}</p>
-            </div>
-          ) : (
-            <p className="text-gray-500">No detailed description available for this product.</p>
-          )}
-        </div>
-      </section>
-    );
+    return null;
   }
 
   return (
     <section
-      className="mt-12 rounded-3xl border border-gray-200/80 bg-white/90 shadow-[0_24px_80px_-32px_rgba(15,23,42,0.2)] backdrop-blur-md overflow-hidden"
-      aria-label="Product details and reviews"
+      className="mt-14 overflow-hidden rounded-3xl border border-gray-200/80 bg-white shadow-[0_24px_80px_-32px_rgba(15,23,42,0.12)] sm:mt-16"
+      aria-label="Product reviews"
       suppressHydrationWarning
     >
-      <div
-        role="tablist"
-        className="flex flex-wrap gap-2 border-b border-gray-100 bg-gradient-to-r from-slate-50/90 to-white px-4 py-4 sm:px-8"
-      >
-        {tabs.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            role="tab"
-            id={`tab-${t.id}`}
-            aria-selected={tab === t.id}
-            aria-controls={`panel-${t.id}`}
-            onClick={() => setTab(t.id)}
-            className={clsx(
-              "relative rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-200",
-              tab === t.id
-                ? "bg-gray-900 text-white shadow-lg shadow-gray-900/25"
-                : "bg-white text-gray-600 ring-1 ring-gray-200 hover:bg-gray-50 hover:text-gray-900 hover:ring-gray-300"
-            )}
-          >
-            {t.label}
-            {t.id === "reviews" && summary.count > 0 ? (
-              <span
-                className={clsx(
-                  "ml-2 inline-flex min-w-[1.25rem] items-center justify-center rounded-full px-1.5 text-[11px] font-bold",
-                  tab === t.id ? "bg-white/20 text-white" : "bg-brand-red/10 text-brand-red"
-                )}
-              >
-                {summary.count}
-              </span>
-            ) : null}
-          </button>
-        ))}
+      <div className="border-b border-gray-100 bg-gradient-to-r from-slate-50/90 via-white to-slate-50/50 px-5 py-5 sm:px-8 sm:py-6">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand-red">Feedback</p>
+        <h2 className="mt-1 text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">
+          Customer reviews
+          {summary.count > 0 ? (
+            <span className="ml-2 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-brand-red/10 px-2 py-0.5 text-sm font-bold text-brand-red">
+              {summary.count}
+            </span>
+          ) : null}
+        </h2>
       </div>
 
-      <div className="px-4 py-8 sm:px-8 sm:py-10">
-        <AnimatePresence mode="wait">
-          {tab === "description" && (
-            <motion.div
-              key="desc"
-              role="tabpanel"
-              id="panel-description"
-              aria-labelledby="tab-description"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.2 }}
-            >
-              <h2 className="sr-only">Full description</h2>
-              {longDescription?.trim() ? (
-                <div className="max-w-none text-[15px] leading-relaxed text-gray-600">
-                  <p className="whitespace-pre-wrap">{longDescription}</p>
-                </div>
-              ) : (
-                <p className="text-gray-500">No detailed description available for this product.</p>
-              )}
-            </motion.div>
-          )}
-
-          {tab === "reviews" && enableReviews && (
-            <motion.div
-              key="reviews"
-              role="tabpanel"
-              id="panel-reviews"
-              aria-labelledby="tab-reviews"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.2 }}
-              className="space-y-10"
-            >
+      <div className="space-y-10 px-4 py-8 sm:px-8 sm:py-10">
               {/* Summary */}
               <div className="flex flex-col gap-6 rounded-2xl bg-gradient-to-br from-slate-50 to-white p-6 ring-1 ring-gray-100 sm:flex-row sm:items-center sm:justify-between">
                 <div>
@@ -351,9 +262,6 @@ export default function ProductDetailsTabs({
                   </button>
                 </form>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
     </section>
   );

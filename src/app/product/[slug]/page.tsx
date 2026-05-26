@@ -4,6 +4,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { clsx } from "clsx";
 import {
   getProductBySlug,
   getRelatedProducts,
@@ -12,10 +13,12 @@ import {
 } from "@/lib/products-data";
 import type { ProductItem } from "@/lib/products-data";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
-import { absolutePublicMediaUrl, catalogImageSrc } from "@/lib/media-url";
+import { absolutePublicMediaUrl } from "@/lib/media-url";
 import ProductInteractive from "./ProductInteractive";
 import ProductGallery from "./ProductGallery";
 import ProductDetailsTabs from "@/components/product/ProductDetailsTabs";
+import { ProductDescriptionReadMore } from "@/components/product/ProductDescriptionReadMore";
+import { RelatedProductsSection } from "@/components/product/RelatedProductsSection";
 import StarRating from "@/components/product/StarRating";
 
 // Always render fresh so product updates (incl. customization settings) show immediately.
@@ -161,15 +164,16 @@ export default async function ProductPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
       />
-      <main className="relative min-h-screen bg-[#f6f5f8] pb-40 md:pb-16">
-        {/* subtle top gradient */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-96 bg-gradient-to-b from-violet-100/40 via-transparent to-transparent" aria-hidden />
+      <main className="relative min-h-screen bg-[#f4f3f6] pb-40 md:pb-16">
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 h-[28rem] bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(220,38,38,0.07),transparent)]"
+          aria-hidden
+        />
 
         <div className="relative mx-auto max-w-7xl px-3 py-5 sm:px-6 sm:py-8 lg:px-8 lg:py-12">
           <Breadcrumbs items={breadcrumbs} />
 
-          <div className="mt-5 grid gap-6 sm:mt-8 sm:gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-14 lg:items-start">
-            {/* Gallery — constrained height on small phones so summary is still visible above the fold */}
+          <div className="grid gap-6 sm:gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-12 xl:gap-16 lg:items-start">
             <div className="lg:sticky lg:top-24">
               <ProductGallery
                 title={product.title}
@@ -181,108 +185,91 @@ export default async function ProductPage({ params }: Props) {
               />
             </div>
 
-            {/* Product summary */}
             <div className="flex flex-col">
-              <div className="rounded-2xl border border-white/60 bg-white/90 p-4 shadow-[0_25px_80px_-32px_rgba(15,23,42,0.18)] backdrop-blur-md sm:rounded-3xl sm:p-6 lg:p-8">
-                <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl lg:text-[2.35rem] lg:leading-tight">
-                  {product.title}
-                </h1>
-
-                {enableReviews && reviewSummary.count > 0 ? (
-                  <div className="mt-3 flex flex-wrap items-center gap-3">
-                    <StarRating rating={reviewSummary.average} size="md" />
-                    <span className="text-sm font-medium text-gray-600">
-                      {reviewSummary.average.toFixed(1)} · {reviewSummary.count} review
-                      {reviewSummary.count === 1 ? "" : "s"}
-                    </span>
-                  </div>
-                ) : null}
-
-                {!(product.page_settings?.hide_sku == 1 && product.page_settings?.hide_categories == 1) && (
-                  <p className="mt-3 text-sm text-gray-500">
-                    {product.page_settings?.hide_sku != 1 && <>SKU: {product.sku}</>}
-                    {product.page_settings?.hide_categories != 1 && category && (
-                      <>
-                        {product.page_settings?.hide_sku != 1 ? " · " : ""}
-                        <Link
-                          href={`/product-category/${product.categorySlug}`}
-                          className="font-medium text-brand-red transition hover:text-brand-red-dark hover:underline"
-                        >
-                          {category.name}
-                        </Link>
-                      </>
-                    )}
-                  </p>
-                )}
-
-                {product.material && (
-                  <p className="mt-2 text-sm font-medium text-gray-700">
-                    Material: <span className="text-gray-900">{product.material}</span>
-                  </p>
-                )}
-
-                {showShort ? (
-                  <p className="mt-5 rounded-2xl border border-gray-100 bg-gradient-to-br from-slate-50/90 to-white px-5 py-4 text-[15px] leading-relaxed text-gray-700">
-                    {shortText}
-                  </p>
-                ) : null}
-
-                {product.variantsNote ? (
-                  <p className="mt-4 text-sm text-gray-500">{product.variantsNote}</p>
-                ) : null}
-
-                <ProductInteractive product={product} />
-              </div>
-            </div>
-          </div>
-
-          {/* Description + Reviews tabs */}
-          <ProductDetailsTabs
-            slug={product.slug}
-            longDescription={product.description ?? ""}
-            enableReviews={enableReviews}
-            initialSummary={reviewSummary}
-          />
-
-          {/* Related */}
-          {related.length > 0 && product.page_settings?.hide_related != 1 && (
-            <section className="mt-16 border-t border-gray-200/80 pt-12">
-              <h2 className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">
-                You may also like
-              </h2>
-              <ul className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                {related.map((p) => (
-                  <li key={p.id}>
+              <div className="overflow-hidden rounded-2xl border border-gray-200/70 bg-white shadow-[0_25px_80px_-32px_rgba(15,23,42,0.14)] sm:rounded-3xl">
+                <div className="border-b border-gray-100 bg-gradient-to-r from-slate-50/80 via-white to-white px-4 py-5 sm:px-7 sm:py-6 lg:px-8">
+                  {product.page_settings?.hide_categories != 1 && category ? (
                     <Link
-                      href={`/product/${p.slug}`}
-                      className="group block rounded-2xl border border-gray-200/80 bg-white p-4 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl"
+                      href={`/product-category/${product.categorySlug}`}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-brand-red/15 bg-brand-red/5 px-3 py-1 text-xs font-bold uppercase tracking-wide text-brand-red transition hover:border-brand-red/30 hover:bg-brand-red/10"
                     >
-                      <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-gray-50 ring-1 ring-gray-100">
-                        {p.image?.trim() ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={catalogImageSrc(p.image)}
-                            alt={p.title}
-                            className="h-full w-full object-contain p-2 transition duration-500 group-hover:scale-[1.03]"
-                            loading="lazy"
-                            decoding="async"
-                          />
-                        ) : (
-                          <div className="flex h-full items-center justify-center text-xs text-gray-400">
-                            No image
-                          </div>
-                        )}
-                      </div>
-                      <h3 className="mt-3 font-semibold text-gray-900 transition group-hover:text-brand-red">
-                        {p.title}
-                      </h3>
-                      <p className="mt-1 text-lg font-bold text-gray-800">{p.price}</p>
+                      <i className="bi bi-tag-fill text-[10px]" aria-hidden />
+                      {category.name}
                     </Link>
+                  ) : null}
+
+                  <h1 className="mt-3 text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl lg:text-[2.15rem] lg:leading-[1.15]">
+                    {product.title}
+                  </h1>
+
+                  {enableReviews && reviewSummary.count > 0 ? (
+                    <div className="mt-3 flex flex-wrap items-center gap-3">
+                      <StarRating rating={reviewSummary.average} size="md" />
+                      <span className="text-sm font-medium text-gray-600">
+                        {reviewSummary.average.toFixed(1)} · {reviewSummary.count} review
+                        {reviewSummary.count === 1 ? "" : "s"}
+                      </span>
+                    </div>
+                  ) : null}
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {product.page_settings?.hide_sku != 1 && product.sku ? (
+                      <span className="inline-flex items-center gap-1.5 rounded-lg bg-gray-100/80 px-2.5 py-1 text-xs font-medium text-gray-600">
+                        <i className="bi bi-upc-scan text-gray-400" aria-hidden />
+                        SKU: {product.sku}
+                      </span>
+                    ) : null}
+                    {product.material ? (
+                      <span className="inline-flex items-center gap-1.5 rounded-lg bg-gray-100/80 px-2.5 py-1 text-xs font-medium text-gray-600">
+                        <i className="bi bi-layers text-gray-400" aria-hidden />
+                        {product.material}
+                      </span>
+                    ) : null}
+                  </div>
+
+                  {showShort ? (
+                    <p className="mt-4 text-[15px] leading-relaxed text-gray-600">{shortText}</p>
+                  ) : null}
+
+                  {product.variantsNote ? (
+                    <p className="mt-3 text-sm text-gray-500">{product.variantsNote}</p>
+                  ) : null}
+                </div>
+
+                <div className="px-4 sm:px-7 lg:px-8">
+                  <ProductInteractive product={product} />
+                </div>
+              </div>
+
+              <ul className="mt-5 grid grid-cols-3 gap-2 sm:gap-3" aria-label="Store benefits">
+                {[
+                  { icon: "bi-shield-check", label: "Quality prints" },
+                  { icon: "bi-truck", label: "Island-wide delivery" },
+                  { icon: "bi-headset", label: "Expert support" },
+                ].map((item) => (
+                  <li
+                    key={item.label}
+                    className="flex flex-col items-center rounded-xl border border-gray-200/70 bg-white px-2 py-3 text-center shadow-sm sm:rounded-2xl sm:px-3 sm:py-4"
+                  >
+                    <i className={clsx("bi mb-1.5 text-lg text-brand-red sm:text-xl", item.icon)} aria-hidden />
+                    <span className="text-[10px] font-semibold leading-tight text-gray-600 sm:text-xs">{item.label}</span>
                   </li>
                 ))}
               </ul>
-            </section>
-          )}
+            </div>
+          </div>
+
+          <ProductDescriptionReadMore description={product.description ?? ""} />
+
+          {related.length > 0 && product.page_settings?.hide_related != 1 ? (
+            <RelatedProductsSection products={related} />
+          ) : null}
+
+          <ProductDetailsTabs
+            slug={product.slug}
+            enableReviews={enableReviews}
+            initialSummary={reviewSummary}
+          />
         </div>
       </main>
     </>

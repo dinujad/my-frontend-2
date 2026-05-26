@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { catalogImageSrc, onCatalogImageError } from "@/lib/media-url";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useProductGalleryStore } from "@/stores/product-gallery-store";
+import { clsx } from "clsx";
 
 type Props = {
   title: string;
@@ -53,7 +54,6 @@ export default function ProductGallery({ title, image, imageAlt, gallery, galler
   const variationImage = useProductGalleryStore((s) => s.variationImage);
   const galleryEpoch = useProductGalleryStore((s) => s.galleryEpoch);
 
-  // When a variation image is set, that image is the hero first; gallery follows (deduped).
   const effectiveImage = variationImage
     ? catalogImageSrc(variationImage)
     : catalogImageSrc(image?.trim() ? image : "");
@@ -65,80 +65,133 @@ export default function ProductGallery({ title, image, imageAlt, gallery, galler
 
   const [active, setActive] = useState(0);
 
-  // When variation changes, always show slide 0 (the variation's photo when set).
   useEffect(() => {
     setActive(0);
   }, [galleryEpoch]);
+
+  const goPrev = useCallback(() => {
+    setActive((i) => (i <= 0 ? slides.length - 1 : i - 1));
+  }, [slides.length]);
+
+  const goNext = useCallback(() => {
+    setActive((i) => (i >= slides.length - 1 ? 0 : i + 1));
+  }, [slides.length]);
 
   const current = slides[active] ?? null;
 
   if (slides.length === 0) {
     return (
       <div className="flex aspect-square w-full items-center justify-center rounded-3xl border border-dashed border-gray-200 bg-gradient-to-br from-gray-50 to-white text-sm text-gray-500 shadow-inner">
-        No image available
+        <div className="text-center">
+          <i className="bi bi-image mb-2 block text-3xl text-gray-300" aria-hidden />
+          No image available
+        </div>
       </div>
     );
   }
 
   const src = current ? catalogImageSrc(current.src) : "";
+  const hasNav = slides.length > 1;
 
   return (
-    <div className="space-y-3 sm:space-y-5">
+    <div className="space-y-4">
       <motion.div
         layout
         suppressHydrationWarning
-        className="group relative w-full overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-[0_32px_64px_-28px_rgba(15,23,42,0.22)] ring-1 ring-black/[0.04] sm:rounded-3xl"
-        style={{ aspectRatio: "1 / 1", maxHeight: "min(70vw, 520px)" }}
+        className="group relative w-full overflow-hidden rounded-2xl border border-gray-200/70 bg-gradient-to-br from-white via-gray-50/30 to-white shadow-[0_32px_64px_-28px_rgba(15,23,42,0.18)] ring-1 ring-black/[0.03] sm:rounded-3xl"
+        style={{ aspectRatio: "1 / 1", maxHeight: "min(72vw, 540px)" }}
       >
         {badge?.trim() ? (
-          <span className="absolute left-3 top-3 z-10 rounded-full bg-brand-red px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-white shadow-lg shadow-brand-red/30 sm:left-4 sm:top-4 sm:px-3 sm:text-xs">
+          <span className="absolute left-4 top-4 z-10 rounded-full bg-brand-red px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white shadow-lg shadow-brand-red/30">
             {badge}
           </span>
         ) : null}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-gray-900/[0.03] to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
-        {/* eslint-disable-next-line @next/next/no-img-element -- API paths; next/image optimizer breaks with Laravel storage */}
-        <img
-          key={`${galleryEpoch}-${current?.src ?? "no-image"}`}
-          src={src}
-          alt={current?.alt || title}
-          className="absolute inset-0 h-full w-full object-contain p-4 transition duration-500 ease-out group-hover:scale-[1.02] sm:p-6"
-          loading="eager"
-          decoding="async"
-          fetchPriority="high"
-          onError={onCatalogImageError}
-        />
+
+        {hasNav ? (
+          <span className="absolute right-4 top-4 z-10 rounded-full bg-gray-900/70 px-2.5 py-1 text-[11px] font-semibold tabular-nums text-white backdrop-blur-sm">
+            {active + 1} / {slides.length}
+          </span>
+        ) : null}
+
+        <AnimatePresence mode="wait">
+          <motion.img
+            key={`${galleryEpoch}-${current?.src ?? "no-image"}`}
+            initial={{ opacity: 0.6, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0.6, scale: 0.98 }}
+            transition={{ duration: 0.25 }}
+            src={src}
+            alt={current?.alt || title}
+            className="absolute inset-0 h-full w-full object-contain p-5 sm:p-8"
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
+            onError={onCatalogImageError}
+          />
+        </AnimatePresence>
+
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-gray-900/[0.04] via-transparent to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
+
+        {hasNav ? (
+          <>
+            <button
+              type="button"
+              onClick={goPrev}
+              className="absolute left-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200/80 bg-white/95 text-gray-700 shadow-lg opacity-0 backdrop-blur-sm transition hover:bg-white hover:text-brand-red group-hover:opacity-100 sm:left-4"
+              aria-label="Previous image"
+            >
+              <i className="bi bi-chevron-left text-lg" aria-hidden />
+            </button>
+            <button
+              type="button"
+              onClick={goNext}
+              className="absolute right-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200/80 bg-white/95 text-gray-700 shadow-lg opacity-0 backdrop-blur-sm transition hover:bg-white hover:text-brand-red group-hover:opacity-100 sm:right-4"
+              aria-label="Next image"
+            >
+              <i className="bi bi-chevron-right text-lg" aria-hidden />
+            </button>
+          </>
+        ) : null}
       </motion.div>
-      {slides.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto pb-1 sm:gap-3" style={{ scrollbarWidth: "none" }}>
-          {slides.map((thumb, i) => {
-            const tsrc = thumb.src;
-            return (
-              <button
-                key={`${thumb.src}-${i}`}
-                type="button"
-                onClick={() => setActive(i)}
-                className={`relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border-2 bg-white shadow-sm transition-all duration-200 sm:h-[4.5rem] sm:w-[4.5rem] sm:rounded-2xl ${
-                  i === active
-                    ? "border-brand-red shadow-md shadow-brand-red/15 ring-2 ring-brand-red/20"
-                    : "border-gray-200 hover:border-gray-300 hover:shadow-md"
-                }`}
-                aria-label={`View image ${i + 1} of ${slides.length}`}
-                aria-current={i === active ? "true" : undefined}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={tsrc}
-                  alt={thumb.alt}
-                  className="h-full w-full object-contain p-1"
-                  loading="lazy"
-                  decoding="async"
-                  onError={onCatalogImageError}
-                />
-              </button>
-            );
-          })}
+
+      {hasNav ? (
+        <div
+          className="flex gap-2.5 overflow-x-auto pb-1 sm:gap-3"
+          style={{ scrollbarWidth: "none" }}
+          role="tablist"
+          aria-label="Product images"
+        >
+          {slides.map((thumb, i) => (
+            <button
+              key={`${thumb.src}-${i}`}
+              type="button"
+              role="tab"
+              onClick={() => setActive(i)}
+              className={clsx(
+                "relative h-[4.25rem] w-[4.25rem] shrink-0 overflow-hidden rounded-xl border-2 bg-white shadow-sm transition-all duration-200 sm:h-[5rem] sm:w-[5rem] sm:rounded-2xl",
+                i === active
+                  ? "border-brand-red shadow-md shadow-brand-red/15 ring-2 ring-brand-red/15"
+                  : "border-gray-200 hover:border-gray-300 hover:shadow-md"
+              )}
+              aria-label={`View image ${i + 1} of ${slides.length}`}
+              aria-selected={i === active}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={thumb.src}
+                alt={thumb.alt}
+                className="h-full w-full object-contain p-1.5"
+                loading="lazy"
+                decoding="async"
+                onError={onCatalogImageError}
+              />
+              {i === active ? (
+                <span className="absolute inset-x-0 bottom-0 h-0.5 bg-brand-red" aria-hidden />
+              ) : null}
+            </button>
+          ))}
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

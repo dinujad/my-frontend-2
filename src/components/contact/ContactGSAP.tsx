@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ContactForm } from "@/components/contact/ContactForm";
-import { ContactMap } from "@/components/contact/ContactMap";
+import { ContactMap, PRINTWORKS_ADDRESS, PRINTWORKS_MAP_LINK } from "@/components/contact/ContactMap";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -153,14 +153,47 @@ export function ContactGSAP() {
                                 <div className="space-y-8">
                                     <div className="group">
                                         <p className="text-sm font-bold uppercase tracking-widest text-white/70 mb-2">
-                                            Phone
+                                            Landline
                                         </p>
                                         <a
-                                            href="tel:0706668885"
+                                            href="tel:0112465555"
                                             className="block text-2xl font-semibold text-white group-hover:text-white/80 transition-colors"
+                                        >
+                                            011 246 5555
+                                        </a>
+                                    </div>
+                                    <div className="group">
+                                        <p className="text-sm font-bold uppercase tracking-widest text-white/70 mb-2">
+                                            WhatsApp
+                                        </p>
+                                        <a
+                                            href="https://wa.me/94706668885"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="block text-xl font-semibold text-white group-hover:text-white/80 transition-colors"
                                         >
                                             070 666 8885
                                         </a>
+                                        <span className="mt-1 block text-xs text-white/60">Text only</span>
+                                    </div>
+                                    <div className="group">
+                                        <p className="text-sm font-bold uppercase tracking-widest text-white/70 mb-2">
+                                            Email
+                                        </p>
+                                        <a
+                                            href="mailto:sales@printworks.lk"
+                                            className="block text-xl font-semibold text-white break-all group-hover:text-white/80 transition-colors"
+                                        >
+                                            sales@printworks.lk
+                                        </a>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-bold uppercase tracking-widest text-white/70 mb-2">
+                                            Address
+                                        </p>
+                                        <p className="text-lg text-white/95 font-medium leading-relaxed">
+                                            {PRINTWORKS_ADDRESS}
+                                        </p>
                                     </div>
                                     <div>
                                         <p className="text-sm font-bold uppercase tracking-widest text-white/70 mb-2">
@@ -201,6 +234,20 @@ export function ContactGSAP() {
 
             {/* Map Section */}
             <section ref={mapSectionRef} className="px-4 pb-24 mx-auto max-w-6xl">
+                <div className="mb-6 text-center">
+                    <p className="text-gray-600 font-medium">{PRINTWORKS_ADDRESS}</p>
+                    <a
+                        href={PRINTWORKS_MAP_LINK}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-red hover:underline"
+                    >
+                        Open in Google Maps
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                    </a>
+                </div>
                 <div className="mb-10 flex items-center justify-center gap-4">
                     <span className="h-px w-12 bg-brand-red/30" />
                     <h2 className="text-center text-3xl font-black text-gray-900 tracking-tight">

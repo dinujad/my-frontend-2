@@ -460,53 +460,62 @@ export default function ProductInteractive({ product }: { product: ProductItem }
 
   return (
     <>
-      <div className="mt-5 space-y-5 border-t border-gray-100 pt-5 sm:mt-8 sm:space-y-6 sm:pt-8">
-        {/* 1. Price */}
-        <section aria-label="Price">
-          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Price</p>
-          <div className="mt-1.5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <span className="text-3xl font-extrabold tracking-tight text-gray-900 tabular-nums sm:text-4xl sm:leading-none">
-              {fmtRs(currentPricePerUnit)}
-            </span>
-            {product.oldPrice ? (
-              <span className="text-base font-medium text-gray-400 line-through sm:text-lg">{product.oldPrice}</span>
-            ) : null}
+      <div className="space-y-6 py-5 sm:space-y-7 sm:py-7">
+        {/* Price + availability highlight */}
+        <div className="rounded-2xl border border-gray-200/80 bg-gradient-to-br from-slate-50/90 via-white to-white p-4 sm:p-5">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-gray-400">Price</p>
+              <div className="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <span className="text-3xl font-extrabold tracking-tight text-gray-900 tabular-nums sm:text-[2.35rem] sm:leading-none">
+                  {fmtRs(currentPricePerUnit)}
+                </span>
+                {product.oldPrice ? (
+                  <span className="text-base font-medium text-gray-400 line-through sm:text-lg">{product.oldPrice}</span>
+                ) : null}
+              </div>
+              {activeTiers.length > 0 ? (
+                <p className="mt-2 text-sm text-gray-500">Unit price updates with quantity tiers below.</p>
+              ) : null}
+              {serviceFees.perItem > 0 ? (
+                <p className="mt-2 text-sm font-medium text-brand-red">
+                  + {fmtRs(serviceFees.perItem)} add-on services per item
+                </p>
+              ) : null}
+              {serviceFees.perOrder > 0 ? (
+                <p className="mt-1 text-sm font-medium text-brand-red">
+                  + {fmtRs(serviceFees.perOrder)} add-on services once per order
+                </p>
+              ) : null}
+            </div>
+            <div className="shrink-0 text-right">
+              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-gray-400">Availability</p>
+              <span
+                className={clsx(
+                  "mt-2 inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold",
+                  pillClass(stock.tone)
+                )}
+              >
+                <span
+                  className={clsx(
+                    "h-2 w-2 rounded-full",
+                    stock.tone === "success" && "bg-emerald-500",
+                    stock.tone === "warn" && "bg-amber-500",
+                    stock.tone === "danger" && "bg-red-500"
+                  )}
+                  aria-hidden
+                />
+                {stock.label}
+              </span>
+            </div>
           </div>
-          {activeTiers.length > 0 ? (
-            <p className="mt-2 text-sm text-gray-500">Unit price updates with quantity tiers below.</p>
-          ) : null}
-          {serviceFees.perItem > 0 ? (
-            <p className="mt-2 text-sm font-medium text-brand-red">
-              + {fmtRs(serviceFees.perItem)} add-on services per item
-            </p>
-          ) : null}
-          {serviceFees.perOrder > 0 ? (
-            <p className="mt-1 text-sm font-medium text-brand-red">
-              + {fmtRs(serviceFees.perOrder)} add-on services once per order
-            </p>
-          ) : null}
-        </section>
-
-        {/* 2. Availability */}
-        <section aria-label="Availability">
-          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Availability</p>
-          <div className="mt-2">
-            <span
-              className={clsx(
-                "inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold",
-                pillClass(stock.tone)
-              )}
-            >
-              {stock.label}
-            </span>
-          </div>
-        </section>
+        </div>
 
         {/* Variations: attribute label + values dropdown (WooCommerce-style rows) */}
         {hasVariations && variationAttributeKeys.length > 0 && (
-          <section className="space-y-4" aria-label="Product options">
-            <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Options</p>
-            <div className="space-y-4">
+          <section className="rounded-2xl border border-gray-200/70 bg-white p-4 sm:p-5" aria-label="Product options">
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-gray-400">Options</p>
+            <div className="mt-4 space-y-4">
               {variationAttributeKeys.map((attrKey) => {
                 const attrs = selectedVariation?.attributes || {};
                 const options = getOptionsForAttribute(
@@ -551,7 +560,10 @@ export default function ProductInteractive({ product }: { product: ProductItem }
                           if (vimg) setVariationImage(vimg);
                           else resetGallery();
                         }}
-                        className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-900 shadow-sm outline-none transition focus:border-brand-red focus:ring-2 focus:ring-brand-red/20"
+                        className="w-full appearance-none rounded-xl border border-gray-200 bg-gray-50/50 bg-[length:1rem] bg-[right_0.75rem_center] bg-no-repeat px-3 py-3 pr-10 text-sm font-medium text-gray-900 shadow-sm outline-none transition focus:border-brand-red focus:bg-white focus:ring-2 focus:ring-brand-red/20"
+                        style={{
+                          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")`,
+                        }}
                       >
                         {options.length === 0 ? (
                           <option value="">Choose an option</option>
@@ -620,14 +632,12 @@ export default function ProductInteractive({ product }: { product: ProductItem }
 
         {/* Additional services (optional add-ons) */}
         {availableServices.length > 0 && (
-          <section className="space-y-3" aria-label="Additional services">
-            <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-              Additional services
-            </p>
-            <p className="text-sm text-gray-600">
+          <section className="rounded-2xl border border-gray-200/70 bg-white p-4 sm:p-5" aria-label="Additional services">
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-gray-400">Additional services</p>
+            <p className="mt-2 text-sm text-gray-600">
               Tick any extras you need. Per-item fees multiply by quantity; per-order fees are added once.
             </p>
-            <div className="space-y-2">
+            <div className="mt-4 space-y-2.5">
               {availableServices.map((svc) => {
                 const checked = selectedServiceIds.includes(svc.id);
                 return (
@@ -867,7 +877,7 @@ export default function ProductInteractive({ product }: { product: ProductItem }
 
         {/* 4. Quantity + Total (same row desktop) */}
         <section
-          className="flex flex-row items-end justify-between gap-4 rounded-2xl border border-gray-100 bg-gray-50/50 p-4 sm:p-5"
+          className="flex flex-row items-end justify-between gap-4 rounded-2xl border border-gray-200/80 bg-gradient-to-br from-gray-50/80 to-white p-4 sm:p-5"
           aria-label="Quantity and total"
         >
           <div className="shrink-0">
@@ -922,7 +932,7 @@ export default function ProductInteractive({ product }: { product: ProductItem }
         </section>
 
         {/* 5. Actions — extra bottom padding on mobile so content clears the fixed dock + Request Quote stays scrollable */}
-        <section className="space-y-2.5 pb-6 sm:space-y-3 sm:pb-0" aria-label="Purchase actions">
+        <section className="space-y-2.5 border-t border-gray-100 pb-6 pt-2 sm:space-y-3 sm:pb-0" aria-label="Purchase actions">
           <div className="flex flex-col gap-2.5 sm:flex-row sm:items-stretch sm:gap-3">
             <button
               type="button"
