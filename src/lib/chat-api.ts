@@ -42,7 +42,10 @@ export const chatApi = {
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({ message })
     });
-    if (!res.ok) throw new Error('Failed to get AI help');
-    return res.json();
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok && !json?.reply) {
+      throw new Error('Failed to get AI help');
+    }
+    return json;
   }
 };

@@ -17,8 +17,7 @@ export function LoginPageClient() {
     setLoading(true);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-      const res = await fetch(`${apiUrl}/api/v1/auth/login`, {
+      const res = await fetch("/api/v1/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
