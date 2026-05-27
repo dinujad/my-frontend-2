@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-const WHATSAPP = "94XXXXXXXXX"; // replace with real number if needed
+const WHATSAPP = "94706668885";
 
 export function MaintenanceClient() {
   const [dots, setDots] = useState(0);
