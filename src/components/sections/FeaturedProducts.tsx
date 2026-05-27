@@ -47,6 +47,12 @@ export function FeaturedProducts({ products = [] }: { products: ProductItem[] })
   };
 
   const currentTabProducts = tabData[activeTab] || [];
+  const hasSpecialOffers = specialOffers.length > 0;
+  const hasAnyTabProducts = featured.length > 0 || onSale.length > 0 || topRated.length > 0;
+
+  if (!hasSpecialOffers && !hasAnyTabProducts) {
+    return null;
+  }
 
   const handleTabChange = (tab: string) => {
     if (tab === activeTab || isAnimating) return;
@@ -62,13 +68,9 @@ export function FeaturedProducts({ products = [] }: { products: ProductItem[] })
       <div className="mx-auto max-w-[90rem] px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-6 lg:flex-row">
 
+          {hasSpecialOffers && (
           <div className="relative z-10 mt-3 flex w-full shrink-0 flex-col gap-4 sm:mt-5 lg:ml-6 lg:mt-[48px] lg:w-1/4 lg:gap-6 lg:self-start xl:w-1/5">
-            {specialOffers.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 px-4 py-8 text-center text-sm text-gray-500">
-                No special offers yet. Tick <strong>Special</strong> on products in admin (max 2).
-              </div>
-            ) : (
-              specialOffers.map((offer) => {
+              {specialOffers.map((offer) => {
                 const prices = specialOfferPrices(offer);
                 return (
                   <Link href={`/product/${offer.slug}`} key={offer.id} className="block rounded-xl border border-brand-red bg-white px-4 pb-4 pt-4 transition-shadow duration-300 hover:shadow-lg sm:px-5 sm:pb-5 sm:pt-5 lg:px-6 lg:pb-6 lg:pt-6">
@@ -103,11 +105,11 @@ export function FeaturedProducts({ products = [] }: { products: ProductItem[] })
                     </div>
                   </Link>
                 );
-              })
-            )}
+              })}
           </div>
+          )}
 
-          <div className="w-full lg:w-3/4 xl:w-4/5 flex flex-col">
+          <div className={`w-full flex flex-col ${hasSpecialOffers ? "lg:w-3/4 xl:w-4/5" : ""}`}>
             <div className="relative mb-5 flex justify-start overflow-x-auto border-b border-gray-200 sm:mb-6 sm:justify-center">
               {tabs.map((tab) => (
                 <button
@@ -130,8 +132,14 @@ export function FeaturedProducts({ products = [] }: { products: ProductItem[] })
 
             <div className={`flex-1 transition-opacity duration-300 ${isAnimating ? "opacity-0" : "opacity-100"}`}>
               {currentTabProducts.length === 0 ? (
-                <div className="border border-dashed border-gray-200 rounded-lg py-16 text-center text-gray-500 text-sm">
-                  No products in this section. Admin → Products → tick the matching column ({activeTab}).
+                <div className="rounded-lg border border-gray-100 bg-gray-50 py-16 text-center">
+                  <p className="text-sm text-gray-600">No products in {activeTab} right now.</p>
+                  <Link
+                    href="/products"
+                    className="mt-3 inline-block text-sm font-semibold text-brand-red hover:underline"
+                  >
+                    View all products
+                  </Link>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 border-t border-l border-gray-200 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
