@@ -110,57 +110,48 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
  */
 export const PRODUCT_IMAGE_PLACEHOLDER = "/images/logo.png";
 
-/**
- * Map API media URLs to same-origin `/storage/*` and `/images/*` paths (Next rewrites → Laravel).
- * Unknown external hosts fall back to placeholder so the UI never breaks on bad URLs.
- */
+/** Uploaded media → API host; static /images → shop host. */
 function normalizeProductImageSrc(url: string | null | undefined): string {
   if (!url?.trim()) return PRODUCT_IMAGE_PLACEHOLDER;
+  const apiBase = API_BASE_URL.replace(/\/$/, "");
   let raw = url.trim().replace(/\\/g, "/");
-  // Protocol-relative URLs: new URL("//host/...") throws without a base
   if (raw.startsWith("//")) {
     raw = `https:${raw}`;
   }
 
   const bare = raw.replace(/^\/+/, "");
-  if (bare.startsWith("storage/") || bare.startsWith("images/")) {
+  if (bare.startsWith("storage/")) {
+    return apiBase ? `${apiBase}/${bare}` : `/${bare}`;
+  }
+  if (bare.startsWith("images/")) {
     return `/${bare}`;
   }
 
+  if (raw.startsWith("http://") || raw.startsWith("https://")) {
+    try {
+      const parsed = new URL(raw);
+      if (parsed.pathname.startsWith("/storage/")) {
+        if (apiBase) {
+          return `${apiBase}${parsed.pathname}${parsed.search}`;
+        }
+        return `${parsed.pathname}${parsed.search}`;
+      }
+      if (parsed.pathname.startsWith("/images/")) {
+        return `${parsed.pathname}${parsed.search}`;
+      }
+      if (parsed.hostname.toLowerCase() === "images.unsplash.com") {
+        return raw;
+      }
+    } catch {
+      return PRODUCT_IMAGE_PLACEHOLDER;
+    }
+    return PRODUCT_IMAGE_PLACEHOLDER;
+  }
+
+  if (raw.startsWith("/storage/") && apiBase) {
+    return `${apiBase}${raw}`;
+  }
   if (raw.startsWith("/")) return raw;
-
-  const base = API_BASE_URL.replace(/\/$/, "");
-  if (raw.startsWith(`${base}/`)) {
-    return raw.slice(base.length);
-  }
-
-  let parsed: URL;
-  try {
-    parsed = new URL(raw);
-  } catch {
-    return PRODUCT_IMAGE_PLACEHOLDER;
-  }
-
-  let api: URL;
-  try {
-    api = new URL(API_BASE_URL);
-  } catch {
-    return PRODUCT_IMAGE_PLACEHOLDER;
-  }
-
-  const path = `${parsed.pathname}${parsed.search}`;
-  const isMediaPath =
-    parsed.pathname.startsWith("/storage/") || parsed.pathname.startsWith("/images/");
-
-  if (isMediaPath) return path;
-  if (parsed.origin === api.origin) return path;
-
-  const host = parsed.hostname.toLowerCase();
-  if (host === "images.unsplash.com") return raw;
-
-  if (parsed.protocol === "http:" || parsed.protocol === "https:") {
-    return PRODUCT_IMAGE_PLACEHOLDER;
-  }
 
   return PRODUCT_IMAGE_PLACEHOLDER;
 }

@@ -1,11 +1,13 @@
 import type { SyntheticEvent } from "react";
 
+function apiMediaBase(): string {
+  return (process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/$/, "");
+}
+
 /**
- * Product images from the API are often absolute URLs (Laravel `asset()`).
- * Using **same-origin** `/storage/*` and `/images/*` paths lets Next.js rewrites
- * proxy to Laravel (`next.config.ts`), fixing broken galleries when APP_URL ≠ how you open the site.
- *
- * Set `NEXT_PUBLIC_MEDIA_ABSOLUTE=1` + `NEXT_PUBLIC_API_URL` to force API-origin URLs (no rewrite).
+ * Uploaded files live on Laravel (`storage/app/public` → `/storage/*` on API host).
+ * Returns full URL on `api.printworks.lk` when NEXT_PUBLIC_API_URL is set.
+ * Static storefront assets under `/images/*` stay on the shop domain.
  */
 export function catalogImageSrc(path: string | null | undefined): string {
   if (!path?.trim()) return "";
@@ -15,50 +17,62 @@ export function catalogImageSrc(path: string | null | undefined): string {
     p = `https:${p}`;
   }
 
-  const bare = p.replace(/^\/+/, "");
-  if (bare.startsWith("storage/") || bare.startsWith("images/")) {
-    return `/${bare}`;
-  }
+  const apiBase = apiMediaBase();
 
-  if (process.env.NEXT_PUBLIC_MEDIA_ABSOLUTE === "1") {
-    if (!p.startsWith("http://") && !p.startsWith("https://")) {
-      const relative = p.startsWith("/") ? p : `/${p}`;
-      const base = (process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/$/, "");
-      if (base) return `${base}${relative}`;
-    }
-    return p.startsWith("http://") || p.startsWith("https://") ? p : p.startsWith("/") ? p : `/${p}`;
-  }
-
-  // Absolute URL → use pathname if it's our uploaded/static paths (proxy via Next)
   if (p.startsWith("http://") || p.startsWith("https://")) {
     try {
       const u = new URL(p);
       const pathname = u.pathname.startsWith("/") ? u.pathname : `/${u.pathname}`;
-      if (pathname.startsWith("/storage/") || pathname.startsWith("/images/")) {
+      if (pathname.startsWith("/storage/")) {
+        if (apiBase && u.origin === new URL(apiBase).origin) {
+          return p;
+        }
+        if (apiBase) {
+          return `${apiBase}${pathname}${u.search || ""}`;
+        }
+        return pathname + (u.search || "");
+      }
+      if (pathname.startsWith("/images/")) {
         return pathname + (u.search || "");
       }
     } catch {
-      /* invalid URL — fall through */
+      /* invalid URL */
     }
     return p;
+  }
+
+  const bare = p.replace(/^\/+/, "");
+  if (bare.startsWith("storage/")) {
+    if (apiBase) {
+      return `${apiBase}/${bare}`;
+    }
+    return `/${bare}`;
+  }
+  if (bare.startsWith("images/")) {
+    return `/${bare}`;
+  }
+
+  if (apiBase && !p.startsWith("/")) {
+    return `${apiBase}/${bare}`;
   }
 
   return p.startsWith("/") ? p : `/${p}`;
 }
 
-/** Retry on API host when same-origin `/storage` proxy fails (dev / misconfigured rewrites). */
+/** Retry once if image failed (wrong host / deploy). */
 export function onCatalogImageError(e: SyntheticEvent<HTMLImageElement>): void {
   const el = e.currentTarget;
   if (el.dataset.fallbackTried === "1") return;
   el.dataset.fallbackTried = "1";
   const src = el.getAttribute("src") || "";
-  const api = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
-  if (api && src.startsWith("/")) {
+  const api = apiMediaBase();
+  if (!api) return;
+  if (src.startsWith("/storage/")) {
     el.src = `${api}${src}`;
   }
 }
 
-/** Canonical / OG URLs when the site serves (or proxies) media under the same host */
+/** Canonical / OG URLs */
 export function absolutePublicMediaUrl(
   path: string | null | undefined,
   siteBaseUrl: string
