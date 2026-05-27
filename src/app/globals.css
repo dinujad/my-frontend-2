@@ -9,6 +9,18 @@
   --brand-red-dark: #be0029;
   --nav-dark: #626262;
   --muted: #96989a;
+  /* Home: departments sidebar + hero slider share this height on lg+ */
+  --home-hero-height: 580px;
+}
+
+@layer utilities {
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 body {

@@ -73,6 +73,8 @@ export type ProductItem = {
   short_description?: string;
   price: string;
   priceRange?: boolean;
+  priceMin?: number;
+  priceMax?: number;
   numericPrice: number;
   oldPrice: string | null;
   image: string;
@@ -97,6 +99,12 @@ export type ProductItem = {
   stock_status?: string;
   allow_backorders?: boolean;
   review_summary?: ReviewSummary;
+  is_featured?: boolean;
+  is_special_offer?: boolean;
+  is_on_sale?: boolean;
+  is_top_rated?: boolean;
+  offer_price?: number | null;
+  sort_order?: number;
 };
 
 /** Public site URL (canonical, sitemap, OG). Set in production: NEXT_PUBLIC_SITE_URL */
@@ -156,13 +164,45 @@ function normalizeProductImageSrc(url: string | null | undefined): string {
   return PRODUCT_IMAGE_PLACEHOLDER;
 }
 
+function formatLkr(amount: number): string {
+  return `Rs. ${amount.toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+/** When parent price is 0, derive card price from variation prices. */
+function applyVariationListingPrice(p: ProductItem): ProductItem {
+  if (p.numericPrice > 0 && !p.priceRange) {
+    return p;
+  }
+
+  const prices = (p.variations ?? [])
+    .map((v) => (v.sale_price && v.sale_price > 0 ? v.sale_price : v.price))
+    .filter((n) => n > 0);
+
+  if (prices.length === 0) {
+    return p;
+  }
+
+  const min = Math.min(...prices);
+  const max = Math.max(...prices);
+  const price = min === max ? formatLkr(min) : `${formatLkr(min)} – ${formatLkr(max)}`;
+
+  return {
+    ...p,
+    price: p.numericPrice <= 0 ? price : p.price,
+    numericPrice: p.numericPrice <= 0 ? min : p.numericPrice,
+    priceRange: min !== max,
+    priceMin: min,
+    priceMax: max,
+  };
+}
+
 function normalizeProduct(p: ProductItem): ProductItem {
   const normalizedGalleryItems = p.gallery_items?.map((g) => ({
     ...g,
     src: normalizeProductImageSrc(g.src),
   }));
 
-  return {
+  const normalized: ProductItem = {
     ...p,
     image: normalizeProductImageSrc(p.image),
     gallery: normalizedGalleryItems?.map((g) => g.src) ?? p.gallery?.map((g) => normalizeProductImageSrc(g)),
@@ -172,6 +212,8 @@ function normalizeProduct(p: ProductItem): ProductItem {
       image: v.image != null ? normalizeProductImageSrc(v.image) : null,
     })),
   };
+
+  return applyVariationListingPrice(normalized);
 }
 
 // Disable fetch caching so category/product pages reflect admin changes immediately.

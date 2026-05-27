@@ -42,7 +42,7 @@ export function HeroSlider({ slides }: Props) {
 
   return (
     <section
-      className="relative overflow-hidden bg-[#f4f5f9] lg:min-h-[580px]"
+      className="relative overflow-hidden bg-[#f4f5f9] lg:min-h-[var(--home-hero-height)]"
       aria-label="Hero"
     >
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">

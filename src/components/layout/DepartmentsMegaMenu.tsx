@@ -110,6 +110,7 @@ export function DepartmentsMegaMenu({ categories, open, isHomePage, onNavigate }
   };
 
   const panelVisible = open || isHomePage;
+  const homeSidebarOnly = isHomePage && !showProductPanel;
 
   return (
     <div
@@ -118,19 +119,35 @@ export function DepartmentsMegaMenu({ categories, open, isHomePage, onNavigate }
       onMouseLeave={handleMenuLeave}
       className={`absolute left-0 top-full z-50 border border-gray-100 bg-white text-sm shadow-[0_12px_40px_rgb(0,0,0,0.12)] ${
         panelVisible ? "block" : "hidden"
-      } w-full ${isHomePage && !showProductPanel ? "md:w-[300px]" : "md:w-[min(920px,calc(100vw-2rem))]"} ${isHomePage ? "md:block" : ""}`}
+      } w-full ${homeSidebarOnly ? "md:w-[280px]" : "md:w-[min(920px,calc(100vw-2rem))]"} ${isHomePage ? "md:block" : ""}`}
     >
-      <div className="flex flex-col md:flex-row md:max-h-[min(70vh,520px)]">
+      <div
+        className={`flex flex-col md:flex-row ${
+          homeSidebarOnly
+            ? "lg:h-[var(--home-hero-height)]"
+            : "md:max-h-[min(70vh,520px)]"
+        }`}
+      >
         {/* Categories */}
-        <aside className="md:w-[300px] md:shrink-0 md:border-r md:border-gray-100 md:overflow-y-auto">
-          <div className="divide-y divide-gray-50">
+        <aside
+          className={`md:w-[280px] md:shrink-0 md:border-r md:border-gray-100 ${
+            homeSidebarOnly
+              ? "md:flex md:h-full md:flex-col md:overflow-hidden"
+              : "md:overflow-y-auto scrollbar-none"
+          }`}
+        >
+          <div
+            className={`divide-y divide-gray-50 ${
+              homeSidebarOnly ? "flex h-full min-h-0 flex-col" : ""
+            }`}
+          >
             {categories.map((cat) => {
               const isActive = activeSlug === cat.slug;
               const showMobileProducts = mobilePreviewSlug === cat.slug;
               return (
-                <div key={cat.slug}>
+                <div key={cat.slug} className={homeSidebarOnly ? "flex min-h-0 flex-1 flex-col" : undefined}>
                   <div
-                    className={`flex items-stretch transition-colors ${
+                    className={`flex min-h-0 flex-1 items-stretch transition-colors ${
                       isActive ? "bg-brand-red/5" : "hover:bg-gray-50"
                     }`}
                     onMouseEnter={() => handleCategoryHover(cat.slug)}
@@ -138,9 +155,9 @@ export function DepartmentsMegaMenu({ categories, open, isHomePage, onNavigate }
                     <Link
                       href={`/product-category/${encodeURIComponent(cat.slug)}`}
                       onClick={onNavigate}
-                      className={`min-w-0 flex-1 px-5 py-3.5 font-medium leading-snug transition-colors ${
-                        isActive ? "text-brand-red" : "text-gray-700 hover:text-brand-red"
-                      }`}
+                      className={`flex min-w-0 flex-1 items-center px-4 font-medium leading-snug transition-colors ${
+                        homeSidebarOnly ? "py-2 text-[13px] lg:px-5 lg:py-2.5 lg:text-sm" : "px-5 py-3.5"
+                      } ${isActive ? "text-brand-red" : "text-gray-700 hover:text-brand-red"}`}
                     >
                       {cat.name}
                     </Link>
@@ -195,7 +212,7 @@ export function DepartmentsMegaMenu({ categories, open, isHomePage, onNavigate }
                 </Link>
               )}
             </div>
-            <div className="flex-1 overflow-y-auto p-4">
+            <div className="flex-1 overflow-y-auto p-4 scrollbar-none">
               {loading ? (
                 <div className="grid grid-cols-2 gap-3">
                   {[1, 2, 3, 4].map((i) => (
