@@ -160,14 +160,14 @@ export function Header() {
     return () => window.removeEventListener("resize", handler);
   }, []);
 
-  // Prevent body scroll when menu open
+  // Prevent body scroll when mobile nav or departments panel open
   useEffect(() => {
-    if (menuOpen) document.body.style.overflow = "hidden";
+    if (menuOpen || shopCategoriesOpen) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";
     return () => {
       document.body.style.overflow = "";
     };
-  }, [menuOpen]);
+  }, [menuOpen, shopCategoriesOpen]);
 
   useEffect(() => {
     setShopCategoriesOpen(false);

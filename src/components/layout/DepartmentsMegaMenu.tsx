@@ -109,7 +109,8 @@ export function DepartmentsMegaMenu({ categories, open, isHomePage, onNavigate }
     });
   };
 
-  const panelVisible = open || isHomePage;
+  // Mobile: menu only when user taps "All Departments" (open).
+  // Desktop home: sidebar always visible beside hero (md:block).
   const homeSidebarOnly = isHomePage && !showProductPanel;
 
   return (
@@ -118,8 +119,10 @@ export function DepartmentsMegaMenu({ categories, open, isHomePage, onNavigate }
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={handleMenuLeave}
       className={`absolute left-0 top-full z-50 border border-gray-100 bg-white text-sm shadow-[0_12px_40px_rgb(0,0,0,0.12)] ${
-        panelVisible ? "block" : "hidden"
-      } w-full ${homeSidebarOnly ? "md:w-[280px]" : "md:w-[min(920px,calc(100vw-2rem))]"} ${isHomePage ? "md:block" : ""}`}
+        open ? "block" : "hidden"
+      } ${isHomePage ? "md:block" : ""} w-full max-h-[min(75vh,560px)] overflow-hidden ${
+        homeSidebarOnly ? "md:w-[280px]" : "md:w-[min(920px,calc(100vw-2rem))] md:max-h-[min(70vh,520px)]"
+      }`}
     >
       <div
         className={`flex flex-col md:flex-row ${
