@@ -139,6 +139,7 @@ function normalizeProductImageSrc(url: string | null | undefined): string {
     try {
       const parsed = new URL(raw);
       if (parsed.pathname.startsWith("/storage/")) {
+        // Legacy: re-root storage paths to the API host
         if (apiBase) {
           return `${apiBase}${parsed.pathname}${parsed.search}`;
         }
@@ -147,13 +148,11 @@ function normalizeProductImageSrc(url: string | null | undefined): string {
       if (parsed.pathname.startsWith("/images/")) {
         return `${parsed.pathname}${parsed.search}`;
       }
-      if (parsed.hostname.toLowerCase() === "images.unsplash.com") {
-        return raw;
-      }
+      // Any other absolute URL (R2, S3, B2, CDN, Unsplash…) — use as-is
+      return raw;
     } catch {
       return PRODUCT_IMAGE_PLACEHOLDER;
     }
-    return PRODUCT_IMAGE_PLACEHOLDER;
   }
 
   if (raw.startsWith("/storage/") && apiBase) {
