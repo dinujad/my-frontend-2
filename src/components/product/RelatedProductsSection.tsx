@@ -5,8 +5,8 @@ import { catalogImageSrc } from "@/lib/media-url";
 
 type Props = {
   products: ProductItem[];
-  /** "default" = full-width page section; "inline" = compact block in product summary column */
-  variant?: "default" | "inline";
+  /** "default" | "footer" = full-width page section; "inline" = compact block in product summary column */
+  variant?: "default" | "inline" | "footer";
   className?: string;
 };
 
@@ -22,11 +22,12 @@ export function RelatedProductsSection({ products, variant = "default", classNam
   if (products.length === 0) return null;
 
   const inline = variant === "inline";
+  const footer = variant === "footer";
 
   return (
     <section
       className={clsx(
-        inline ? "mt-6 border-t border-gray-100 pt-6" : "mt-14 sm:mt-16",
+        inline ? "mt-6 border-t border-gray-100 pt-6" : footer ? "mt-0" : "mt-14 sm:mt-16",
         className
       )}
       aria-labelledby="related-products-heading"
@@ -48,7 +49,7 @@ export function RelatedProductsSection({ products, variant = "default", classNam
               inline ? "text-lg" : "mt-1 text-2xl sm:text-3xl"
             )}
           >
-            {inline ? "Related products" : "You may also like"}
+            Related products
           </h2>
         </div>
         {!inline ? (

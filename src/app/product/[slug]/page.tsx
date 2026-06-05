@@ -25,7 +25,9 @@ import StarRating from "@/components/product/StarRating";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-type Props = { params: Promise<{ slug: string }> };
+function isPageSettingOn(value: unknown): boolean {
+  return value === true || value === 1 || value === "1";
+}
 
 function metaDescription(product: ProductItem): string {
   const short = product.short_description?.trim();
@@ -152,10 +154,14 @@ export default async function ProductPage({ params }: Props) {
     { label: product.title, href: `/product/${product.slug}` },
   ];
 
-  const hideFullDesc = product.page_settings?.hide_full_desc == 1;
+  const hideShortDesc = isPageSettingOn(product.page_settings?.hide_short_desc);
+  const shortText = (product.short_description?.trim() || "").trim();
+  const showShortDesc = !hideShortDesc && shortText.length > 0;
+  const hideFullDesc = isPageSettingOn(product.page_settings?.hide_full_desc);
   const descriptionText = (product.description?.trim() || "").trim();
-  const showDescription = !hideFullDesc && descriptionText.length > 0;
-  const showRelated = related.length > 0 && product.page_settings?.hide_related != 1;
+  const showFullDesc = !hideFullDesc && descriptionText.length > 0;
+  const hideRelated = isPageSettingOn(product.page_settings?.hide_related);
+  const showRelated = related.length > 0 && !hideRelated;
   const enableReviews = product.enable_reviews !== false;
   const reviewSummary = product.review_summary ?? { average: 0, count: 0 };
 
@@ -203,12 +209,8 @@ export default async function ProductPage({ params }: Props) {
                     {product.title}
                   </h1>
 
-                  {showDescription ? (
-                    <ProductDescriptionReadMore
-                      description={descriptionText}
-                      variant="inline"
-                      className="mt-2"
-                    />
+                  {showShortDesc ? (
+                    <p className="mt-2 text-base leading-relaxed text-gray-600 sm:text-[15px]">{shortText}</p>
                   ) : null}
 
                   {enableReviews && reviewSummary.count > 0 ? (
@@ -264,16 +266,24 @@ export default async function ProductPage({ params }: Props) {
             </div>
           </div>
 
+          {showFullDesc ? (
+            <ProductDescriptionReadMore description={descriptionText} />
+          ) : null}
+
           <ProductDetailsTabs
             slug={product.slug}
             enableReviews={enableReviews}
             initialSummary={reviewSummary}
           />
-
-          {showRelated ? (
-            <RelatedProductsSection products={related} />
-          ) : null}
         </div>
+
+        {showRelated ? (
+          <div className="relative mt-16 border-t border-gray-200/80 bg-white pb-16 pt-12 sm:mt-20 sm:pb-20 sm:pt-16">
+            <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
+              <RelatedProductsSection products={related} variant="footer" />
+            </div>
+          </div>
+        ) : null}
       </main>
     </>
   );

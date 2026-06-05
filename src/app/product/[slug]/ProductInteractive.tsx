@@ -10,6 +10,7 @@ import { useQuoteCartStore } from "@/stores/quote-cart-store";
 import { useToast } from "@/components/ui/ToastProvider";
 import { clsx } from "clsx";
 import { ProductCustomizationFields } from "./ProductCustomizationFields";
+import { ProductShareBar } from "@/components/product/ProductShareBar";
 import { useProductGalleryStore } from "@/stores/product-gallery-store";
 import { catalogImageSrc } from "@/lib/media-url";
 import {
@@ -203,6 +204,7 @@ export default function ProductInteractive({ product }: { product: ProductItem }
   const [customizationFiles, setCustomizationFiles] = useState<Record<number, File>>({});
   const [filePreviews, setFilePreviews] = useState<Record<number, string>>({});
   const [custModalOpen, setCustModalOpen] = useState(false);
+  const [quoteSuccessOpen, setQuoteSuccessOpen] = useState(false);
   const custSettings = product.customization_settings;
   const isCustomizationEnabled =
     custSettings?.enabled == 1 || custSettings?.enabled === "1" || custSettings?.enabled === true;
@@ -453,6 +455,30 @@ export default function ProductInteractive({ product }: { product: ProductItem }
       image: selectedVariation?.image || product.image,
     });
     showToast("Saved to wishlist", "success");
+  };
+
+  const handleRequestQuote = () => {
+    const alreadyInQuote = inQuoteCart(product.id, selectedVariationId);
+    if (alreadyInQuote) {
+      router.push("/quote");
+      return;
+    }
+
+    const variationLabel = selectedVariation
+      ? Object.values(selectedVariation.attributes || {}).join(" - ")
+      : undefined;
+
+    addToQuote({
+      product_id: product.id,
+      product_variation_id: selectedVariationId,
+      product_name: variationLabel ? `${product.title} — ${variationLabel}` : product.title,
+      product_sku: selectedVariation?.sku ?? (product as { sku?: string }).sku,
+      product_image: selectedVariation?.image ?? product.image ?? undefined,
+      product_slug: product.slug,
+      variation_attributes: selectedVariation?.attributes ?? null,
+      quantity: qty,
+    });
+    setQuoteSuccessOpen(true);
   };
 
   const ctaClass =
@@ -979,28 +1005,7 @@ export default function ProductInteractive({ product }: { product: ProductItem }
             return (
               <button
                 type="button"
-                onClick={() => {
-                  if (alreadyInQuote) {
-                    router.push("/quote");
-                    return;
-                  }
-                  const variationLabel = selectedVariation
-                    ? Object.values(selectedVariation.attributes || {}).join(" - ")
-                    : undefined;
-                  addToQuote({
-                    product_id: product.id,
-                    product_variation_id: selectedVariationId,
-                    product_name: variationLabel
-                      ? `${product.title} — ${variationLabel}`
-                      : product.title,
-                    product_sku: selectedVariation?.sku ?? (product as any).sku,
-                    product_image: selectedVariation?.image ?? product.image ?? undefined,
-                    product_slug: (product as any).slug,
-                    variation_attributes: selectedVariation?.attributes ?? null,
-                    quantity: qty,
-                  });
-                  showToast("Added to quote request!", "success");
-                }}
+                onClick={handleRequestQuote}
                 className={clsx(
                   ctaClass,
                   "w-full border-2 border-brand-red bg-red-50 text-brand-red font-bold hover:bg-brand-red hover:text-white transition-colors"
@@ -1011,6 +1016,8 @@ export default function ProductInteractive({ product }: { product: ProductItem }
               </button>
             );
           })()}
+
+          <ProductShareBar title={product.title} slug={product.slug} className="mt-1" />
         </section>
       </div>
 
@@ -1027,29 +1034,7 @@ export default function ProductInteractive({ product }: { product: ProductItem }
           </div>
           <button
             type="button"
-            onClick={() => {
-              const alreadyInQuote = inQuoteCart(product.id, selectedVariationId);
-              if (alreadyInQuote) {
-                router.push("/quote");
-                return;
-              }
-              const variationLabel = selectedVariation
-                ? Object.values(selectedVariation.attributes || {}).join(" - ")
-                : undefined;
-              addToQuote({
-                product_id: product.id,
-                product_variation_id: selectedVariationId,
-                product_name: variationLabel
-                  ? `${product.title} — ${variationLabel}`
-                  : product.title,
-                product_sku: selectedVariation?.sku ?? (product as any).sku,
-                product_image: selectedVariation?.image ?? product.image ?? undefined,
-                product_slug: (product as any).slug,
-                variation_attributes: selectedVariation?.attributes ?? null,
-                quantity: qty,
-              });
-              if (!alreadyInQuote) showToast("Added to quote request!", "success");
-            }}
+            onClick={handleRequestQuote}
             className="flex min-h-[48px] min-w-[7.25rem] shrink-0 items-center justify-center gap-1 rounded-xl border-2 border-brand-red bg-red-50 px-3 py-2 text-[11px] font-extrabold leading-none text-brand-red transition active:scale-[0.98] sm:text-xs"
           >
             <i className="bi bi-file-earmark-text shrink-0 text-base" aria-hidden />
@@ -1072,6 +1057,44 @@ export default function ProductInteractive({ product }: { product: ProductItem }
           </button>
         </div>
       </div>
+
+      <Dialog.Root open={quoteSuccessOpen} onOpenChange={setQuoteSuccessOpen}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 z-[300] bg-black/50 backdrop-blur-[2px]" />
+          <Dialog.Content className="fixed left-1/2 top-1/2 z-[301] w-[calc(100vw-1.5rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-gray-200 bg-white p-6 shadow-2xl outline-none sm:p-8">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+              <i className="bi bi-check-lg text-3xl" aria-hidden />
+            </div>
+            <Dialog.Title className="mt-5 text-center text-xl font-bold text-gray-900">
+              Added to quote request
+            </Dialog.Title>
+            <Dialog.Description className="mt-2 text-center text-sm leading-relaxed text-gray-600">
+              Your product has been added to your quote list successfully. You can continue shopping or view your quote
+              request to add more details and submit.
+            </Dialog.Description>
+            <div className="mt-6 flex flex-col gap-2.5 sm:flex-row">
+              <Dialog.Close asChild>
+                <button
+                  type="button"
+                  className="inline-flex h-11 flex-1 items-center justify-center rounded-xl border border-gray-200 px-4 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                >
+                  Continue shopping
+                </button>
+              </Dialog.Close>
+              <button
+                type="button"
+                onClick={() => {
+                  setQuoteSuccessOpen(false);
+                  router.push("/quote");
+                }}
+                className="inline-flex h-11 flex-1 items-center justify-center rounded-xl bg-brand-red px-4 text-sm font-bold text-white shadow-md shadow-brand-red/25 transition hover:bg-brand-red-dark"
+              >
+                View quote request
+              </button>
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </>
   );
 }

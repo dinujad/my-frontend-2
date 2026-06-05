@@ -60,7 +60,7 @@ export function ProductDescriptionReadMore({ description, className, variant = "
       <div className="border-b border-gray-100 bg-gradient-to-r from-slate-50/90 via-white to-slate-50/50 px-5 py-5 sm:px-8 sm:py-6">
         <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand-red">Details</p>
         <h2 id="pdp-desc-heading" className="mt-1 text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">
-          Product description
+          Full Description
         </h2>
       </div>
       <div className="px-5 py-6 sm:px-8 sm:py-8">
