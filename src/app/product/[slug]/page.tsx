@@ -25,6 +25,8 @@ import StarRating from "@/components/product/StarRating";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
+type Props = { params: Promise<{ slug: string }> };
+
 function isPageSettingOn(value: unknown): boolean {
   return value === true || value === 1 || value === "1";
 }

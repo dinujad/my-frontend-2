@@ -1,60 +1,115 @@
 "use client";
-// Client Component — must stay "use client" because it uses:
-//   • gsap + ScrollTrigger — GSAP scroll animations require window.scrollY / IntersectionObserver,
-//                            both browser-only APIs that do not exist on the server
-//   • useRef               — holds DOM element references for GSAP to animate
-//   • useEffect            — registers scroll-driven animations after mount
-// The entire visual experience of the About page is scroll-animated, so the whole component
-// must run in the browser. The page wrapper (app/about/page.tsx) remains a Server Component
-// for metadata and initial HTML shell.
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { AboutVectorDecor } from "@/components/about/AboutVectorDecor";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const PARALLAX_IMAGES = {
-  grid1: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1000",
-  grid2: "https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?q=80&w=1000",
-  grid3: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1000",
-  slab: "https://images.unsplash.com/photo-1596495578065-6e0763fa1178?q=80&w=2000",
-  dual1: "https://images.unsplash.com/photo-1510074377623-8cf13fb86c08?q=80&w=1000",
-  dual2: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?q=80&w=1000",
+  grid1: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=800",
+  grid2: "https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?q=80&w=800",
+  grid3: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=800",
+  slab: "https://images.unsplash.com/photo-1596495578065-6e0763fa1178?q=80&w=1600",
 };
+
+const SERVICES = [
+  "Digital Printing (including specialty and large format)",
+  "UV Printing on acrylic, wood, metal, glass, ceramic & more",
+  "Laser Cutting & Engraving (acrylic, plywood, MDF, stainless steel, brass)",
+  "PVC Card Printing (ID cards, badges, key tags, tokens)",
+  "Paper-based Printing for bespoke, small batches",
+  "Custom Acrylic Products & Creations",
+  "Stainless Steel & Brass Engraving",
+  "Sticker Printing & Cutting (brand decals, short-run product labels)",
+  "Signage Boards (retail, corporate, safety, wayfinding)",
+  "Tags & Badges, Graphic Designing, and Promotional & Gift Items",
+];
+
+const MISSION = [
+  "Deliver end-to-end, one-stop printing solutions—from creative concept building to finished product—across every major category of print and signage.",
+  "Lead with latest technologies to ensure consistent, quality-guaranteed output at competitive pricing.",
+  "Offer unique products & services that help businesses and creators stand out, with rapid turnaround and reliable island-wide fulfillment.",
+  "Build a best-in-class online experience that makes ordering simple, transparent, and fast, backed by responsive human support across our physical shop network.",
+  "Earn lifelong customer satisfaction through accuracy, accountability, and continuous improvement—setting the benchmark as Sri Lanka's leading solution provider in print.",
+  "Grow a recognizable, loved, and iconic brand while scaling the largest physical printing shop chain in the country.",
+];
 
 export function AboutGSAPScroll() {
   const mainRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // 1. Text container parallax (vision)
-      const visionTexts = gsap.utils.toArray<HTMLElement>(".vision-text");
-      visionTexts.forEach((el, i) => {
-        const speed = parseFloat(el.dataset.speed || "1");
+      gsap.utils.toArray<HTMLElement>(".about-vector-float").forEach((el, i) => {
         gsap.to(el, {
-          yPercent: (1 - speed) * -200,
-          ease: "none",
-          scrollTrigger: {
-            trigger: ".vision-container",
-            start: "top bottom",
-            end: "bottom top",
-            scrub: 1,
-          },
+          y: "+=14",
+          duration: 2.8 + (i % 3) * 0.4,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
         });
       });
 
-      // 2. Image Grid Parallax
-      const gridImgs = gsap.utils.toArray<HTMLElement>(".grid-parallax");
-      gridImgs.forEach((el) => {
-        const speed = parseFloat(el.dataset.speed || "1");
-        // Images should start a bit lower/higher so they don't tear margins
+      gsap.utils.toArray<HTMLElement>(".about-vector-float-delay").forEach((el, i) => {
         gsap.to(el, {
-          yPercent: (speed - 1) * -30,
+          y: "-=12",
+          x: "+=6",
+          duration: 3.2 + i * 0.2,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+        });
+      });
+
+      gsap.utils.toArray<HTMLElement>(".about-vector-spin").forEach((el) => {
+        gsap.to(el, { rotation: 360, duration: 24, repeat: -1, ease: "none", transformOrigin: "50% 50%" });
+      });
+
+      gsap.utils.toArray<HTMLElement>(".about-vector-pulse").forEach((el) => {
+        gsap.to(el, {
+          scaleX: 1.08,
+          opacity: 0.45,
+          duration: 1.6,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+          transformOrigin: "left center",
+        });
+      });
+
+      gsap.utils.toArray<HTMLElement>(".about-vector-draw").forEach((el) => {
+        gsap.to(el, {
+          strokeDashoffset: 0,
+          duration: 2.5,
+          ease: "power2.out",
+          scrollTrigger: { trigger: el, start: "top 88%", once: true },
+        });
+      });
+
+      gsap.utils.toArray<HTMLElement>(".about-reveal").forEach((el) => {
+        gsap.fromTo(
+          el,
+          { y: 36, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.9,
+            ease: "power3.out",
+            scrollTrigger: { trigger: el, start: "top 88%", once: true },
+          }
+        );
+      });
+
+      gsap.utils.toArray<HTMLElement>(".grid-parallax").forEach((el) => {
+        const speed = parseFloat(el.dataset.speed || "1");
+        gsap.to(el, {
+          yPercent: (speed - 1) * -20,
           ease: "none",
           scrollTrigger: {
-            trigger: ".image-grid",
+            trigger: el.closest(".origin-gallery") ?? el,
             start: "top bottom",
             end: "bottom top",
             scrub: true,
@@ -62,28 +117,8 @@ export function AboutGSAPScroll() {
         });
       });
 
-      // 3. Bars Parallax
-      const bars = gsap.utils.toArray<HTMLElement>(".service-bar");
-      bars.forEach((el) => {
-        const speed = parseFloat(el.dataset.speed || "1");
-        gsap.fromTo(el,
-          { height: "10%" },
-          {
-            height: `${speed * 80}%`, // Vary ending height based on speed
-            ease: "none",
-            scrollTrigger: {
-              trigger: ".bars-container",
-              start: "top 80%",
-              end: "bottom 50%",
-              scrub: 1,
-            },
-          }
-        );
-      });
-
-      // 4. Parallax Slab
       gsap.to(".slab-img", {
-        yPercent: -20,
+        yPercent: -12,
         ease: "none",
         scrollTrigger: {
           trigger: ".parallax-slab",
@@ -93,40 +128,24 @@ export function AboutGSAPScroll() {
         },
       });
 
-      // 5. Dual Parallax Images
-      const dualImgs = gsap.utils.toArray<HTMLElement>(".dual-parallax-img");
-      dualImgs.forEach((el) => {
-        gsap.to(el, {
-          yPercent: -20,
-          ease: "none",
-          scrollTrigger: {
-            trigger: el.parentElement,
-            start: "top bottom",
-            end: "bottom top",
-            scrub: true,
-          },
-        });
-      });
-
-      // Stagger Text Simple
       const staggerChars = gsap.utils.toArray<HTMLElement>(".stagger-char");
       if (staggerChars.length > 0) {
-        gsap.fromTo(staggerChars,
-          { opacity: 0.2, y: 20 },
+        gsap.fromTo(
+          staggerChars,
+          { opacity: 0.25, y: 16 },
           {
             opacity: 1,
             y: 0,
-            stagger: 0.1,
+            stagger: 0.08,
             scrollTrigger: {
               trigger: ".stagger-container",
-              start: "top 70%",
-              end: "bottom 40%",
-              scrub: 1
-            }
+              start: "top 75%",
+              end: "bottom 50%",
+              scrub: 1,
+            },
           }
         );
       }
-
     }, mainRef);
 
     return () => ctx.revert();
@@ -135,238 +154,224 @@ export function AboutGSAPScroll() {
   const staggerWord = "Crafting";
 
   return (
-    <div ref={mainRef} className="bg-gray-50 text-gray-900 font-sans min-h-screen overflow-hidden selection:bg-brand-red selection:text-white">
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 w-full pb-32">
-
-        {/* Intro Section */}
-        <div className="pt-32 pb-20 text-center max-w-4xl mx-auto">
-          <p className="text-brand-red font-bold uppercase tracking-widest text-sm mb-4">About Us</p>
-          <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-tight mb-6">
-            PrintWorks<span className="text-brand-red">.lk</span>
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-600 font-medium">
-            Our story, mission, and why brands choose us.
-          </p>
-        </div>
-
-        {/* Vision Scrolling Text */}
-        <div className="vision-container relative h-[60vh] flex items-center justify-center -mt-20 overflow-hidden">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-7xl mx-auto flex items-center justify-center pointer-events-none">
-            <div className="relative text-center w-full">
-              {/* Layered texts for parallax effect */}
-              {/* Back to Front */}
-              {[0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1].map((speed, i, arr) => {
-                const isLast = i === arr.length - 1;
-                return (
-                  <p
-                    key={speed}
-                    data-speed={speed}
-                    className={`vision-text absolute top-0 left-0 right-0 text-center uppercase font-black text-[clamp(3rem,12vw,10rem)] leading-none ${isLast ? 'text-gray-900' : 'text-transparent'}`}
-                    style={!isLast ? { WebkitTextStroke: "1px rgba(0,0,0,0.1)" } : {}}
-                  >
-                    Vision
-                  </p>
-                );
-              })}
-            </div>
-          </div>
-          <div className="relative z-10 max-w-3xl mx-auto text-center px-4 mt-32 bg-white/60 backdrop-blur-sm p-8 rounded-2xl border border-white/50 shadow-xl">
-            <p className="text-lg md:text-2xl text-gray-800 font-semibold leading-relaxed">
-              To be Sri Lanka&apos;s most trusted and innovative online printing platform—an iconic, island-wide brand that unites the country&apos;s largest physical print shop network with seamless e-commerce to deliver total printing solutions, anywhere, anytime.
+    <div
+      ref={mainRef}
+      className="relative min-h-screen overflow-hidden bg-gradient-to-b from-[#fdf2f4] via-gray-50 to-white font-sans text-gray-900 selection:bg-brand-red selection:text-white"
+    >
+      <div className="mx-auto w-full max-w-6xl px-4 pb-20 sm:px-6 lg:px-8 lg:pb-24">
+        {/* Hero — balanced with side vectors */}
+        <section className="about-reveal relative pt-24 pb-12 md:pt-28 md:pb-16">
+          <AboutVectorDecor variant="hero" />
+          <div className="relative z-10 mx-auto max-w-3xl text-center">
+            <p className="mb-3 text-sm font-bold uppercase tracking-widest text-brand-red">About Us</p>
+            <h1 className="mb-4 text-4xl font-black leading-tight tracking-tighter md:text-6xl lg:text-7xl">
+              PrintWorks<span className="text-brand-red">.lk</span>
+            </h1>
+            <p className="text-lg font-medium text-gray-600 md:text-xl">
+              Our story, mission, and why brands choose us.
             </p>
           </div>
-        </div>
+        </section>
 
-        {/* Image Grid Parallax & Origin Story */}
-        <section className="mt-32 pt-20 border-t border-gray-200">
-          <div className="mb-16 text-center max-w-3xl mx-auto px-4">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">Our <span className="text-brand-red">Origin Story</span></h2>
-            <p className="text-gray-600 text-lg mb-4">
-              Every great brand begins with a sketch—sometimes on paper, sometimes in the mind. Ours began in 2014 as Attract Wear & Printing Solutions, a small screen-printing and clothing outfit with big curiosity. We learned fast that ink can do more than mark fabric; it can carry identity.
-            </p>
-            <p className="text-gray-600 text-lg mb-4">
-              By 2018, that curiosity grew muscle. We launched SafetySign.lk, stepping into the rigorous world of industrial and OHS signage—SOP design and printing, and content for compliance, sustainability, quality assurance, and 5S. We weren&apos;t just printing; we were helping factories and brands show what they stand for.
-            </p>
-            <p className="text-gray-600 text-lg">
-              Then came 2020—a year of reinvention. We opened a new chapter with PrintWorks.lk, shifting from &quot;just printing&quot; to customised promotional and branding solutions. The idea was simple: make it effortless for anyone in Sri Lanka to turn a concept into something you can hold, mount, gift, wear, or illuminate—and do it online-to-offline, island-wide.
-            </p>
-          </div>
-
-          <div className="image-grid w-full max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 h-[80vh] min-h-[600px] mb-32 px-4">
-            <div className="relative overflow-hidden rounded-2xl h-[60%] md:mt-24 shadow-lg">
-              <Image
-                src={PARALLAX_IMAGES.grid1}
-                alt="Printing"
-                fill
-                className="grid-parallax object-cover scale-[1.2] origin-top"
-                data-speed="1.2"
-              />
+        {/* Vision — compact, no giant empty parallax text */}
+        <section className="about-reveal relative mb-14 md:mb-16">
+          <div className="grid items-center gap-8 lg:grid-cols-[1fr_1.1fr] lg:gap-10">
+            <div className="relative hidden min-h-[280px] lg:block">
+              <AboutVectorDecor variant="side-left" className="absolute inset-0" />
             </div>
-            <div className="relative overflow-hidden rounded-2xl h-[70%] shadow-lg">
-              <Image
-                src={PARALLAX_IMAGES.grid2}
-                alt="Signage"
-                fill
-                className="grid-parallax object-cover scale-[1.2] origin-center"
-                data-speed="1.5"
-              />
-            </div>
-            <div className="relative overflow-hidden rounded-2xl h-[50%] md:mt-48 shadow-lg">
-              <Image
-                src={PARALLAX_IMAGES.grid3}
-                alt="Custom Promo"
-                fill
-                className="grid-parallax object-cover scale-[1.2] origin-bottom"
-                data-speed="0.8"
-              />
+            <div className="rounded-2xl border border-white/80 bg-white/90 p-6 shadow-lg shadow-gray-200/50 backdrop-blur-sm md:p-8">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand-red">Vision</p>
+              <p className="mt-3 text-base leading-relaxed text-gray-800 md:text-lg">
+                To be Sri Lanka&apos;s most trusted and innovative online printing platform—an iconic, island-wide brand
+                that unites the country&apos;s largest physical print shop network with seamless e-commerce to deliver
+                total printing solutions, anywhere, anytime.
+              </p>
             </div>
           </div>
         </section>
 
-        {/* Title Container (What we make) */}
-        <section className="min-h-[40vh] flex flex-col items-center justify-center text-center px-4 mb-20">
-          <h2 className="text-4xl md:text-6xl font-black tracking-tight mb-8">
-            <span className="font-normal text-gray-400 block text-2xl mb-2">Bespoke By Nature</span>
-            What We Make<br />
-            <span className="text-brand-red">(and Why It Matters)</span>
-          </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            We specialise in projects that don&apos;t fit the template—the one-off prototype, the unusual material, the showpiece detail.
-          </p>
-        </section>
-
-        {/* Bars Container (Services) */}
-        <section className="bars-container grid grid-cols-1 lg:grid-cols-2 gap-16 min-h-[60vh] px-4 items-end mb-32">
-          <div className="flex flex-col justify-center h-full max-w-xl self-center border-l-4 border-brand-red pl-8 py-4">
-            <h3 className="text-3xl font-bold mb-4">Our Services</h3>
-            <ul className="space-y-3 text-lg text-gray-700">
-              <li>• Digital Printing (including specialty and large format)</li>
-              <li>• UV Printing on acrylic, wood, metal, glass, ceramic & more</li>
-              <li>• Laser Cutting & Engraving (acrylic, plywood, MDF, stainless steel, brass)</li>
-              <li>• PVC Card Printing (ID cards, badges, key tags, tokens)</li>
-              <li>• Paper-based Printing for bespoke, small batches</li>
-              <li>• Custom Acrylic Products & Creations</li>
-              <li>• Stainless Steel & Brass Engraving</li>
-              <li>• Sticker Printing & Cutting (brand decals, short-run product labels)</li>
-              <li>• Signage Boards (retail, corporate, safety, wayfinding)</li>
-              <li>• Tags & Badges, Graphic Designing, and Promotional & Gift Items</li>
-            </ul>
-            <div className="mt-8 p-6 bg-gray-50 border border-gray-200 rounded-xl">
-              <h4 className="font-bold text-gray-900 mb-2">Who we serve</h4>
-              <p className="text-gray-600 text-sm leading-relaxed">
-                Retail • Corporate & SMEs • Events & Exhibitions • Hospitality & Restaurants • Education • NGOs • Government & Public Sector • Creators & Agencies.
-              </p>
-              <p className="text-gray-600 text-sm mt-2 leading-relaxed">
-                Most of our work is bespoke—unique projects where material, finish, and craft matter.
-              </p>
-            </div>
-            <div className="mt-8 p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
-              <h4 className="font-bold text-gray-900 mb-2">What we don&apos;t do</h4>
-              <p className="text-gray-600 text-sm">We don&apos;t take on FMCG product labelling, book & magazine printing, or bulk quantities of common paper-based printing. That&apos;s deliberate. We stay focused on customised, value-adding work where creativity and precision shine.</p>
-            </div>
-          </div>
-
-          {/* Animated Bars */}
-          <div className="flex items-end justify-center gap-4 h-[500px] w-full bg-white rounded-3xl border border-gray-100 p-8 shadow-inner overflow-hidden">
-            {[0.8, 0.9, 1.0, 1.1, 1.2].map((speed, i) => (
-              <div
-                key={speed}
-                data-speed={speed}
-                className="service-bar w-16 md:w-20 bg-gradient-to-t from-brand-red to-brand-red-dark rounded-t-xl flex flex-col items-center justify-start pt-4 text-white font-bold opacity-90 shadow-lg"
-              >
-                <span>{speed}</span>
+        {/* Origin — 2-col balanced: text + images */}
+        <section className="about-reveal mb-14 border-t border-gray-200/80 pt-12 md:mb-16 md:pt-14">
+          <div className="grid items-start gap-10 lg:grid-cols-2 lg:gap-12">
+            <div>
+              <h2 className="text-2xl font-bold md:text-3xl">
+                Our <span className="text-brand-red">Origin Story</span>
+              </h2>
+              <div className="mt-5 space-y-4 text-base leading-relaxed text-gray-600 md:text-[17px]">
+                <p>
+                  Every great brand begins with a sketch—sometimes on paper, sometimes in the mind. Ours began in 2014
+                  as Attract Wear & Printing Solutions, a small screen-printing and clothing outfit with big curiosity.
+                  We learned fast that ink can do more than mark fabric; it can carry identity.
+                </p>
+                <p>
+                  By 2018, that curiosity grew muscle. We launched SafetySign.lk, stepping into the rigorous world of
+                  industrial and OHS signage—SOP design and printing, and content for compliance, sustainability, quality
+                  assurance, and 5S. We weren&apos;t just printing; we were helping factories and brands show what they
+                  stand for.
+                </p>
+                <p>
+                  Then came 2020—a year of reinvention. We opened a new chapter with PrintWorks.lk, shifting from
+                  &quot;just printing&quot; to customised promotional and branding solutions—online-to-offline,
+                  island-wide.
+                </p>
               </div>
-            ))}
+            </div>
+
+            <div className="origin-gallery grid grid-cols-2 gap-3 md:gap-4">
+              <div className="relative col-span-2 aspect-[16/9] overflow-hidden rounded-2xl shadow-md">
+                <Image src={PARALLAX_IMAGES.grid1} alt="Printing workshop" fill className="grid-parallax object-cover" data-speed="1.1" sizes="(max-width: 1024px) 100vw, 50vw" />
+              </div>
+              <div className="relative aspect-[4/5] overflow-hidden rounded-2xl shadow-md">
+                <Image src={PARALLAX_IMAGES.grid2} alt="Signage production" fill className="grid-parallax object-cover" data-speed="1.2" sizes="25vw" />
+              </div>
+              <div className="relative aspect-[4/5] overflow-hidden rounded-2xl shadow-md">
+                <Image src={PARALLAX_IMAGES.grid3} alt="Custom promotional items" fill className="grid-parallax object-cover" data-speed="0.9" sizes="25vw" />
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* Parallax Slab */}
-        <section className="parallax-slab relative h-[500px] md:h-[700px] w-full overflow-hidden rounded-3xl shadow-2xl mb-32 mx-4 max-w-[calc(100%-2rem)]">
-          <div className="absolute inset-0 w-full h-[150%] -top-[25%] pointer-events-none">
-            <Image
-              src={PARALLAX_IMAGES.slab}
-              alt="Workshop space"
-              fill
-              className="slab-img object-cover object-bottom"
-            />
-          </div>
-          <div className="absolute inset-0 bg-gray-900/60 mix-blend-multiply" />
-          <div className="absolute inset-0 flex flex-col justify-center px-8 md:px-16 max-w-4xl">
-            <h2 className="text-4xl md:text-6xl font-black text-white mb-6">Inside the Workshop<br />(All In-House, End to End)</h2>
-            <p className="text-xl text-gray-200 mb-4 max-w-2xl">
-              If you peek behind the website, you&apos;ll find a full production ecosystem under one roof: UV, digital, laser, inkjet, thermal & screen printing; sticker cutting & plotting; an in-house workshop for painting, welding & iron works, and carpentry; and an in-house design studio for concept, artwork development, and pre-press.
-            </p>
-            <p className="text-xl text-brand-red font-bold">
-              Owning the stack means speed, control, and consistency. Your brief doesn&apos;t bounce around; it flows.
+        {/* What we make + services wheel vector */}
+        <section className="about-reveal mb-14 md:mb-16">
+          <div className="mb-8 text-center lg:mb-10">
+            <p className="text-sm font-normal text-gray-400">Bespoke By Nature</p>
+            <h2 className="mt-1 text-3xl font-black tracking-tight md:text-4xl">
+              What We Make <span className="text-brand-red">(and Why It Matters)</span>
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-gray-600">
+              We specialise in projects that don&apos;t fit the template—the one-off prototype, the unusual material,
+              the showpiece detail.
             </p>
           </div>
-        </section>
 
-        {/* Staggered text (Founder Quote) */}
-        <section className="stagger-container min-h-[40vh] flex flex-col items-center justify-center text-center px-4 mb-32">
-          <div className="max-w-4xl mx-auto">
-            <p className="text-brand-red font-bold uppercase tracking-widest text-sm mb-8">The People Behind the Prints</p>
-            <h3 className="text-3xl md:text-5xl font-black text-gray-900 leading-tight">
-              {staggerWord.split("").map((char, i) => (
-                <span key={i} className="stagger-char inline-block" style={{ minWidth: char === ' ' ? '0.5em' : 'auto' }}>{char}</span>
+          <div className="grid items-center gap-8 lg:grid-cols-[1fr_340px] xl:grid-cols-[1.2fr_360px]">
+            <ul className="grid gap-2 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-2.5">
+              {SERVICES.map((item) => (
+                <li key={item} className="flex gap-2 text-sm leading-snug text-gray-700 md:text-[15px]">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-red" />
+                  <span>{item}</span>
+                </li>
               ))}
-              {" details,"}<br />
-              guarding timelines,<br />
-              and delivering work that feels as good as it looks.
-            </h3>
-            <div className="mt-12 max-w-2xl mx-auto">
-              <p className="text-gray-600 text-base leading-relaxed mb-4">
-                He started at a very young age and never stopped building. A hands-on practitioner across design, printing, advertising, and digital marketing, Sandaruwan is deeply passionate about creative concept building, project management, and planning. Today he leads a young, inventive team that turns sketches into showpieces—sweating details, guarding timelines, and delivering work that feels as good as it looks.
+            </ul>
+            <AboutVectorDecor variant="services" className="mx-auto w-full max-w-[320px] lg:max-w-none" />
+          </div>
+
+          <div className="mt-8 grid gap-4 sm:grid-cols-2">
+            <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+              <h4 className="font-bold text-gray-900">Who we serve</h4>
+              <p className="mt-2 text-sm leading-relaxed text-gray-600">
+                Retail • Corporate & SMEs • Events & Exhibitions • Hospitality & Restaurants • Education • NGOs •
+                Government & Public Sector • Creators & Agencies. Most of our work is bespoke—unique projects where
+                material, finish, and craft matter.
               </p>
-              <p className="text-xl font-bold">Sandaruwan Dharmapriya</p>
+            </div>
+            <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+              <h4 className="font-bold text-gray-900">What we don&apos;t do</h4>
+              <p className="mt-2 text-sm leading-relaxed text-gray-600">
+                We don&apos;t take on FMCG product labelling, book & magazine printing, or bulk quantities of common
+                paper-based printing. We stay focused on customised, value-adding work where creativity and precision
+                shine.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Workshop slab — full width, vectors overlay */}
+        <section className="about-reveal parallax-slab relative mb-14 h-[380px] overflow-hidden rounded-2xl shadow-xl md:mb-16 md:h-[460px] md:rounded-3xl">
+          <div className="pointer-events-none absolute inset-0 h-[130%] -top-[15%]">
+            <Image src={PARALLAX_IMAGES.slab} alt="Workshop space" fill className="slab-img object-cover object-center" sizes="100vw" />
+          </div>
+          <AboutVectorDecor variant="workshop" />
+          <div className="absolute inset-0 bg-gradient-to-r from-gray-950/85 via-gray-900/70 to-gray-900/50" />
+          <div className="relative flex h-full flex-col justify-center px-6 md:px-10 lg:max-w-2xl lg:px-12">
+            <h2 className="text-2xl font-black text-white md:text-4xl">
+              Inside the Workshop
+              <span className="mt-1 block text-lg font-bold text-brand-red md:text-xl">(All In-House, End to End)</span>
+            </h2>
+            <p className="mt-4 text-sm leading-relaxed text-gray-200 md:text-base">
+              UV, digital, laser, inkjet, thermal & screen printing; sticker cutting & plotting; painting, welding &
+              iron works, carpentry; and an in-house design studio for concept, artwork, and pre-press—all under one roof.
+            </p>
+            <p className="mt-3 text-sm font-bold text-brand-red md:text-base">
+              Owning the stack means speed, control, and consistency. Your brief flows—from concept to craft to delivery.
+            </p>
+          </div>
+        </section>
+
+        {/* Founder — balanced 2-col with vector portrait */}
+        <section className="about-reveal stagger-container mb-14 md:mb-16">
+          <div className="grid items-center gap-10 lg:grid-cols-[280px_1fr] xl:grid-cols-[320px_1fr]">
+            <AboutVectorDecor variant="founder" className="hidden lg:block" />
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-brand-red">The People Behind the Prints</p>
+              <h3 className="mt-3 text-2xl font-black leading-tight text-gray-900 md:text-4xl">
+                {staggerWord.split("").map((char, i) => (
+                  <span key={i} className="stagger-char inline-block" style={{ minWidth: char === " " ? "0.5em" : "auto" }}>
+                    {char}
+                  </span>
+                ))}
+                {" details, guarding timelines, and delivering work that feels as good as it looks."}
+              </h3>
+              <p className="mt-5 text-base leading-relaxed text-gray-600">
+                He started at a very young age and never stopped building. A hands-on practitioner across design,
+                printing, advertising, and digital marketing, Sandaruwan is deeply passionate about creative concept
+                building, project management, and planning. Today he leads a young, inventive team that turns sketches
+                into showpieces.
+              </p>
+              <p className="mt-4 text-lg font-bold text-gray-900">Sandaruwan Dharmapriya</p>
               <p className="text-gray-500">Founder & CEO</p>
             </div>
           </div>
         </section>
 
-        {/* Parallax Images Dual & Mission */}
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-16 px-4 mb-20 items-center">
-          <div className="flex flex-col gap-12 order-2 lg:order-1">
+        {/* Mission + why choose — 2-col balanced with right vector */}
+        <section className="about-reveal mb-10">
+          <div className="grid gap-10 lg:grid-cols-2 lg:gap-12">
             <div>
-              <h2 className="text-3xl font-bold mb-4">Why Brands Choose Us</h2>
-              <p className="text-gray-600 text-lg">
-                Because we make ordering feel easy and results feel premium. We&apos;re building Sri Lanka&apos;s best online printing experience backed by a growing physical shop network. We deliver island-wide with quality guaranteed and competitive pricing. And we&apos;re relentless about the little things—materials, edges, finishes, and timelines—the things your audience notices, even if they don&apos;t know why.
+              <h2 className="text-2xl font-bold md:text-3xl">Why Brands Choose Us</h2>
+              <p className="mt-4 text-base leading-relaxed text-gray-600">
+                Because we make ordering feel easy and results feel premium. We&apos;re building Sri Lanka&apos;s best
+                online printing experience backed by a growing physical shop network. We deliver island-wide with quality
+                guaranteed and competitive pricing—and we&apos;re relentless about materials, edges, finishes, and
+                timelines.
               </p>
-            </div>
 
-            <div>
-              <h2 className="text-3xl font-bold mb-4 text-brand-red">Our Mission</h2>
-              <ul className="space-y-4 text-gray-700">
-                <li className="flex gap-3"><span className="text-brand-red font-bold shrink-0">01.</span> Deliver end-to-end, one-stop printing solutions—from creative concept building to finished product—across every major category of print and signage.</li>
-                <li className="flex gap-3"><span className="text-brand-red font-bold shrink-0">02.</span> Lead with latest technologies to ensure consistent, quality-guaranteed output at competitive pricing.</li>
-                <li className="flex gap-3"><span className="text-brand-red font-bold shrink-0">03.</span> Offer unique products & services that help businesses and creators stand out, with rapid turnaround and reliable island-wide fulfillment.</li>
-                <li className="flex gap-3"><span className="text-brand-red font-bold shrink-0">04.</span> Build a best-in-class online experience that makes ordering simple, transparent, and fast, backed by responsive human support across our physical shop network.</li>
-                <li className="flex gap-3"><span className="text-brand-red font-bold shrink-0">05.</span> Earn lifelong customer satisfaction through accuracy, accountability, and continuous improvement—setting the benchmark as Sri Lanka&apos;s leading solution provider in print.</li>
-                <li className="flex gap-3"><span className="text-brand-red font-bold shrink-0">06.</span> Grow a recognizable, loved, and iconic brand while scaling the largest physical printing shop chain in the country.</li>
+              <h2 className="mt-8 text-2xl font-bold text-brand-red md:text-3xl">Our Mission</h2>
+              <ul className="mt-4 space-y-3">
+                {MISSION.map((point, i) => (
+                  <li key={i} className="flex gap-3 text-sm leading-relaxed text-gray-700 md:text-[15px]">
+                    <span className="shrink-0 font-bold text-brand-red">{String(i + 1).padStart(2, "0")}.</span>
+                    <span>{point}</span>
+                  </li>
+                ))}
               </ul>
             </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-6 order-1 lg:order-2">
-            <div className="relative h-[600px] rounded-3xl overflow-hidden mt-20 shadow-xl">
-              <Image
-                src={PARALLAX_IMAGES.dual1}
-                alt="Corporate"
-                fill
-                className="dual-parallax-img object-cover scale-[1.3]"
-              />
-            </div>
-            <div className="relative h-[600px] rounded-3xl overflow-hidden shadow-xl">
-              <Image
-                src={PARALLAX_IMAGES.dual2}
-                alt="Delivery"
-                fill
-                className="dual-parallax-img object-cover scale-[1.3]"
-              />
+            <div className="relative hidden items-center justify-center lg:flex">
+              <AboutVectorDecor variant="side-right" className="w-full max-w-sm" />
             </div>
           </div>
         </section>
 
+        {/* CTA */}
+        <section className="about-reveal rounded-2xl bg-brand-red px-6 py-10 text-center md:rounded-3xl md:px-10">
+          <h2 className="text-2xl font-bold text-white md:text-3xl">Ready to start your project?</h2>
+          <p className="mt-2 text-white/90">Turn your concept into something you can hold, mount, gift, or illuminate.</p>
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <Link
+              href="/quote"
+              className="inline-flex items-center rounded-xl bg-white px-6 py-3 font-semibold text-brand-red transition hover:bg-gray-100"
+            >
+              Request a Quote
+            </Link>
+            <Link
+              href="/products"
+              className="inline-flex items-center rounded-xl border-2 border-white px-6 py-3 font-semibold text-white transition hover:bg-white hover:text-brand-red"
+            >
+              Explore Products
+            </Link>
+          </div>
+        </section>
       </div>
     </div>
   );

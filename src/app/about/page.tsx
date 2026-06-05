@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen bg-[#fdf2f4] overflow-x-hidden">
+    <main className="min-h-screen overflow-x-hidden">
       <AboutGSAPScroll />
     </main>
   );
