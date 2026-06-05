@@ -13,9 +13,9 @@ const services = [
   "Digital Printing (including specialty and large format)",
   "UV Printing on acrylic, wood, metal, glass, ceramic & more",
   "Laser Cutting & Engraving (acrylic, plywood, MDF, stainless steel, brass)",
-  "PVC Card Printing (Company/Student ID's, Visitor passes, Transparent / Frosted business cards)",
+  "PVC Card Printing (ID cards, badges, key tags, tokens)",
   "Paper-based Printing for bespoke, small batches",
-  "Custom Acrylic Products & Creations (acrylic boxes, table tops, display stands, display cubes, name tag holders, leaflet holders)",
+  "Custom Acrylic Products & Creations",
   "Stainless Steel & Brass Engraving",
   "Sticker Printing & Cutting (brand decals, short-run product labels)",
   "Signage Boards (retail, corporate, safety, wayfinding)",
@@ -26,7 +26,7 @@ const whoWeServe = [
   "Retail",
   "Corporate & SMEs",
   "Events & Exhibitions",
-  "Hotels & Restaurants",
+  "Hospitality & Restaurants",
   "Education",
   "NGOs",
   "Government & Public Sector",
@@ -94,10 +94,10 @@ export default function AboutFullPage() {
               <div>
                 <h2 className="text-2xl font-bold text-brand-red sm:text-3xl">Our Origin Story</h2>
                 <p className="mt-4 text-gray-700 leading-relaxed">
-                  Every great brand begins with a sketch—sometimes on paper, sometimes in the mind. Ours began in 2014 as Attract Wear & Printing Solutions, a small screen-printing and clothing brand with big curiosity. We learned fast that ink can do more than mark fabric; it can carry identity.
+                  Every great brand begins with a sketch—sometimes on paper, sometimes in the mind. Ours began in 2014 as Attract Wear & Printing Solutions, a small screen-printing and clothing outfit with big curiosity. We learned fast that ink can do more than mark fabric; it can carry identity.
                 </p>
                 <p className="mt-4 text-gray-700 leading-relaxed">
-                  By 2018, that curiosity grew muscle. We launched SafetySign.lk, stepping into the rigorous world of industrial environment, occupational health & safety signage. SOP design and printing, and content for compliance, sustainability, quality assurance, and 5S. We weren&apos;t just printing; we were helping factories and brands show what they stand for.
+                  By 2018, that curiosity grew muscle. We launched SafetySign.lk, stepping into the rigorous world of industrial and OHS signage—SOP design and printing, and content for compliance, sustainability, quality assurance, and 5S. We weren&apos;t just printing; we were helping factories and brands show what they stand for.
                 </p>
                 <p className="mt-4 text-gray-700 leading-relaxed">
                   Then came 2020—a year of reinvention. We opened a new chapter with PrintWorks.lk, shifting from &quot;just printing&quot; to customised promotional and branding solutions. The idea was simple: make it effortless for anyone in Sri Lanka to turn a concept into something you can hold, mount, gift, wear, or illuminate—and do it online-to-offline, island-wide.
@@ -136,7 +136,7 @@ export default function AboutFullPage() {
               <div>
                 <h2 className="text-2xl font-bold text-brand-red sm:text-3xl">Who We Serve</h2>
                 <p className="mt-4 text-gray-700 leading-relaxed">
-                  Retail • Corporate & SMEs • Events & Exhibitions • Hotels & Restaurants • Education • NGOs • Government & Public Sector • Creators & Agencies.
+                  Retail • Corporate & SMEs • Events & Exhibitions • Hospitality & Restaurants • Education • NGOs • Government & Public Sector • Creators & Agencies.
                 </p>
                 <p className="mt-4 text-gray-700 leading-relaxed">
                   Most of our work is bespoke—unique projects where material, finish, and craft matter.
@@ -208,7 +208,7 @@ export default function AboutFullPage() {
                   </li>
                   <li className="flex gap-2">
                     <span className="text-brand-red">•</span>
-                    In-house workshop for painting, welding & iron works, and carpentry
+                    An in-house workshop for painting, welding & iron works, and carpentry
                   </li>
                   <li className="flex gap-2">
                     <span className="text-brand-red">•</span>

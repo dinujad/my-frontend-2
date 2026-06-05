@@ -152,9 +152,10 @@ export default async function ProductPage({ params }: Props) {
     { label: product.title, href: `/product/${product.slug}` },
   ];
 
-  const hideShort = product.page_settings?.hide_short_desc == 1;
-  const shortText = (product.short_description?.trim() || "").trim();
-  const showShort = !hideShort && shortText.length > 0;
+  const hideFullDesc = product.page_settings?.hide_full_desc == 1;
+  const descriptionText = (product.description?.trim() || "").trim();
+  const showDescription = !hideFullDesc && descriptionText.length > 0;
+  const showRelated = related.length > 0 && product.page_settings?.hide_related != 1;
   const enableReviews = product.enable_reviews !== false;
   const reviewSummary = product.review_summary ?? { average: 0, count: 0 };
 
@@ -202,6 +203,14 @@ export default async function ProductPage({ params }: Props) {
                     {product.title}
                   </h1>
 
+                  {showDescription ? (
+                    <ProductDescriptionReadMore
+                      description={descriptionText}
+                      variant="inline"
+                      className="mt-2"
+                    />
+                  ) : null}
+
                   {enableReviews && reviewSummary.count > 0 ? (
                     <div className="mt-3 flex flex-wrap items-center gap-3">
                       <StarRating rating={reviewSummary.average} size="md" />
@@ -226,10 +235,6 @@ export default async function ProductPage({ params }: Props) {
                       </span>
                     ) : null}
                   </div>
-
-                  {showShort ? (
-                    <p className="mt-4 text-[15px] leading-relaxed text-gray-600">{shortText}</p>
-                  ) : null}
 
                   {product.variantsNote ? (
                     <p className="mt-3 text-sm text-gray-500">{product.variantsNote}</p>
@@ -259,17 +264,15 @@ export default async function ProductPage({ params }: Props) {
             </div>
           </div>
 
-          <ProductDescriptionReadMore description={product.description ?? ""} />
-
-          {related.length > 0 && product.page_settings?.hide_related != 1 ? (
-            <RelatedProductsSection products={related} />
-          ) : null}
-
           <ProductDetailsTabs
             slug={product.slug}
             enableReviews={enableReviews}
             initialSummary={reviewSummary}
           />
+
+          {showRelated ? (
+            <RelatedProductsSection products={related} />
+          ) : null}
         </div>
       </main>
     </>

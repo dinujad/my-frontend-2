@@ -182,13 +182,13 @@ export function AboutGSAPScroll() {
           <div className="mb-16 text-center max-w-3xl mx-auto px-4">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">Our <span className="text-brand-red">Origin Story</span></h2>
             <p className="text-gray-600 text-lg mb-4">
-              Every great brand begins with a sketch—sometimes on paper, sometimes in the mind. Ours began in 2014 as Attract Wear & Printing Solutions, a small screen-printing and clothing brand with big curiosity. We learned fast that ink can do more than mark fabric; it can carry identity.
+              Every great brand begins with a sketch—sometimes on paper, sometimes in the mind. Ours began in 2014 as Attract Wear & Printing Solutions, a small screen-printing and clothing outfit with big curiosity. We learned fast that ink can do more than mark fabric; it can carry identity.
             </p>
             <p className="text-gray-600 text-lg mb-4">
-              By 2018, that curiosity grew muscle. We launched SafetySign.lk, stepping into the rigorous world of industrial environment, occupational health & safety signage, SOP design, and 5S. We weren&apos;t just printing; we were helping factories and brands show what they stand for.
+              By 2018, that curiosity grew muscle. We launched SafetySign.lk, stepping into the rigorous world of industrial and OHS signage—SOP design and printing, and content for compliance, sustainability, quality assurance, and 5S. We weren&apos;t just printing; we were helping factories and brands show what they stand for.
             </p>
             <p className="text-gray-600 text-lg">
-              Then came 2020—a year of reinvention. We opened a new chapter with PrintWorks.lk, shifting from &quot;just printing&quot; to customised promotional and branding solutions. The idea was simple: make it effortless for anyone in Sri Lanka to turn a concept into something you can hold, mount, gift, wear, or illuminate.
+              Then came 2020—a year of reinvention. We opened a new chapter with PrintWorks.lk, shifting from &quot;just printing&quot; to customised promotional and branding solutions. The idea was simple: make it effortless for anyone in Sri Lanka to turn a concept into something you can hold, mount, gift, wear, or illuminate—and do it online-to-offline, island-wide.
             </p>
           </div>
 
@@ -240,12 +240,26 @@ export function AboutGSAPScroll() {
           <div className="flex flex-col justify-center h-full max-w-xl self-center border-l-4 border-brand-red pl-8 py-4">
             <h3 className="text-3xl font-bold mb-4">Our Services</h3>
             <ul className="space-y-3 text-lg text-gray-700">
-              <li>• <strong>Digital & UV Printing</strong> on acrylic, wood, metal</li>
-              <li>• <strong>Laser Cutting & Engraving</strong> (brass, stainless steel)</li>
-              <li>• <strong>PVC Card Printing</strong> & Paper-based Printing</li>
-              <li>• Custom Acrylic Products & Signage Boards</li>
-              <li>• Promotional, Tags, Badges & Decals</li>
+              <li>• Digital Printing (including specialty and large format)</li>
+              <li>• UV Printing on acrylic, wood, metal, glass, ceramic & more</li>
+              <li>• Laser Cutting & Engraving (acrylic, plywood, MDF, stainless steel, brass)</li>
+              <li>• PVC Card Printing (ID cards, badges, key tags, tokens)</li>
+              <li>• Paper-based Printing for bespoke, small batches</li>
+              <li>• Custom Acrylic Products & Creations</li>
+              <li>• Stainless Steel & Brass Engraving</li>
+              <li>• Sticker Printing & Cutting (brand decals, short-run product labels)</li>
+              <li>• Signage Boards (retail, corporate, safety, wayfinding)</li>
+              <li>• Tags & Badges, Graphic Designing, and Promotional & Gift Items</li>
             </ul>
+            <div className="mt-8 p-6 bg-gray-50 border border-gray-200 rounded-xl">
+              <h4 className="font-bold text-gray-900 mb-2">Who we serve</h4>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                Retail • Corporate & SMEs • Events & Exhibitions • Hospitality & Restaurants • Education • NGOs • Government & Public Sector • Creators & Agencies.
+              </p>
+              <p className="text-gray-600 text-sm mt-2 leading-relaxed">
+                Most of our work is bespoke—unique projects where material, finish, and craft matter.
+              </p>
+            </div>
             <div className="mt-8 p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
               <h4 className="font-bold text-gray-900 mb-2">What we don&apos;t do</h4>
               <p className="text-gray-600 text-sm">We don&apos;t take on FMCG product labelling, book & magazine printing, or bulk quantities of common paper-based printing. That&apos;s deliberate. We stay focused on customised, value-adding work where creativity and precision shine.</p>
@@ -280,7 +294,7 @@ export function AboutGSAPScroll() {
           <div className="absolute inset-0 flex flex-col justify-center px-8 md:px-16 max-w-4xl">
             <h2 className="text-4xl md:text-6xl font-black text-white mb-6">Inside the Workshop<br />(All In-House, End to End)</h2>
             <p className="text-xl text-gray-200 mb-4 max-w-2xl">
-              If you peek behind the website, you&apos;ll find a full production ecosystem under one roof: UV, digital, laser, inkjet, thermal & screen printing. Sticker cutting & plotting. In-house workshop for painting, welding, and carpentry.
+              If you peek behind the website, you&apos;ll find a full production ecosystem under one roof: UV, digital, laser, inkjet, thermal & screen printing; sticker cutting & plotting; an in-house workshop for painting, welding & iron works, and carpentry; and an in-house design studio for concept, artwork development, and pre-press.
             </p>
             <p className="text-xl text-brand-red font-bold">
               Owning the stack means speed, control, and consistency. Your brief doesn&apos;t bounce around; it flows.
@@ -300,7 +314,10 @@ export function AboutGSAPScroll() {
               guarding timelines,<br />
               and delivering work that feels as good as it looks.
             </h3>
-            <div className="mt-12">
+            <div className="mt-12 max-w-2xl mx-auto">
+              <p className="text-gray-600 text-base leading-relaxed mb-4">
+                He started at a very young age and never stopped building. A hands-on practitioner across design, printing, advertising, and digital marketing, Sandaruwan is deeply passionate about creative concept building, project management, and planning. Today he leads a young, inventive team that turns sketches into showpieces—sweating details, guarding timelines, and delivering work that feels as good as it looks.
+              </p>
               <p className="text-xl font-bold">Sandaruwan Dharmapriya</p>
               <p className="text-gray-500">Founder & CEO</p>
             </div>
@@ -313,18 +330,19 @@ export function AboutGSAPScroll() {
             <div>
               <h2 className="text-3xl font-bold mb-4">Why Brands Choose Us</h2>
               <p className="text-gray-600 text-lg">
-                Because we make ordering feel easy and results feel premium. We&apos;re building Sri Lanka&apos;s best online printing experience backed by a growing physical shop network. We deliver island-wide with quality guaranteed and competitive pricing. And we&apos;re relentless about the little things—materials, edges, finishes, and timelines.
+                Because we make ordering feel easy and results feel premium. We&apos;re building Sri Lanka&apos;s best online printing experience backed by a growing physical shop network. We deliver island-wide with quality guaranteed and competitive pricing. And we&apos;re relentless about the little things—materials, edges, finishes, and timelines—the things your audience notices, even if they don&apos;t know why.
               </p>
             </div>
 
             <div>
               <h2 className="text-3xl font-bold mb-4 text-brand-red">Our Mission</h2>
               <ul className="space-y-4 text-gray-700">
-                <li className="flex gap-3"><span className="text-brand-red font-bold">01.</span> Deliver end-to-end, one-stop printing solutions across every major category.</li>
-                <li className="flex gap-3"><span className="text-brand-red font-bold">02.</span> Lead with latest technologies to ensure consistent, quality-guaranteed output.</li>
-                <li className="flex gap-3"><span className="text-brand-red font-bold">03.</span> Offer unique products & services that help businesses stand out, with rapid turnaround.</li>
-                <li className="flex gap-3"><span className="text-brand-red font-bold">04.</span> Build a best-in-class online experience backed by responsive human support.</li>
-                <li className="flex gap-3"><span className="text-brand-red font-bold">05.</span> Earn lifelong customer satisfaction through accuracy and accountability.</li>
+                <li className="flex gap-3"><span className="text-brand-red font-bold shrink-0">01.</span> Deliver end-to-end, one-stop printing solutions—from creative concept building to finished product—across every major category of print and signage.</li>
+                <li className="flex gap-3"><span className="text-brand-red font-bold shrink-0">02.</span> Lead with latest technologies to ensure consistent, quality-guaranteed output at competitive pricing.</li>
+                <li className="flex gap-3"><span className="text-brand-red font-bold shrink-0">03.</span> Offer unique products & services that help businesses and creators stand out, with rapid turnaround and reliable island-wide fulfillment.</li>
+                <li className="flex gap-3"><span className="text-brand-red font-bold shrink-0">04.</span> Build a best-in-class online experience that makes ordering simple, transparent, and fast, backed by responsive human support across our physical shop network.</li>
+                <li className="flex gap-3"><span className="text-brand-red font-bold shrink-0">05.</span> Earn lifelong customer satisfaction through accuracy, accountability, and continuous improvement—setting the benchmark as Sri Lanka&apos;s leading solution provider in print.</li>
+                <li className="flex gap-3"><span className="text-brand-red font-bold shrink-0">06.</span> Grow a recognizable, loved, and iconic brand while scaling the largest physical printing shop chain in the country.</li>
               </ul>
             </div>
           </div>

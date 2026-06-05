@@ -1,9 +1,13 @@
 import Link from "next/link";
+import { clsx } from "clsx";
 import type { ProductItem } from "@/lib/products-data";
 import { catalogImageSrc } from "@/lib/media-url";
 
 type Props = {
   products: ProductItem[];
+  /** "default" = full-width page section; "inline" = compact block in product summary column */
+  variant?: "default" | "inline";
+  className?: string;
 };
 
 function discountLabel(p: ProductItem): string | null {
@@ -14,35 +18,66 @@ function discountLabel(p: ProductItem): string | null {
   return pct > 0 ? `-${pct}%` : null;
 }
 
-export function RelatedProductsSection({ products }: Props) {
+export function RelatedProductsSection({ products, variant = "default", className }: Props) {
   if (products.length === 0) return null;
 
+  const inline = variant === "inline";
+
   return (
-    <section className="mt-14 sm:mt-16" aria-labelledby="related-products-heading">
-      <div className="flex flex-wrap items-end justify-between gap-4 border-b border-gray-200/80 pb-5">
+    <section
+      className={clsx(
+        inline ? "mt-6 border-t border-gray-100 pt-6" : "mt-14 sm:mt-16",
+        className
+      )}
+      aria-labelledby="related-products-heading"
+    >
+      <div
+        className={clsx(
+          "flex flex-wrap items-end justify-between gap-4",
+          inline ? "pb-3" : "border-b border-gray-200/80 pb-5"
+        )}
+      >
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand-red">Discover more</p>
-          <h2 id="related-products-heading" className="mt-1 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
-            You may also like
+          {!inline ? (
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand-red">Discover more</p>
+          ) : null}
+          <h2
+            id="related-products-heading"
+            className={clsx(
+              "font-bold tracking-tight text-gray-900",
+              inline ? "text-lg" : "mt-1 text-2xl sm:text-3xl"
+            )}
+          >
+            {inline ? "Related products" : "You may also like"}
           </h2>
         </div>
-        <Link
-          href="/products"
-          className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-600 transition hover:text-brand-red"
-        >
-          View all products
-          <i className="bi bi-arrow-right" aria-hidden />
-        </Link>
+        {!inline ? (
+          <Link
+            href="/products"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-600 transition hover:text-brand-red"
+          >
+            View all products
+            <i className="bi bi-arrow-right" aria-hidden />
+          </Link>
+        ) : null}
       </div>
 
-      <ul className="mt-8 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
+      <ul
+        className={clsx(
+          "grid gap-3 sm:gap-4",
+          inline ? "mt-4 grid-cols-2" : "mt-8 grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4"
+        )}
+      >
         {products.map((p) => {
           const discount = discountLabel(p);
           return (
             <li key={p.id}>
               <Link
                 href={`/product/${p.slug}`}
-                className="group flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-[0_8px_30px_-16px_rgba(15,23,42,0.12)] transition duration-300 hover:-translate-y-1 hover:border-gray-300/80 hover:shadow-[0_20px_50px_-20px_rgba(15,23,42,0.18)]"
+                className={clsx(
+                  "group flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-[0_8px_30px_-16px_rgba(15,23,42,0.12)] transition duration-300 hover:-translate-y-1 hover:border-gray-300/80 hover:shadow-[0_20px_50px_-20px_rgba(15,23,42,0.18)]",
+                  inline && "rounded-xl shadow-sm hover:shadow-md"
+                )}
               >
                 <div className="relative aspect-square w-full overflow-hidden bg-gradient-to-br from-gray-50 to-white">
                   {discount ? (
@@ -63,17 +98,24 @@ export function RelatedProductsSection({ products }: Props) {
                     <div className="flex h-full items-center justify-center text-xs text-gray-400">No image</div>
                   )}
                 </div>
-                <div className="flex flex-1 flex-col p-4 pt-3">
-                  {p.category ? (
+                <div className={clsx("flex flex-1 flex-col p-4 pt-3", inline && "p-2.5 pt-2")}>
+                  {p.category && !inline ? (
                     <span className="truncate text-[11px] font-medium uppercase tracking-wide text-gray-400">
                       {p.category}
                     </span>
                   ) : null}
-                  <h3 className="mt-1 line-clamp-2 text-sm font-bold leading-snug text-gray-900 transition group-hover:text-brand-red sm:text-[15px]">
+                  <h3
+                    className={clsx(
+                      "line-clamp-2 font-bold leading-snug text-gray-900 transition group-hover:text-brand-red",
+                      inline ? "mt-0 text-xs sm:text-sm" : "mt-1 text-sm sm:text-[15px]"
+                    )}
+                  >
                     {p.title}
                   </h3>
-                  <div className="mt-auto flex items-baseline gap-2 pt-3">
-                    <span className="text-base font-extrabold tabular-nums text-gray-900">{p.price}</span>
+                  <div className={clsx("mt-auto flex items-baseline gap-2 pt-3", inline && "pt-2")}>
+                    <span className={clsx("font-extrabold tabular-nums text-gray-900", inline ? "text-sm" : "text-base")}>
+                      {p.price}
+                    </span>
                     {p.oldPrice ? (
                       <span className="text-xs font-medium text-gray-400 line-through">{p.oldPrice}</span>
                     ) : null}

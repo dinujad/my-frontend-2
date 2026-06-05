@@ -6,11 +6,13 @@ import { clsx } from "clsx";
 type Props = {
   description: string;
   className?: string;
+  /** "section" = full card below gallery; "inline" = compact block under product title */
+  variant?: "section" | "inline";
 };
 
 const COLLAPSED_LINES = 4;
 
-export function ProductDescriptionReadMore({ description, className }: Props) {
+export function ProductDescriptionReadMore({ description, className, variant = "section" }: Props) {
   const [expanded, setExpanded] = useState(false);
   const contentId = useId();
   const text = description?.trim() ?? "";
@@ -18,6 +20,34 @@ export function ProductDescriptionReadMore({ description, className }: Props) {
   if (!text) return null;
 
   const needsToggle = text.length > 220 || text.split("\n").length > COLLAPSED_LINES;
+
+  if (variant === "inline") {
+    return (
+      <div className={className}>
+        <div
+          id={contentId}
+          className={clsx(
+            "text-base leading-relaxed text-gray-600 whitespace-pre-wrap sm:text-[15px]",
+            !expanded && needsToggle && "line-clamp-4"
+          )}
+        >
+          {text}
+        </div>
+        {needsToggle ? (
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            aria-expanded={expanded}
+            aria-controls={contentId}
+            className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-brand-red transition hover:text-brand-red-dark"
+          >
+            {expanded ? "Show less" : "Read more"}
+            <i className={clsx("bi text-xs", expanded ? "bi-chevron-up" : "bi-chevron-down")} aria-hidden />
+          </button>
+        ) : null}
+      </div>
+    );
+  }
 
   return (
     <section
