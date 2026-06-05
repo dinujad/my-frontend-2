@@ -51,11 +51,11 @@ body {
 }
 
 .animate-scroll-x {
-  animation: scroll-x 25s linear infinite;
+  animation: scroll-x 55s linear infinite;
 }
 
 .animate-scroll-x-reverse {
-  animation: scroll-x 30s linear infinite reverse;
+  animation: scroll-x 65s linear infinite reverse;
 }
 
 /* AI Helper Robot – bottom right, no background */

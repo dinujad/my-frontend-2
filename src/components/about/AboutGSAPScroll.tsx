@@ -298,10 +298,47 @@ export function AboutGSAPScroll() {
           </div>
         </section>
 
-        {/* Founder — balanced 2-col with vector portrait */}
+        {/* Founder — photo + bio 2-col */}
         <section className="about-reveal stagger-container mb-14 md:mb-16">
-          <div className="grid items-center gap-10 lg:grid-cols-[280px_1fr] xl:grid-cols-[320px_1fr]">
-            <AboutVectorDecor variant="founder" className="hidden lg:block" />
+          <div className="grid items-center gap-10 lg:grid-cols-[300px_1fr] xl:grid-cols-[340px_1fr]">
+
+            {/* Animated founder photo frame */}
+            <div className="about-vector-float mx-auto flex flex-col items-center lg:mx-0">
+              <div className="relative">
+                {/* Outer rotating dashed ring */}
+                <span className="about-vector-spin pointer-events-none absolute inset-[-18px] rounded-full border-[2.5px] border-dashed border-brand-red/30" aria-hidden />
+                {/* Mid pulsing ring */}
+                <span className="about-vector-pulse pointer-events-none absolute inset-[-8px] rounded-full border border-brand-red/20" aria-hidden />
+                {/* Glow backdrop */}
+                <span className="pointer-events-none absolute inset-0 rounded-full bg-brand-red/8 blur-2xl" aria-hidden />
+                {/* Red arc accent top-right */}
+                <span className="pointer-events-none absolute -top-3 -right-3 h-10 w-10 rounded-full border-4 border-brand-red/60 border-b-transparent border-l-transparent" aria-hidden />
+                {/* Red arc accent bottom-left */}
+                <span className="pointer-events-none absolute -bottom-3 -left-3 h-8 w-8 rounded-full border-4 border-brand-red/40 border-t-transparent border-r-transparent" aria-hidden />
+
+                {/* Photo */}
+                <div className="relative h-52 w-52 overflow-hidden rounded-full ring-4 ring-white shadow-[0_20px_60px_-12px_rgba(220,38,38,0.30),0_8px_24px_-4px_rgba(15,23,42,0.18)] xl:h-60 xl:w-60">
+                  <Image
+                    src="/images/owner.jpeg"
+                    alt="Sandaruwan Dharmapriya – Founder & Managing Director, PrintWorks.lk"
+                    fill
+                    className="object-cover object-top"
+                    sizes="(max-width: 1024px) 208px, 240px"
+                    priority
+                  />
+                </div>
+              </div>
+
+              {/* Name tag below photo */}
+              <div className="mt-5 text-center">
+                <p className="text-base font-bold text-gray-900 sm:text-lg">Sandaruwan Dharmapriya</p>
+                <p className="mt-0.5 text-xs font-semibold uppercase tracking-widest text-brand-red">
+                  Founder &amp; Managing Director
+                </p>
+              </div>
+            </div>
+
+            {/* Bio text */}
             <div>
               <p className="text-xs font-bold uppercase tracking-widest text-brand-red">The People Behind the Prints</p>
               <h3 className="mt-3 text-2xl font-black leading-tight text-gray-900 md:text-4xl">
@@ -318,8 +355,6 @@ export function AboutGSAPScroll() {
                 building, project management, and planning. Today he leads a young, inventive team that turns sketches
                 into showpieces.
               </p>
-              <p className="mt-4 text-lg font-bold text-gray-900">Sandaruwan Dharmapriya</p>
-              <p className="text-gray-500">Founder & CEO</p>
             </div>
           </div>
         </section>

@@ -17,7 +17,6 @@ import { absolutePublicMediaUrl } from "@/lib/media-url";
 import ProductInteractive from "./ProductInteractive";
 import ProductGallery from "./ProductGallery";
 import ProductDetailsTabs from "@/components/product/ProductDetailsTabs";
-import { ProductDescriptionReadMore } from "@/components/product/ProductDescriptionReadMore";
 import { RelatedProductsSection } from "@/components/product/RelatedProductsSection";
 import StarRating from "@/components/product/StarRating";
 
@@ -268,24 +267,20 @@ export default async function ProductPage({ params }: Props) {
             </div>
           </div>
 
-          {showFullDesc ? (
-            <ProductDescriptionReadMore description={descriptionText} />
-          ) : null}
-
           <ProductDetailsTabs
             slug={product.slug}
             enableReviews={enableReviews}
             initialSummary={reviewSummary}
+            description={descriptionText}
+            showDescription={showFullDesc}
           />
-        </div>
 
-        {showRelated ? (
-          <div className="relative mt-16 border-t border-gray-200/80 bg-white pb-16 pt-12 sm:mt-20 sm:pb-20 sm:pt-16">
-            <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
+          {showRelated ? (
+            <div className="mt-14 sm:mt-16">
               <RelatedProductsSection products={related} variant="footer" />
             </div>
-          </div>
-        ) : null}
+          ) : null}
+        </div>
       </main>
     </>
   );

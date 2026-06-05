@@ -67,6 +67,7 @@ export function Footer() {
                         <nav className="flex flex-col space-y-3 text-sm font-light text-gray-400">
                             <Link href="/products" className="hover:text-white transition-colors w-fit">All Products</Link>
                             <Link href="/about" className="hover:text-white transition-colors w-fit">Our Story</Link>
+                            <Link href="/career" className="hover:text-white transition-colors w-fit">Careers</Link>
                             <Link href="/contact" className="hover:text-white transition-colors w-fit">Contact</Link>
                             <Link href="/quote" className="hover:text-white transition-colors w-fit">Request a Quote</Link>
                         </nav>
