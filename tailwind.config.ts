@@ -71,7 +71,7 @@ const config: Config = {
         "shimmer": "shimmer 3s ease-in-out infinite",
         "line-draw": "line-draw 1.5s ease-out forwards",
         "slow-pulse": "slow-pulse 4s ease-in-out infinite",
-        "scroll-x": "scroll-x 55s linear infinite",
+        "scroll-x": "scroll-x 120s linear infinite",
       },
     },
   },
