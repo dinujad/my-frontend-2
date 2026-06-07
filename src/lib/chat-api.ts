@@ -36,11 +36,11 @@ export const chatApi = {
     });
   },
 
-  async askAssistant(message: string) {
+  async askAssistant(message: string, history: { role: 'user' | 'assistant'; content: string }[] = []) {
     const res = await fetch(`${this.baseUrl}/chat/assistant`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ message })
+      body: JSON.stringify({ message, history })
     });
     const json = await res.json().catch(() => ({}));
     if (!res.ok && !json?.reply) {

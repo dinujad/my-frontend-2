@@ -33,8 +33,31 @@ type AssistantMessage = {
   role: "user" | "assistant";
   text: string;
   suggestions?: AssistantSuggestion[];
+  followups?: string[];
   created_at: string;
 };
+
+const QUICK_QUESTIONS = [
+  { icon: "🛒", text: "Order krnne kohomda?" },
+  { icon: "💬", text: "Quotation ganne kohomda?" },
+  { icon: "📦", text: "Mage order eke status kohomda?" },
+  { icon: "🔑", text: "Account hadaganne kohomda?" },
+  { icon: "🚚", text: "Delivery kohomda island-wide?" },
+  { icon: "🖨️", text: "Acrylic printing options and prices?" },
+];
+
+const FOLLOWUP_POOL = [
+  "Payment kohomda karanne?",
+  "How to place an order?",
+  "Quotation submit karanne kohomda?",
+  "Delivery charges kohomda?",
+  "WhatsApp number eka monada?",
+  "Bulk discount thiyanawada?",
+  "Design file send karanne kohomda?",
+  "Order track karanne kohomda?",
+  "Login wenne kohomda?",
+  "Anik similar products thiyanawada?",
+];
 
 // Tiny beep using Web Audio API — no external files needed
 function playNotificationSound() {
@@ -290,12 +313,22 @@ export function LiveChatWidget() {
     setAssistantLoading(true);
 
     try {
-      const res = await chatApi.askAssistant(msg);
+      // Build history from current messages for RAG context (last 6 turns)
+      const history = assistantMessages
+        .filter((m) => m.role === "user" || m.role === "assistant")
+        .slice(-6)
+        .map((m) => ({ role: m.role as "user" | "assistant", content: m.text }));
+
+      const res = await chatApi.askAssistant(msg, history);
+      // Pick 3 random follow-up questions, different each time
+      const shuffled = [...FOLLOWUP_POOL].sort(() => Math.random() - 0.5);
+      const followups = shuffled.slice(0, 3);
       const aiMsg: AssistantMessage = {
         id: Date.now() + 1,
         role: "assistant",
         text: String(res.reply ?? "").trim() || "I can help. Tell me a bit more about what you are looking for.",
         suggestions: Array.isArray(res.suggestions) ? res.suggestions : [],
+        followups,
         created_at: new Date().toISOString(),
       };
       setAssistantMessages((prev) => [...prev, aiMsg]);
@@ -312,6 +345,50 @@ export function LiveChatWidget() {
     } finally {
       setAssistantLoading(false);
     }
+  };
+
+  const sendAssistantQuick = (text: string) => {
+    if (assistantLoading) return;
+    const userMsg: AssistantMessage = {
+      id: Date.now(),
+      role: "user",
+      text,
+      created_at: new Date().toISOString(),
+    };
+    // Build history from current messages BEFORE adding userMsg
+    const history = [...assistantMessages, userMsg]
+      .filter((m) => m.role === "user" || m.role === "assistant")
+      .slice(-6)
+      .map((m) => ({ role: m.role as "user" | "assistant", content: m.text }));
+
+    setAssistantMessages((prev) => [...prev, userMsg]);
+    setAssistantInput("");
+    setAssistantLoading(true);
+
+    chatApi.askAssistant(text, history).then((res) => {
+      const shuffled = [...FOLLOWUP_POOL].sort(() => Math.random() - 0.5);
+      setAssistantMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          role: "assistant",
+          text: String(res.reply ?? "").trim() || "I can help. Tell me a bit more about what you are looking for.",
+          suggestions: Array.isArray(res.suggestions) ? res.suggestions : [],
+          followups: shuffled.slice(0, 3),
+          created_at: new Date().toISOString(),
+        },
+      ]);
+    }).catch(() => {
+      setAssistantMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          role: "assistant",
+          text: "Sorry, AI shopping help is unavailable right now. Please try again in a moment.",
+          created_at: new Date().toISOString(),
+          },
+        ]);
+    }).finally(() => setAssistantLoading(false));
   };
 
   // Don't render on admin pages
@@ -580,82 +657,135 @@ export function LiveChatWidget() {
     );
   };
 
-  const renderAssistant = () => (
-    <div className="flex-1 flex flex-col bg-gray-50 h-full overflow-hidden">
-      <div className="bg-white border-b border-gray-100 p-3 shadow-sm flex items-center gap-2.5 shrink-0">
-        <button onClick={() => setView("home")} className="text-gray-400 hover:text-gray-800 transition-colors p-1">
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-        <div>
-          <h3 className="text-sm font-bold text-gray-800">AI Shopping Assistant</h3>
-          <p className="text-[11px] text-gray-500">Product suggestions only (no internal business data)</p>
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
-        {assistantMessages.map((msg) => {
-          const isUser = msg.role === "user";
-          return (
-            <div key={msg.id} className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
-                isUser ? "bg-brand-red text-white rounded-br-sm" : "bg-white border border-gray-100 text-gray-800 rounded-bl-sm shadow-sm"
-              }`}>
-                <p>{msg.text}</p>
-                {!isUser && msg.suggestions && msg.suggestions.length > 0 && (
-                  <div className="mt-3 space-y-2 border-t border-gray-100 pt-2.5">
-                    {msg.suggestions.map((s, idx) => (
-                      <a
-                        key={`${s.slug}-${idx}`}
-                        href={`/product/${s.slug}`}
-                        onClick={() => setOpen(false)}
-                        className="block rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 hover:border-brand-red/40 hover:bg-red-50 transition-colors"
-                      >
-                        <p className="text-xs font-bold text-gray-800">{s.name}</p>
-                        {s.reason ? <p className="mt-0.5 text-[11px] text-gray-600">{s.reason}</p> : null}
-                      </a>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })}
-
-        {assistantLoading && (
-          <div className="flex justify-start">
-            <div className="bg-white border border-gray-100 rounded-2xl rounded-bl-sm px-4 py-3 flex items-center gap-1.5 shadow-sm">
-              <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" />
-              <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0.15s" }} />
-              <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0.3s" }} />
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="bg-white border-t border-gray-100 p-3 shrink-0">
-        <form onSubmit={handleAssistantSend} className="flex items-center gap-2">
-          <input
-            type="text"
-            value={assistantInput}
-            onChange={(e) => setAssistantInput(e.target.value)}
-            placeholder="E.g. wedding welcome board under Rs. 5000"
-            className="flex-1 bg-gray-50 border border-gray-200 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-          />
-          <button
-            type="submit"
-            disabled={!assistantInput.trim() || assistantLoading}
-            className="w-9 h-9 flex items-center justify-center bg-indigo-600 text-white rounded-full disabled:opacity-50 transition-all hover:bg-indigo-700 active:scale-95"
-          >
-            <svg className="w-4 h-4 translate-x-[1px]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+  const renderAssistant = () => {
+    const onlyWelcome = assistantMessages.length === 1 && assistantMessages[0].role === "assistant";
+    return (
+      <div className="flex-1 flex flex-col bg-gray-50 h-full overflow-hidden">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-100 p-3 shadow-sm flex items-center gap-2.5 shrink-0">
+          <button onClick={() => setView("home")} className="text-gray-400 hover:text-gray-800 transition-colors p-1">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-        </form>
+          <div>
+            <h3 className="text-sm font-bold text-gray-800">AI Shopping Assistant</h3>
+            <p className="text-[11px] text-gray-500">Ask anything about our products &amp; services</p>
+          </div>
+        </div>
+
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          {assistantMessages.map((msg) => {
+            const isUser = msg.role === "user";
+            return (
+              <div key={msg.id} className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
+                <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
+                  isUser
+                    ? "bg-brand-red text-white rounded-br-sm"
+                    : "bg-white border border-gray-100 text-gray-800 rounded-bl-sm shadow-sm"
+                }`}>
+                  <p className="leading-relaxed">{msg.text}</p>
+
+                  {/* Product suggestions */}
+                  {!isUser && msg.suggestions && msg.suggestions.length > 0 && (
+                    <div className="mt-3 space-y-2 border-t border-gray-100 pt-2.5">
+                      <p className="text-[10px] font-black uppercase tracking-wider text-gray-400">Suggested products</p>
+                      {msg.suggestions.map((s, idx) => (
+                        <a
+                          key={`${s.slug}-${idx}`}
+                          href={`/product/${s.slug}`}
+                          onClick={() => setOpen(false)}
+                          className="flex items-start gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 hover:border-brand-red/40 hover:bg-red-50 transition-colors"
+                        >
+                          <span className="mt-0.5 shrink-0 text-brand-red">→</span>
+                          <div>
+                            <p className="text-xs font-bold text-gray-800">{s.name}</p>
+                            {s.reason ? <p className="mt-0.5 text-[11px] text-gray-500">{s.reason}</p> : null}
+                          </div>
+                        </a>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Follow-up question chips */}
+                  {!isUser && msg.followups && msg.followups.length > 0 && !assistantLoading && (
+                    <div className="mt-3 flex flex-wrap gap-1.5 border-t border-gray-100 pt-2.5">
+                      {msg.followups.map((q) => (
+                        <button
+                          key={q}
+                          type="button"
+                          onClick={() => sendAssistantQuick(q)}
+                          className="rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-[11px] font-medium text-indigo-700 transition hover:bg-indigo-100 hover:border-indigo-300"
+                        >
+                          {q}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Typing indicator */}
+          {assistantLoading && (
+            <div className="flex justify-start">
+              <div className="bg-white border border-gray-100 rounded-2xl rounded-bl-sm px-4 py-3 flex items-center gap-1.5 shadow-sm">
+                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" />
+                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0.15s" }} />
+                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0.3s" }} />
+              </div>
+            </div>
+          )}
+
+          {/* Initial quick questions — shown only before first user message */}
+          {onlyWelcome && !assistantLoading && (
+            <div className="space-y-1.5 pt-1">
+              <p className="text-[10px] font-black uppercase tracking-wider text-gray-400 px-1">Quick questions</p>
+              {QUICK_QUESTIONS.map((q) => (
+                <button
+                  key={q.text}
+                  type="button"
+                  onClick={() => sendAssistantQuick(q.text)}
+                  className="w-full flex items-center gap-2.5 rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-left text-xs font-medium text-gray-700 shadow-sm transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-800"
+                >
+                  <span className="text-base leading-none">{q.icon}</span>
+                  {q.text}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Input bar */}
+        <div className="bg-white border-t border-gray-100 pt-3 px-3 pb-1 shrink-0">
+          <form onSubmit={handleAssistantSend} className="flex items-center gap-2">
+            <input
+              type="text"
+              value={assistantInput}
+              onChange={(e) => setAssistantInput(e.target.value)}
+              placeholder="Ask anything about our store…"
+              className="flex-1 bg-gray-50 border border-gray-200 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+            />
+            <button
+              type="submit"
+              disabled={!assistantInput.trim() || assistantLoading}
+              className="w-9 h-9 flex items-center justify-center bg-indigo-600 text-white rounded-full disabled:opacity-50 transition-all hover:bg-indigo-700 active:scale-95"
+            >
+              <svg className="w-4 h-4 translate-x-[1px]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              </svg>
+            </button>
+          </form>
+          <p className="mt-1.5 pb-1 text-center text-[10px] text-gray-300">
+            Developed by{" "}
+            <span className="font-semibold text-gray-400">E media solution</span>
+          </p>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-3" suppressHydrationWarning>
