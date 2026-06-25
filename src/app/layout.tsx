@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import Script from "next/script";
 import "./globals.css";
 import { Providers } from "@/components/providers/Providers";
 import { Header } from "@/components/layout/Header";
@@ -31,6 +32,21 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Google Analytics — required for Google Merchant Center site verification */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-P3QDWWWHGZ"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-P3QDWWWHGZ');
+          `}
+        </Script>
+      </head>
       {/*
         suppressHydrationWarning on body + inner shell: some browser extensions inject
         attributes (e.g. bis_skin_checked) into arbitrary divs and trigger false hydration

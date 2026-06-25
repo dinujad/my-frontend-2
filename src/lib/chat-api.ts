@@ -36,6 +36,14 @@ export const chatApi = {
     });
   },
 
+  async getAgentStatus(): Promise<{ agents_online: boolean; online_count: number }> {
+    const res = await fetch(`${this.baseUrl}/chat/agent-status`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) return { agents_online: true, online_count: 0 };
+    return res.json();
+  },
+
   async askAssistant(message: string, history: { role: 'user' | 'assistant'; content: string }[] = []) {
     const res = await fetch(`${this.baseUrl}/chat/assistant`, {
       method: 'POST',

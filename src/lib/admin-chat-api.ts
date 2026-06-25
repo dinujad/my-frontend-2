@@ -30,6 +30,15 @@ export const adminChatApi = {
     };
   },
 
+  async pingPresence() {
+    const res = await fetch(`${this.baseUrl}/presence`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+    });
+    if (!res.ok) return;
+    return res.json();
+  },
+
   async getConversations() {
     const res = await fetch(this.baseUrl, { headers: this.getHeaders() });
     return handleResponse(res);

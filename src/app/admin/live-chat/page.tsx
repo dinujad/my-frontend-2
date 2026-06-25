@@ -140,6 +140,16 @@ export default function AdminLiveChat() {
     return () => clearInterval(interval);
   }, [fetchQueue, router]);
 
+  // Agent online heartbeat — tells customer widget whether a human agent is available
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    const ping = () => { adminChatApi.pingPresence().catch(() => {}); };
+    ping();
+    const interval = setInterval(ping, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   // Active chat polling (2.5s when chat open)
   useEffect(() => {
     if (!activeChatId) return;
