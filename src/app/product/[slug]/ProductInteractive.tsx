@@ -491,14 +491,30 @@ export default function ProductInteractive({ product }: { product: ProductItem }
         <div className="rounded-2xl border border-gray-200/80 bg-gradient-to-br from-slate-50/90 via-white to-white p-4 sm:p-5">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="min-w-0">
-              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-gray-400">Price</p>
+              <div className="flex items-center gap-2">
+                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-gray-400">Price</p>
+                {product.oldPrice && (() => {
+                  const old = parseFloat(String(product.oldPrice).replace(/[^\d.]/g, ""));
+                  if (old > 0 && currentPricePerUnit < old) {
+                    const pct = Math.round(((old - currentPricePerUnit) / old) * 100);
+                    return <span className="rounded-full bg-red-600 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">{pct}% Off</span>;
+                  }
+                  return null;
+                })()}
+              </div>
               <div className="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <span className="text-3xl font-extrabold tracking-tight text-gray-900 tabular-nums sm:text-[2.35rem] sm:leading-none">
-                  {fmtRs(currentPricePerUnit)}
-                </span>
                 {product.oldPrice ? (
-                  <span className="text-base font-medium text-gray-400 line-through sm:text-lg">{product.oldPrice}</span>
-                ) : null}
+                  <>
+                    <span className="text-base font-medium text-gray-400 line-through sm:text-lg">{product.oldPrice}</span>
+                    <span className="text-3xl font-extrabold tracking-tight text-brand-red tabular-nums sm:text-[2.35rem] sm:leading-none">
+                      {fmtRs(currentPricePerUnit)}
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-3xl font-extrabold tracking-tight text-gray-900 tabular-nums sm:text-[2.35rem] sm:leading-none">
+                    {fmtRs(currentPricePerUnit)}
+                  </span>
+                )}
               </div>
               {activeTiers.length > 0 ? (
                 <p className="mt-2 text-sm text-gray-500">Unit price updates with quantity tiers below.</p>
