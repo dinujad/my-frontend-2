@@ -98,6 +98,10 @@ export type ProductItem = {
   stock_quantity?: number | null;
   stock_status?: string;
   allow_backorders?: boolean;
+  /** Minimum quantity customer can order (from admin). */
+  min_purchase?: number;
+  /** Optional maximum quantity customer can order. */
+  max_purchase?: number | null;
   review_summary?: ReviewSummary;
   is_featured?: boolean;
   is_special_offer?: boolean;

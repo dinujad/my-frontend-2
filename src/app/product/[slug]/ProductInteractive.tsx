@@ -198,7 +198,24 @@ export default function ProductInteractive({ product }: { product: ProductItem }
     return () => resetGallery();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const [qty, setQty] = useState(1);
+  const [qty, setQty] = useState(() => Math.max(1, product.min_purchase ?? 1));
+  const minOrderQty = Math.max(1, product.min_purchase ?? 1);
+  const maxOrderQty =
+    product.max_purchase != null && product.max_purchase > 0
+      ? product.max_purchase
+      : null;
+
+  const clampQty = (value: number) => {
+    let next = Math.max(minOrderQty, Math.floor(value) || minOrderQty);
+    if (maxOrderQty != null) next = Math.min(maxOrderQty, next);
+    return next;
+  };
+
+  useEffect(() => {
+    setQty((prev) => clampQty(prev));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [minOrderQty, maxOrderQty]);
+
   const [selectedServiceIds, setSelectedServiceIds] = useState<number[]>([]);
   const [customizationValues, setCustomizationValues] = useState<Record<number, string>>({});
   const [customizationFiles, setCustomizationFiles] = useState<Record<number, File>>({});
@@ -935,8 +952,9 @@ export default function ProductInteractive({ product }: { product: ProductItem }
             >
               <button
                 type="button"
-                onClick={() => setQty(Math.max(1, qty - 1))}
-                className="flex w-11 shrink-0 items-center justify-center text-gray-500 transition hover:bg-gray-50 hover:text-gray-900 active:bg-gray-100"
+                onClick={() => setQty(clampQty(qty - 1))}
+                disabled={qty <= minOrderQty}
+                className="flex w-11 shrink-0 items-center justify-center text-gray-500 transition hover:bg-gray-50 hover:text-gray-900 active:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="Decrease quantity"
               >
                 <span className="text-xl font-medium leading-none">−</span>
@@ -944,20 +962,30 @@ export default function ProductInteractive({ product }: { product: ProductItem }
               <input
                 type="number"
                 value={qty}
-                onChange={(e) => setQty(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                onChange={(e) => setQty(clampQty(parseInt(e.target.value, 10) || minOrderQty))}
                 className="min-w-0 flex-1 border-x border-gray-100 bg-transparent text-center text-lg font-bold tabular-nums text-gray-900 outline-none [-moz-appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
-                min={1}
+                min={minOrderQty}
+                max={maxOrderQty ?? undefined}
                 aria-label="Quantity"
               />
               <button
                 type="button"
-                onClick={() => setQty(qty + 1)}
-                className="flex w-11 shrink-0 items-center justify-center text-gray-500 transition hover:bg-gray-50 hover:text-gray-900 active:bg-gray-100"
+                onClick={() => setQty(clampQty(qty + 1))}
+                disabled={maxOrderQty != null && qty >= maxOrderQty}
+                className="flex w-11 shrink-0 items-center justify-center text-gray-500 transition hover:bg-gray-50 hover:text-gray-900 active:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="Increase quantity"
               >
                 <span className="text-xl font-medium leading-none">+</span>
               </button>
             </div>
+            {minOrderQty > 1 ? (
+              <p className="mt-2 text-xs font-medium text-brand-red">
+                Minimum order quantity: {minOrderQty}
+              </p>
+            ) : null}
+            {maxOrderQty != null ? (
+              <p className="mt-1 text-xs text-gray-500">Maximum order quantity: {maxOrderQty}</p>
+            ) : null}
           </div>
 
           <div className="flex flex-1 flex-col items-end text-right">
