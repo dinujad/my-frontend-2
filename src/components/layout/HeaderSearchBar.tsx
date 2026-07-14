@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { CategoryItem } from "@/lib/products-data";
-import { catalogImageSrc } from "@/lib/media-url";
+import { catalogImageSrc, onCatalogImageError } from "@/lib/media-url";
+import { PRODUCT_IMAGE_PLACEHOLDER } from "@/lib/products-data";
 
 type SearchSuggestion = {
   id: number;
@@ -232,14 +233,18 @@ export function HeaderSearchBar({ categories, className = "" }: Props) {
                     {p.image ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
-                        src={catalogImageSrc(p.image)}
+                        src={catalogImageSrc(p.image) || PRODUCT_IMAGE_PLACEHOLDER}
+                        alt=""
+                        className="h-11 w-11 shrink-0 rounded-lg border border-gray-100 bg-white object-contain p-0.5"
+                        onError={onCatalogImageError}
+                      />
+                    ) : (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={PRODUCT_IMAGE_PLACEHOLDER}
                         alt=""
                         className="h-11 w-11 shrink-0 rounded-lg border border-gray-100 bg-white object-contain p-0.5"
                       />
-                    ) : (
-                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-xs text-gray-400">
-                        —
-                      </span>
                     )}
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm font-semibold text-gray-900">{p.name}</span>
