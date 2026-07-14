@@ -2,7 +2,7 @@
 // Client Component: requires useState (filter/sort state), useSearchParams (URL query reading),
 // and event handlers (onClick, onChange). These APIs are browser-only and cannot run on the server.
 
-import { useEffect, useState, type MouseEvent } from "react";
+import { useEffect, useMemo, useState, type MouseEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -42,6 +42,30 @@ function discountLabel(product: Product): string | null {
     if (pct > 0) return `-${pct}%`;
   }
   return product.oldPrice ? "Sale" : null;
+}
+
+const PRODUCTS_PER_PAGE = 20;
+
+/** Page numbers with ellipsis for large page counts. */
+function buildPaginationItems(current: number, total: number): (number | "ellipsis")[] {
+  if (total <= 1) return [];
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+
+  const items: (number | "ellipsis")[] = [1];
+  if (current > 3) items.push("ellipsis");
+
+  const start = Math.max(2, current - 1);
+  const end = Math.min(total - 1, current + 1);
+  for (let p = start; p <= end; p++) {
+    items.push(p);
+  }
+
+  if (current < total - 2) items.push("ellipsis");
+  items.push(total);
+
+  return items;
 }
 
 function ProductGridCard({ product }: { product: Product }) {
@@ -192,18 +216,33 @@ function ProductsClientInner({
   categoryQueryParam,
   searchQueryParam,
 }: ProductsClientInnerProps) {
+  const maxCatalogPrice = useMemo(() => {
+    const prices = initialProducts.map((p) => p.numericPrice).filter((n) => n > 0);
+    const peak = prices.length > 0 ? Math.max(...prices) : 5000;
+    return Math.max(5000, Math.ceil(peak / 1000) * 1000);
+  }, [initialProducts]);
+
   const [selectedCategories, setSelectedCategories] = useState<string[]>(() =>
     resolveCategoryNames(categoryQueryParam, initialCategories)
   );
   const [selectedMaterials, setSelectedMaterials] = useState<string[]>([]);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000]);
+  const [priceRange, setPriceRange] = useState<[number, number]>(() => [0, maxCatalogPrice]);
   const [sortBy, setSortBy] = useState("default");
+  const [currentPage, setCurrentPage] = useState(1);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
+  useEffect(() => {
+    setPriceRange((prev) => [prev[0], Math.max(prev[1], maxCatalogPrice)]);
+  }, [maxCatalogPrice]);
 
   useEffect(() => {
     setSelectedCategories(resolveCategoryNames(categoryQueryParam, initialCategories));
   }, [categoryQueryParam, initialCategories]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategories, selectedMaterials, selectedColors, priceRange, sortBy, searchQueryParam]);
 
   const searchTerm = searchQueryParam?.trim().toLowerCase() ?? "";
 
@@ -233,7 +272,7 @@ function ProductsClientInner({
     setSelectedCategories([]);
     setSelectedMaterials([]);
     setSelectedColors([]);
-    setPriceRange([0, 5000]);
+    setPriceRange([0, maxCatalogPrice]);
   };
 
   let filteredProducts = initialProducts.filter((product) => {
@@ -262,6 +301,18 @@ function ProductsClientInner({
   else if (sortBy === "price-high") filteredProducts.sort((a, b) => b.numericPrice - a.numericPrice);
   else if (sortBy === "name-a") filteredProducts.sort((a, b) => a.title.localeCompare(b.title));
   else if (sortBy === "name-z") filteredProducts.sort((a, b) => b.title.localeCompare(a.title));
+
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE));
+  const safePage = Math.min(currentPage, totalPages);
+  const pageStart = (safePage - 1) * PRODUCTS_PER_PAGE;
+  const paginatedProducts = filteredProducts.slice(pageStart, pageStart + PRODUCTS_PER_PAGE);
+  const paginationItems = buildPaginationItems(safePage, totalPages);
+
+  const goToPage = (page: number) => {
+    const next = Math.min(Math.max(1, page), totalPages);
+    setCurrentPage(next);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <main className="min-h-screen bg-gray-50 pb-20">
@@ -410,7 +461,7 @@ function ProductsClientInner({
                     <input
                       type="range"
                       min="0"
-                      max="5000"
+                      max={maxCatalogPrice}
                       value={priceRange[1]}
                       onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
                       className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-brand-red"
@@ -548,7 +599,7 @@ function ProductsClientInner({
             {/* Product Grid */}
             {filteredProducts.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 border-t border-l border-gray-200 bg-white">
-                {filteredProducts.map((product) => (
+                {paginatedProducts.map((product) => (
                   <ProductGridCard key={product.id} product={product} />
                 ))}
               </div>
@@ -583,42 +634,69 @@ function ProductsClientInner({
               </div>
             )}
 
-            {/* Pagination */}
-            {filteredProducts.length > 0 && (
-              <div className="flex items-center justify-center mt-12 gap-2">
-                <button
-                  className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 hover:text-brand-red transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled
-                >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 19l-7-7 7-7"
-                    />
-                  </svg>
-                </button>
-                <button className="w-10 h-10 rounded-lg bg-brand-red text-white font-bold flex items-center justify-center shadow-sm">
-                  1
-                </button>
-                <button className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center text-gray-700 font-medium hover:bg-gray-50 transition-colors">
-                  2
-                </button>
-                <button className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center text-gray-700 font-medium hover:bg-gray-50 transition-colors">
-                  3
-                </button>
-                <span className="text-gray-500 px-2">...</span>
-                <button className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 hover:text-brand-red transition-colors">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </button>
+            {/* Pagination — only when more than one page */}
+            {filteredProducts.length > 0 && totalPages > 1 && (
+              <div className="flex flex-col items-center justify-center mt-12 gap-3">
+                <p className="text-sm text-gray-500">
+                  Showing {pageStart + 1}–{Math.min(pageStart + PRODUCTS_PER_PAGE, filteredProducts.length)} of{" "}
+                  {filteredProducts.length} products
+                </p>
+                <div className="flex items-center justify-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => goToPage(safePage - 1)}
+                    disabled={safePage <= 1}
+                    aria-label="Previous page"
+                    className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 hover:text-brand-red transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 19l-7-7 7-7"
+                      />
+                    </svg>
+                  </button>
+                  {paginationItems.map((item, idx) =>
+                    item === "ellipsis" ? (
+                      <span key={`ellipsis-${idx}`} className="text-gray-500 px-2">
+                        …
+                      </span>
+                    ) : (
+                      <button
+                        key={item}
+                        type="button"
+                        onClick={() => goToPage(item)}
+                        aria-label={`Page ${item}`}
+                        aria-current={item === safePage ? "page" : undefined}
+                        className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold transition-colors ${
+                          item === safePage
+                            ? "bg-brand-red text-white shadow-sm"
+                            : "border border-gray-200 text-gray-700 hover:bg-gray-50"
+                        }`}
+                      >
+                        {item}
+                      </button>
+                    )
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => goToPage(safePage + 1)}
+                    disabled={safePage >= totalPages}
+                    aria-label="Next page"
+                    className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 hover:text-brand-red transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </button>
+                </div>
               </div>
             )}
           </div>
