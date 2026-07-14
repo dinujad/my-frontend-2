@@ -1,6 +1,15 @@
-# Fallback if Coolify still uses Nixpacks (prefer Dockerfile in Coolify → Build Pack: Dockerfile)
+# Prefer Coolify → Build Pack: Dockerfile (smaller / more reliable than Nixpacks).
+# This file is only used if Nixpacks is selected.
 [variables]
 NIXPACKS_NODE_VERSION = "22"
+NODE_OPTIONS = "--max-old-space-size=4096"
+NEXT_TELEMETRY_DISABLED = "1"
+
+[phases.setup]
+nixPkgs = ["nodejs_22", "npm-9_x"]
+
+[phases.install]
+cmds = ["npm ci"]
 
 [phases.build]
 cmds = ["npm run build"]

@@ -11,6 +11,8 @@ FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
+# Prevent OOM kills during Next.js webpack compile on small Coolify hosts
+ENV NODE_OPTIONS=--max-old-space-size=4096
 # Build-time public env (Coolify: set as build args or env before deploy)
 ARG NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_SITE_URL
