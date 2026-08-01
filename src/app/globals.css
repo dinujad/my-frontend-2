@@ -130,3 +130,20 @@ body {
     transform: scale(1, 1);
   }
 }
+
+/* Animated CMYK route through the homepage story journey. */
+.story-flow-path {
+  animation: story-flow-dash 18s linear infinite;
+}
+
+@keyframes story-flow-dash {
+  to {
+    stroke-dashoffset: -210;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .story-flow-path {
+    animation: none;
+  }
+}

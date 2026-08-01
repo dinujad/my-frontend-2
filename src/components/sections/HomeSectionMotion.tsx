@@ -94,6 +94,20 @@ export function ShowcaseStoryCard({
 }) {
   const reduce = useReducedMotion();
   const n = String(index + 1).padStart(2, "0");
+  const icons = [
+    <path key="vision" d="M2.5 12s3.5-5 9.5-5 9.5 5 9.5 5-3.5 5-9.5 5-9.5-5-9.5-5Zm9.5 2.6a2.6 2.6 0 1 0 0-5.2 2.6 2.6 0 0 0 0 5.2Z" />,
+    <path key="origin" d="M5 20V10m0 0 7-6 7 6M5 10h14v10H5Zm4 10v-6h6v6" />,
+    <path key="make" d="m4 15 8-11 8 11-8 5-8-5Zm0 0 8-4 8 4M12 4v7" />,
+    <path key="workshop" d="M4 20V9l5 3V9l5 3V6h6v14H4Zm3-3h2m3 0h2m3 0h1" />,
+    <path key="choose" d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3Z" />,
+  ];
+  const accents = [
+    "from-cyan-400 to-sky-600 shadow-cyan-400/30",
+    "from-fuchsia-500 to-brand-red shadow-fuchsia-500/30",
+    "from-amber-300 to-orange-500 shadow-amber-400/30",
+    "from-gray-700 to-gray-950 shadow-gray-700/30",
+    "from-brand-red to-rose-700 shadow-brand-red/30",
+  ];
 
   return (
     <motion.li
@@ -105,37 +119,53 @@ export function ShowcaseStoryCard({
         delay: reduce === true ? 0 : index * 0.11,
         ease,
       }}
-      className="group relative overflow-hidden rounded-2xl border border-white/90 bg-gradient-to-b from-white via-white to-gray-50/95 p-5 shadow-[0_24px_60px_-18px_rgba(15,23,42,0.1),0_0_0_1px_rgba(255,31,64,0.05)] ring-1 ring-gray-900/[0.04] backdrop-blur-sm transition-[box-shadow,ring-color] duration-500 hover:shadow-[0_32px_72px_-20px_rgba(255,31,64,0.18)] hover:ring-brand-red/15 sm:rounded-3xl sm:p-7 lg:p-8"
+      className={`group relative flex min-h-[150px] gap-5 pl-1 md:min-h-[175px] md:flex-col md:items-center md:gap-0 md:px-2 md:pl-0 md:text-center ${
+        index % 2 === 1 ? "lg:translate-y-12" : ""
+      }`}
     >
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-brand-red via-[#ff5c73] to-amber-400/70 opacity-95"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute -right-8 -top-10 h-36 w-36 rounded-full bg-gradient-to-br from-brand-red/[0.12] to-transparent blur-2xl transition duration-700 group-hover:from-brand-red/25"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute -bottom-6 -left-6 h-28 w-28 rounded-full bg-gray-400/[0.07] blur-2xl"
-        aria-hidden
-      />
-
-      <span
-        className="relative font-mono text-[11px] font-semibold tabular-nums tracking-widest text-brand-red/45"
-        aria-hidden
+      <motion.div
+        className="relative z-10 flex h-[68px] w-[68px] shrink-0 items-center justify-center sm:h-[82px] sm:w-[82px]"
+        whileHover={reduce === true ? undefined : { scale: 1.12, rotate: 7 }}
+        transition={{ type: "spring", stiffness: 260, damping: 16 }}
       >
-        {n}
-      </span>
-      <h3 className="relative mt-2 text-[15px] font-bold uppercase tracking-[0.11em] text-gray-900 sm:mt-2.5 sm:text-base sm:tracking-[0.14em] lg:text-lg">
-        {title}
-      </h3>
-      <div
-        className="relative mt-4 h-px w-14 bg-gradient-to-r from-brand-red via-[#ff7a8c] to-transparent"
-        aria-hidden
-      />
-      <p className="relative mt-3.5 text-[14px] font-light leading-relaxed text-gray-600 sm:mt-4 sm:text-[15px] lg:text-base">
-        {subtitle}
-      </p>
+        <span
+          className={`absolute inset-0 rounded-full bg-gradient-to-br ${accents[index]} opacity-15 blur-xl transition duration-500 group-hover:opacity-35`}
+          aria-hidden
+        />
+        <span
+          className={`absolute inset-[5px] rounded-full bg-gradient-to-br ${accents[index]} shadow-lg`}
+          aria-hidden
+        />
+        <span className="absolute inset-[8px] rounded-full border border-white/50" aria-hidden />
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.65"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="relative h-7 w-7 text-white sm:h-8 sm:w-8"
+          aria-hidden
+        >
+          {icons[index]}
+        </svg>
+        <span className="absolute -right-1 -top-1 flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-white bg-gray-950 px-1 font-mono text-[8px] font-bold tracking-wide text-white shadow-md">
+          {n}
+        </span>
+      </motion.div>
+
+      <div className="relative z-10 pt-1 md:mt-5 md:pt-0">
+        <h3 className="text-[14px] font-black uppercase tracking-[0.12em] text-gray-950 sm:text-[15px] lg:text-base">
+          {title}
+        </h3>
+        <span
+          className={`mt-2 block h-[2px] w-10 rounded-full bg-gradient-to-r ${accents[index]} transition-all duration-500 group-hover:w-16 md:mx-auto`}
+          aria-hidden
+        />
+        <p className="mt-3 max-w-[230px] text-[13px] font-light leading-relaxed text-gray-600 sm:text-sm md:mx-auto">
+          {subtitle}
+        </p>
+      </div>
     </motion.li>
   );
 }

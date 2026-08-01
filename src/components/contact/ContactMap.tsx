@@ -3,14 +3,20 @@
 // and no browser APIs. Rendering it on the server means the iframe src appears
 // in the initial HTML, which avoids a layout-shift flash on load.
 
-/** Print Works.lk — 6.9438293, 79.9907818 (Google Maps place) */
+/** Canonical store address (shown on contact + footer). */
+export const PRINTWORKS_ADDRESS =
+  "1st Floor, No.215, 10 New Kandy Rd, Biyagama, Sri Lanka.11650";
+
+/** Google Maps place short link (Open in Maps). */
+export const PRINTWORKS_MAP_LINK = "https://maps.app.goo.gl/9eYPFUkwyqFyJGok6";
+
+/** Embed iframe — address query pins the Biyagama location. */
 export const PRINTWORKS_MAP_EMBED =
-  "https://www.google.com/maps?q=6.9438293,79.9907818&hl=en&z=17&output=embed";
-
-export const PRINTWORKS_MAP_LINK =
-  "https://www.google.com/maps/place/Print+Works.lk/@6.9438346,79.9882069,17z/data=!3m1!4b1!4m6!3m5!1s0x3ae2578a53db59ef:0x25d59acb8be4e3df!8m2!3d6.9438293!4d79.9907818!16s%2Fg%2F11hgy_3fmn?entry=ttu";
-
-export const PRINTWORKS_ADDRESS = "1st Floor No.215, 10 New Kandy Rd, 11650";
+  "https://www.google.com/maps?q=" +
+  encodeURIComponent(
+    "1st Floor, No.215, 10 New Kandy Rd, Biyagama, Sri Lanka 11650"
+  ) +
+  "&hl=en&z=17&output=embed";
 
 export function ContactMap() {
   return (
@@ -23,7 +29,7 @@ export function ContactMap() {
         allowFullScreen
         loading="lazy"
         referrerPolicy="no-referrer-when-downgrade"
-        title="Print Works.LK location"
+        title="Print Works.LK location — Biyagama"
         className="absolute inset-0 h-full w-full"
       />
       <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-[#fdf2f4]/95 to-transparent" />

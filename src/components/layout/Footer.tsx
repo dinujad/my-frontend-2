@@ -4,9 +4,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { SocialIconLinks } from "@/components/layout/SocialIconLinks";
-
-const FOOTER_ADDRESS = "1st Floor No.215, 10 New Kandy Rd, 11650";
-const MAP_EMBED_QUERY = encodeURIComponent(FOOTER_ADDRESS);
+import {
+  PRINTWORKS_ADDRESS,
+  PRINTWORKS_MAP_EMBED,
+  PRINTWORKS_MAP_LINK,
+} from "@/components/contact/ContactMap";
 
 const SERVICES = [
     "Acrylic Laser Cutting",
@@ -82,7 +84,14 @@ export function Footer() {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
-                                <span>{FOOTER_ADDRESS}</span>
+                                <a
+                                  href={PRINTWORKS_MAP_LINK}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="hover:text-white transition-colors"
+                                >
+                                  {PRINTWORKS_ADDRESS}
+                                </a>
                             </p>
                             <p className="flex items-center gap-3">
                                 <svg className="h-4 w-4 shrink-0 text-brand-red" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
@@ -114,11 +123,20 @@ export function Footer() {
                     {/* Column 4: Location Map (Takes up 3 cols on lg) */}
                     <div className="lg:col-span-3 flex flex-col space-y-4 md:h-full lg:h-56 min-h-[220px]">
                         <h4 className="text-sm font-bold tracking-widest uppercase text-brand-red">Location</h4>
-                        <p className="text-sm font-light leading-relaxed text-gray-400">{FOOTER_ADDRESS}</p>
+                        <p className="text-sm font-light leading-relaxed text-gray-400">
+                          <a
+                            href={PRINTWORKS_MAP_LINK}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:text-white transition-colors"
+                          >
+                            {PRINTWORKS_ADDRESS}
+                          </a>
+                        </p>
                         <div className="w-full flex-1 min-h-[180px] rounded-2xl overflow-hidden border border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
                             <iframe
-                                src={`https://maps.google.com/maps?q=${MAP_EMBED_QUERY}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
-                                title="Print Works.LK location"
+                                src={PRINTWORKS_MAP_EMBED}
+                                title="Print Works.LK location — Biyagama"
                                 width="100%"
                                 height="100%"
                                 style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) brightness(85%) contrast(90%) grayscale(20%)' }}

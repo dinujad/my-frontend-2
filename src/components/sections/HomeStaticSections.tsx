@@ -63,21 +63,23 @@ export function HomeStaticSections() {
     <>
       <section
         id="static-showcase"
-        className="relative w-full overflow-hidden border-t border-gray-200/70 bg-gradient-to-b from-[#ebeefa] via-[#f3f4fa] to-[#fafbff] py-14 text-gray-900 sm:py-16 lg:py-28"
+        className="relative w-full overflow-hidden border-t border-gray-200/70 bg-[#faf9f6] py-14 text-gray-900 sm:py-16 lg:py-28"
         aria-label="About Print Works"
       >
         <div className="pointer-events-none absolute inset-0" aria-hidden>
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_100%_70%_at_50%_-10%,rgba(255,31,64,0.11),transparent_50%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_100%_40%,rgba(190,0,41,0.06),transparent_50%)]" />
-          <div className="absolute -right-24 top-1/4 h-80 w-80 rounded-full bg-brand-red/15 blur-[110px]" />
-          <div className="absolute -left-20 bottom-1/4 h-72 w-72 rounded-full bg-indigo-200/35 blur-[100px]" />
-          <div className="absolute left-1/2 top-1/2 h-96 w-[120%] -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.5),transparent_65%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_60%_at_50%_0%,rgba(255,255,255,0.96),transparent_70%)]" />
+          <div className="absolute -left-24 top-24 h-80 w-80 animate-pulse rounded-full bg-cyan-300/20 blur-[100px] [animation-duration:7s]" />
+          <div className="absolute -right-20 top-1/3 h-96 w-96 animate-pulse rounded-full bg-fuchsia-300/20 blur-[120px] [animation-delay:1.5s] [animation-duration:8s]" />
+          <div className="absolute bottom-[-9rem] left-1/3 h-80 w-80 animate-pulse rounded-full bg-amber-200/25 blur-[110px] [animation-delay:3s] [animation-duration:9s]" />
           <div
-            className="absolute inset-0 opacity-[0.4]"
+            className="absolute inset-0 opacity-35"
             style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23475569' fill-opacity='0.06'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+              backgroundImage: `radial-gradient(circle, rgba(15,23,42,0.13) 0.7px, transparent 0.8px)`,
+              backgroundSize: "22px 22px",
             }}
           />
+          <div className="absolute left-[8%] top-[44%] h-px w-24 -rotate-12 bg-gradient-to-r from-transparent via-cyan-500/40 to-transparent" />
+          <div className="absolute right-[9%] top-[28%] h-px w-32 rotate-12 bg-gradient-to-r from-transparent via-fuchsia-500/40 to-transparent" />
         </div>
 
         <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -100,7 +102,48 @@ export function HomeStaticSections() {
             </p>
           </RevealHeader>
 
-          <ul className="grid gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-7">
+          <div className="relative mx-auto max-w-6xl">
+            {/* Mobile connector */}
+            <div
+              className="absolute bottom-14 left-[34px] top-9 w-px bg-gradient-to-b from-cyan-400 via-fuchsia-500 via-55% to-brand-red md:hidden"
+              aria-hidden
+            />
+
+            {/* Desktop flowing print path */}
+            <svg
+              viewBox="0 0 1000 190"
+              preserveAspectRatio="none"
+              className="pointer-events-none absolute left-[8%] top-9 hidden h-40 w-[84%] overflow-visible md:block"
+              aria-hidden
+            >
+              <defs>
+                <linearGradient id="story-flow-gradient" x1="0" x2="1">
+                  <stop offset="0" stopColor="#22d3ee" />
+                  <stop offset=".28" stopColor="#e6007e" />
+                  <stop offset=".55" stopColor="#fbbf24" />
+                  <stop offset=".75" stopColor="#111827" />
+                  <stop offset="1" stopColor="#ff1f40" />
+                </linearGradient>
+              </defs>
+              <path
+                d="M0 48 C110 48 115 142 250 142 S390 48 500 48 640 142 750 142 885 48 1000 48"
+                fill="none"
+                stroke="rgba(255,255,255,.9)"
+                strokeWidth="10"
+                strokeLinecap="round"
+              />
+              <path
+                d="M0 48 C110 48 115 142 250 142 S390 48 500 48 640 142 750 142 885 48 1000 48"
+                fill="none"
+                stroke="url(#story-flow-gradient)"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeDasharray="9 12"
+                className="story-flow-path"
+              />
+            </svg>
+
+            <ul className="relative grid gap-3 md:grid-cols-5 md:gap-2 lg:gap-5">
             {SHOWCASE_ITEMS.map((item, idx) => (
               <ShowcaseStoryCard
                 key={item.title}
@@ -109,10 +152,11 @@ export function HomeStaticSections() {
                 subtitle={item.subtitle}
               />
             ))}
-          </ul>
+            </ul>
+          </div>
 
           <RevealRow
-            className="mt-10 flex flex-col items-center justify-center gap-3.5 sm:mt-14 sm:flex-row sm:gap-5"
+            className="mt-8 flex flex-col items-center justify-center gap-3.5 sm:mt-24 sm:flex-row sm:gap-5 lg:mt-28"
             delay={0.35}
           >
             <Link
