@@ -414,62 +414,81 @@ export function LiveChatWidget() {
   const renderOfflineAgentNotice = (compact = false) => {
     if (!noAgentsOnline) return null;
     return (
-      <div className={compact ? "mb-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5" : "rounded-xl border border-amber-200 bg-amber-50 px-4 py-3"}>
-        <p className={`font-semibold text-amber-900 ${compact ? "text-xs" : "text-sm"}`}>
-          No support agents are online right now
-        </p>
-        <p className={`mt-0.5 text-amber-800/90 ${compact ? "text-[11px]" : "text-xs"}`}>
-          Our AI assistant can help you instantly with orders, quotes, products, and more.
-        </p>
-        <button
-          type="button"
-          onClick={openAssistant}
-          className={`mt-2.5 w-full rounded-lg bg-indigo-600 font-semibold text-white transition hover:bg-indigo-700 ${compact ? "py-2 text-xs" : "py-2.5 text-sm"}`}
-        >
-          Connect with AI Assistant
-        </button>
+      <div className={compact ? "mb-3 rounded-2xl border border-amber-200/80 bg-amber-50/80 px-3.5 py-3" : "rounded-2xl border border-amber-200/80 bg-gradient-to-r from-amber-50 to-orange-50/60 px-4 py-3.5"}>
+        <div className="flex items-start gap-3">
+          <span className="relative mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100">
+            <span className="h-2.5 w-2.5 rounded-full bg-amber-500" />
+            <span className="absolute inset-0 animate-ping rounded-full border border-amber-400/50" />
+          </span>
+          <div className="min-w-0">
+            <p className={`font-bold text-amber-950 ${compact ? "text-xs" : "text-sm"}`}>
+              Human support is currently offline
+            </p>
+            <p className={`mt-0.5 leading-relaxed text-amber-800/90 ${compact ? "text-[11px]" : "text-xs"}`}>
+              Printo AI is online and ready to help instantly.
+            </p>
+          </div>
+        </div>
+        {compact ? (
+          <button
+            type="button"
+            onClick={openAssistant}
+            className="mt-3 w-full rounded-xl bg-gray-950 py-2.5 text-xs font-bold text-white transition hover:bg-indigo-700"
+          >
+            Continue with Printo AI
+          </button>
+        ) : null}
       </div>
     );
   };
 
   // ─── Home View ───────────────────────────────────────────────────────────────
   const renderHome = () => (
-    <div className="p-6 flex-1 bg-gradient-to-b from-white to-gray-50 flex flex-col justify-center space-y-6">
-      <div className="text-center">
-        <div className="w-16 h-16 bg-brand-red text-white flex items-center justify-center rounded-2xl mx-auto mb-4 shadow-lg shadow-brand-red/20">
-          <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-gradient-to-b from-white via-white to-slate-50/80 px-4 py-5 sm:px-5 sm:py-6">
+      <div className="relative overflow-hidden rounded-[22px] bg-gray-950 px-5 py-5 text-white shadow-xl shadow-gray-950/10 sm:px-6 sm:py-6">
+        <div className="pointer-events-none absolute -right-12 -top-14 h-36 w-36 rounded-full bg-brand-red/35 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-16 left-4 h-32 w-32 rounded-full bg-indigo-500/25 blur-3xl" />
+        <div className="relative flex items-center gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-red text-white shadow-lg shadow-brand-red/30 sm:h-14 sm:w-14">
+          <svg className="h-6 w-6 sm:h-7 sm:w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
           </svg>
+          </div>
+          <div className="min-w-0">
+            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/45">Welcome to PrintWorks</p>
+            <h3 className="mt-1 text-xl font-black tracking-tight sm:text-2xl">Hi there! <span aria-hidden>👋</span></h3>
+            <p className="mt-1 text-xs text-white/60 sm:text-sm">How can we help you today?</p>
+          </div>
         </div>
-        <h3 className="text-xl font-bold text-gray-900 mb-1">Hi there! 👋</h3>
-        <p className="text-sm text-gray-500">How can we help you today?</p>
       </div>
 
-      {renderOfflineAgentNotice()}
+      <div className="mt-4">{renderOfflineAgentNotice()}</div>
 
-      <div className="space-y-3">
+      <div className="mt-4 space-y-2.5">
         <button
           onClick={openAssistant}
-          className={`w-full text-white font-semibold py-3 px-4 rounded-xl shadow-md transition-colors flex items-center justify-between group ${
-            noAgentsOnline
-              ? "bg-indigo-600 shadow-indigo-500/30 ring-2 ring-indigo-300 hover:bg-indigo-700"
-              : "bg-indigo-600 shadow-indigo-500/20 hover:bg-indigo-700"
-          }`}
+          className="group relative flex w-full items-center justify-between overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 px-4 py-3.5 font-bold text-white shadow-lg shadow-indigo-500/20 transition duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-indigo-500/25 active:translate-y-0"
         >
+          <span className="pointer-events-none absolute -right-6 -top-10 h-24 w-24 rounded-full bg-white/15 blur-2xl" />
           <div className="flex items-center gap-3">
-            <svg className="w-5 h-5 text-indigo-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/20">
+            <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 3v2.25M14.25 3v2.25M8.25 8.25h7.5M5.25 6.75h13.5A1.5 1.5 0 0120.25 8.25v10.5a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5V8.25a1.5 1.5 0 011.5-1.5zM9 12h.008v.008H9V12zm3 0h.008v.008H12V12zm3 0h.008v.008H15V12z" />
             </svg>
-            {noAgentsOnline ? "Connect with AI Assistant" : "AI Help Me Choose"}
+            </span>
+            <span className="text-left">
+              <span className="block text-sm">Chat with Printo AI</span>
+              <span className="mt-0.5 block text-[10px] font-medium text-white/65">Instant product &amp; order help</span>
+            </span>
           </div>
-          <svg className="w-4 h-4 opacity-70 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="relative h-4 w-4 opacity-80 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </button>
         {!noAgentsOnline ? (
         <button
           onClick={() => setView("form")}
-          className="w-full bg-brand-red text-white font-semibold py-3 px-4 rounded-xl shadow-md shadow-brand-red/20 hover:bg-red-700 transition-colors flex items-center justify-between group"
+          className="group flex w-full items-center justify-between rounded-2xl bg-brand-red px-4 py-3.5 font-bold text-white shadow-lg shadow-brand-red/15 transition hover:-translate-y-0.5 hover:bg-red-700"
         >
           <div className="flex items-center gap-3">
             <svg className="w-5 h-5 text-red-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -483,7 +502,7 @@ export function LiveChatWidget() {
         </button>
         ) : null}
         <a href="/dashboard/orders"
-          className="w-full bg-white border border-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-xl hover:bg-gray-50 transition-colors flex items-center gap-3"
+          className="flex w-full items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 transition hover:border-gray-300 hover:bg-gray-50"
           onClick={() => setOpen(false)}
         >
           <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -492,7 +511,7 @@ export function LiveChatWidget() {
           Track My Order
         </a>
         <a href="/contact"
-          className="w-full bg-white border border-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-xl hover:bg-gray-50 transition-colors flex items-center gap-3"
+          className="flex w-full items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 transition hover:border-gray-300 hover:bg-gray-50"
           onClick={() => setOpen(false)}
         >
           <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -506,7 +525,7 @@ export function LiveChatWidget() {
 
   // ─── Form View ───────────────────────────────────────────────────────────────
   const renderForm = () => (
-    <div className="p-6 flex-1 flex flex-col bg-white">
+    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-white p-4 sm:p-6">
       <div className="mb-6 flex items-center gap-3">
         <button onClick={() => setView("home")} className="text-gray-400 hover:text-gray-800 transition-colors">
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -839,23 +858,35 @@ export function LiveChatWidget() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-3" suppressHydrationWarning>
+    <div
+      className="fixed inset-x-3 bottom-3 z-[100] flex flex-col items-end gap-3 sm:inset-x-auto sm:bottom-6 sm:right-6"
+      suppressHydrationWarning
+    >
       {/* Widget Window */}
       {open && (
-        <div className="flex flex-col w-[360px] h-[580px] max-h-[82vh] max-w-[calc(100vw-2rem)] rounded-2xl bg-white shadow-2xl border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200">
+        <div className="flex h-[min(680px,calc(100dvh-1.5rem))] w-full flex-col overflow-hidden rounded-[28px] border border-gray-200/80 bg-white shadow-[0_28px_90px_-20px_rgba(15,23,42,0.38)] ring-1 ring-black/[0.03] animate-in fade-in slide-in-from-bottom-4 duration-300 sm:h-[640px] sm:max-h-[84vh] sm:w-[400px] sm:rounded-[26px]">
           {/* Header */}
-          <div className="bg-nav-dark px-5 py-4 shrink-0 relative overflow-hidden">
-            <div className="absolute inset-0 opacity-5 bg-gradient-to-br from-white to-transparent pointer-events-none" />
+          <div className="relative shrink-0 overflow-hidden bg-gradient-to-r from-[#111827] via-[#171923] to-[#25131b] px-4 py-3.5 sm:px-5 sm:py-4">
+            <div className="pointer-events-none absolute -right-8 -top-12 h-28 w-28 rounded-full bg-brand-red/25 blur-3xl" />
             <div className="relative flex items-center justify-between text-white">
-              <div>
-                <h2 className="font-bold text-lg leading-tight">PrintWorks Support</h2>
-                <p className="text-xs text-gray-300 opacity-80 mt-0.5">We typically reply in a few minutes</p>
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-red text-xs font-black shadow-lg shadow-brand-red/20">
+                  PW
+                  <span className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[#171923] ${noAgentsOnline ? "bg-amber-400" : "bg-emerald-400"}`} />
+                </div>
+                <div className="min-w-0">
+                  <h2 className="truncate text-[15px] font-bold leading-tight sm:text-base">PrintWorks Support</h2>
+                  <p className="mt-0.5 flex items-center gap-1.5 text-[10px] text-white/55 sm:text-[11px]">
+                    <span>{noAgentsOnline ? "Printo AI available now" : "Human team & Printo AI online"}</span>
+                  </p>
+                </div>
               </div>
               <button
                 onClick={() => setOpen(false)}
-                className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors"
+                className="ml-3 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white transition hover:rotate-90 hover:bg-white/20"
+                aria-label="Close support"
               >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
@@ -873,7 +904,7 @@ export function LiveChatWidget() {
       {/* FAB Toggle */}
       <button
         onClick={() => (open ? setOpen(false) : handleOpen())}
-        className="relative w-14 h-14 bg-brand-red hover:bg-red-700 text-white rounded-full flex items-center justify-center shadow-xl shadow-brand-red/30 transition-all hover:scale-105 active:scale-95"
+        className={`${open ? "hidden sm:flex" : "flex"} relative h-14 w-14 items-center justify-center rounded-full bg-brand-red text-white shadow-xl shadow-brand-red/30 transition-all hover:scale-105 hover:bg-red-700 active:scale-95 sm:h-14 sm:w-14`}
         aria-label="Live Chat"
       >
         {/* Unread badge */}

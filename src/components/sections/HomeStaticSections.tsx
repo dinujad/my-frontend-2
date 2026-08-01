@@ -35,26 +35,22 @@ const CATEGORY_CHIPS = [
   {
     label: "Digital",
     href: "/products",
-    surface:
-      "bg-gradient-to-br from-brand-red to-[#BE0029] text-white shadow-lg shadow-brand-red/20",
+    surface: "",
   },
   {
     label: "UV Print",
     href: "/products?category=UV+Flatbed",
-    surface:
-      "border border-gray-200/90 bg-white text-gray-900 shadow-md shadow-gray-300/25",
+    surface: "",
   },
   {
     label: "Laser",
     href: "/products",
-    surface:
-      "border border-gray-300 bg-gradient-to-b from-white to-gray-50 text-gray-900 shadow-sm",
+    surface: "",
   },
   {
     label: "Acrylic",
     href: "/products?category=Acrylic",
-    surface:
-      "bg-gradient-to-br from-[#BE0029] to-[#8a001f] text-white shadow-lg shadow-[#BE0029]/20",
+    surface: "",
   },
 ] as const;
 
@@ -176,26 +172,107 @@ export function HomeStaticSections() {
       </section>
 
       <section
-        className="relative flex min-h-[460px] w-full flex-col items-center justify-center overflow-hidden border-t border-gray-200/70 bg-gradient-to-b from-white via-[#f5f6fb] to-[#e8ebf4] px-4 py-14 text-gray-900 sm:py-16 lg:min-h-[600px] lg:py-24"
+        className="relative flex min-h-[760px] w-full items-center overflow-hidden border-t border-white/10 bg-[#080b10] px-4 py-20 text-white sm:px-6 lg:min-h-[820px] lg:px-8 lg:py-28"
         aria-label="Product categories"
       >
         <div className="pointer-events-none absolute inset-0" aria-hidden>
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,31,64,0.08),transparent_45%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_85%_75%,rgba(99,102,241,0.06),transparent_48%)]" />
-          <div className="absolute bottom-0 left-1/2 h-48 w-[80%] -translate-x-1/2 bg-gradient-to-t from-white/80 to-transparent" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_76%_48%,rgba(255,31,64,0.16),transparent_26%),radial-gradient(circle_at_66%_44%,rgba(34,211,238,0.10),transparent_38%),radial-gradient(circle_at_18%_75%,rgba(217,70,239,0.08),transparent_32%)]" />
+          <div
+            className="absolute inset-0 opacity-[0.14]"
+            style={{
+              backgroundImage:
+                "linear-gradient(rgba(255,255,255,.12) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.12) 1px, transparent 1px)",
+              backgroundSize: "54px 54px",
+              maskImage: "linear-gradient(to bottom, transparent, black 18%, black 82%, transparent)",
+            }}
+          />
+          <div className="print-lab-beam absolute -left-[35%] top-1/2 h-px w-[170%] -rotate-12 bg-gradient-to-r from-transparent via-brand-red/70 to-transparent blur-[1px]" />
+          <div className="absolute left-[8%] top-[12%] font-mono text-[10px] uppercase tracking-[0.35em] text-white/20">
+            Concept → Craft → Delivery
+          </div>
+          <div className="absolute bottom-[10%] right-[7%] font-mono text-[10px] uppercase tracking-[0.35em] text-white/20">
+            Biyagama / Sri Lanka
+          </div>
         </div>
 
-        <div className="relative z-10 w-full max-w-5xl px-2">
-          <RevealBlock className="mx-auto max-w-3xl text-center">
-            <p className="mb-3 text-xs font-bold uppercase tracking-[0.35em] text-brand-red">
-              Capabilities
-            </p>
-            <h2 className="text-2xl font-light text-gray-900 sm:text-3xl lg:text-4xl">
-              What we run <span className="font-semibold text-gray-950">in-house</span>
+        <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-16 lg:grid-cols-[0.88fr_1.12fr] lg:gap-10 xl:gap-20">
+          <RevealBlock className="relative mx-auto max-w-xl text-center lg:mx-0 lg:text-left">
+            <div className="mb-6 inline-flex items-center gap-3">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-brand-red shadow-[0_0_18px_rgba(255,31,64,.9)]" />
+              <span className="font-mono text-[10px] font-bold uppercase tracking-[0.35em] text-white/55 sm:text-xs">
+                The Print Lab / 04 disciplines
+              </span>
+            </div>
+
+            <h2 className="text-balance text-5xl font-black uppercase leading-[0.86] tracking-[-0.065em] sm:text-7xl lg:text-[5.5rem] xl:text-[6.6rem]">
+              One roof.
+              <span className="block text-white/25">Endless</span>
+              <span className="block bg-gradient-to-r from-cyan-300 via-fuchsia-400 to-brand-red bg-clip-text text-transparent">
+                possibilities.
+              </span>
             </h2>
+
+            <p className="mx-auto mt-8 max-w-md text-sm font-light leading-7 text-white/55 sm:text-base lg:mx-0">
+              Digital, UV, laser and acrylic production move through one connected workshop —
+              giving every project tighter control, faster turns and a finish worth remembering.
+            </p>
+
+            <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row lg:justify-start">
+              <Link
+                href="/products"
+                className="group inline-flex min-h-[54px] w-full items-center justify-center gap-3 rounded-full bg-white px-8 text-xs font-black uppercase tracking-[0.18em] text-gray-950 transition duration-300 hover:bg-brand-red hover:text-white sm:w-auto"
+              >
+                Explore the lab
+                <span className="transition-transform duration-300 group-hover:translate-x-1">↗</span>
+              </Link>
+              <Link
+                href="/quote"
+                className="inline-flex min-h-[54px] w-full items-center justify-center rounded-full border border-white/15 px-8 text-xs font-bold uppercase tracking-[0.18em] text-white/70 transition hover:border-white/40 hover:bg-white/5 hover:text-white sm:w-auto"
+              >
+                Start a project
+              </Link>
+            </div>
           </RevealBlock>
 
-          <div className="mt-8 grid grid-cols-2 gap-2.5 sm:mt-10 sm:grid-cols-4 sm:gap-4 lg:mt-12">
+          <RevealBlock className="relative mx-auto aspect-square w-full max-w-[390px] sm:max-w-[540px] lg:max-w-[610px]" delay={0.15}>
+            <div className="absolute inset-[11%] rounded-full bg-brand-red/[0.04] blur-3xl" />
+            <div className="print-orbit print-orbit-slow absolute inset-[7%] rounded-full border border-dashed border-white/15" />
+            <div className="print-orbit print-orbit-reverse absolute inset-[19%] rounded-full border border-dashed border-cyan-300/20" />
+            <div className="absolute inset-[31%] rounded-full border border-white/10 bg-white/[0.025] shadow-[inset_0_0_50px_rgba(255,255,255,.03),0_0_80px_rgba(255,31,64,.08)] backdrop-blur-sm" />
+
+            <svg viewBox="0 0 500 500" className="absolute inset-[12%] h-[76%] w-[76%]" aria-hidden>
+              <defs>
+                <linearGradient id="labOrbitGradient" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stopColor="#67e8f9" />
+                  <stop offset=".35" stopColor="#d946ef" />
+                  <stop offset=".68" stopColor="#fbbf24" />
+                  <stop offset="1" stopColor="#ff1f40" />
+                </linearGradient>
+              </defs>
+              <circle
+                cx="250"
+                cy="250"
+                r="238"
+                fill="none"
+                stroke="url(#labOrbitGradient)"
+                strokeWidth="2"
+                strokeDasharray="2 17"
+                strokeLinecap="round"
+                className="print-orbit"
+              />
+            </svg>
+
+            <div className="absolute inset-[35%] z-10 flex flex-col items-center justify-center rounded-full bg-[#0d1118] text-center shadow-[0_0_0_1px_rgba(255,255,255,.12),0_25px_70px_rgba(0,0,0,.55)]">
+              <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-white/35 sm:text-[10px]">
+                Built in-house
+              </span>
+              <strong className="mt-2 text-xl font-black uppercase leading-none tracking-[-0.04em] sm:text-3xl">
+                Print
+                <span className="block text-brand-red">Works</span>
+              </strong>
+              <span className="mt-2 h-px w-8 bg-white/20" />
+            </div>
+
             {CATEGORY_CHIPS.map((cat, i) => (
               <CategoryMotionTile
                 key={cat.label}
@@ -205,27 +282,6 @@ export function HomeStaticSections() {
                 delayIndex={i}
               />
             ))}
-          </div>
-
-          <RevealBlock className="mt-10 flex flex-col items-center gap-2 lg:mt-14" delay={0.2}>
-            <div className="flex flex-wrap items-end justify-center gap-x-4 gap-y-1">
-              <span className="text-4xl font-extralight uppercase leading-none tracking-tight text-gray-800 sm:text-6xl md:text-7xl lg:text-8xl">
-                Top
-              </span>
-              <span className="bg-gradient-to-br from-brand-red via-[#ff4d6a] to-[#BE0029] bg-clip-text text-4xl font-bold uppercase leading-none tracking-tight text-transparent sm:text-6xl md:text-7xl lg:text-8xl">
-                Tier
-              </span>
-            </div>
-            <p className="mt-4 max-w-md text-center text-sm font-light leading-relaxed text-gray-600">
-              Explore categories and request a quote — we&apos;ll match finish, material, and timeline
-              to your brand.
-            </p>
-            <Link
-              href="/products"
-              className="mt-5 text-[11px] font-bold uppercase tracking-[0.2em] text-brand-red underline-offset-4 transition hover:text-gray-900 hover:underline sm:mt-6 sm:text-xs sm:tracking-[0.25em]"
-            >
-              Shop all products →
-            </Link>
           </RevealBlock>
         </div>
       </section>

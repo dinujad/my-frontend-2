@@ -182,24 +182,56 @@ export function CategoryMotionTile({
   delayIndex: number;
 }) {
   const reduce = useReducedMotion();
+  const positions = [
+    "left-1/2 top-0 -translate-x-1/2",
+    "right-0 top-1/2 -translate-y-1/2",
+    "bottom-0 left-1/2 -translate-x-1/2",
+    "left-0 top-1/2 -translate-y-1/2",
+  ];
+  const orbitalAccents = [
+    "border-cyan-300/60 bg-cyan-300 text-slate-950 shadow-cyan-400/30",
+    "border-fuchsia-300/60 bg-fuchsia-500 text-white shadow-fuchsia-500/30",
+    "border-amber-200/60 bg-amber-300 text-slate-950 shadow-amber-400/30",
+    "border-rose-300/60 bg-brand-red text-white shadow-brand-red/30",
+  ];
+
   return (
-    <motion.div
-      className="h-full min-h-[5.5rem] sm:min-h-[6rem]"
-      initial={reduce === true ? false : { opacity: 0, y: 36, scale: 0.96 }}
-      whileInView={reduce === true ? undefined : { opacity: 1, y: 0, scale: 1 }}
-      viewport={viewport}
-      transition={{
-        duration: 0.65,
-        delay: reduce === true ? 0 : 0.05 + delayIndex * 0.1,
-        ease,
-      }}
-    >
-      <Link
-        href={href}
-        className={`flex h-full min-h-[5rem] w-full items-center justify-center rounded-xl px-3 py-3.5 text-center text-[11px] font-extrabold uppercase tracking-[0.14em] transition duration-300 hover:scale-[1.03] active:scale-[0.98] sm:min-h-[6rem] sm:rounded-2xl sm:px-4 sm:py-4 sm:text-sm sm:tracking-widest ${surface}`}
+    <div className={`absolute z-20 ${positions[delayIndex]}`}>
+      <motion.div
+        initial={reduce === true ? false : { opacity: 0, scale: 0.7 }}
+        whileInView={reduce === true ? undefined : { opacity: 1, scale: 1 }}
+        viewport={viewport}
+        transition={{
+          duration: 0.65,
+          delay: reduce === true ? 0 : 0.05 + delayIndex * 0.1,
+          ease,
+        }}
       >
-        {label}
-      </Link>
-    </motion.div>
+        <motion.div
+          animate={
+            reduce === true
+              ? undefined
+              : { y: [0, delayIndex % 2 === 0 ? -10 : 10, 0] }
+          }
+          transition={{
+            duration: 4.2 + delayIndex * 0.45,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: delayIndex * 0.35,
+          }}
+        >
+          <Link
+            href={href}
+            className={`group relative flex h-[82px] w-[82px] items-center justify-center rounded-full border text-center text-[9px] font-black uppercase tracking-[0.13em] shadow-[0_14px_40px_-12px] transition duration-500 hover:scale-110 hover:rotate-3 active:scale-95 sm:h-[104px] sm:w-[104px] sm:text-[11px] ${orbitalAccents[delayIndex]} ${surface}`}
+          >
+            <span className="absolute inset-[5px] rounded-full border border-white/35 transition duration-500 group-hover:inset-[8px]" />
+            <span className="relative px-2">{label}</span>
+            <span className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border-2 border-[#080b10] bg-white font-mono text-[8px] text-gray-950">
+              0{delayIndex + 1}
+            </span>
+          </Link>
+        </motion.div>
+      </motion.div>
+    </div>
   );
 }

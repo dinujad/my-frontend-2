@@ -147,3 +147,46 @@ body {
     animation: none;
   }
 }
+
+/* Immersive homepage Print Lab orbit. */
+.print-orbit {
+  animation: print-orbit-spin 24s linear infinite;
+  transform-origin: center;
+}
+
+.print-orbit-slow {
+  animation-duration: 34s;
+}
+
+.print-orbit-reverse {
+  animation-direction: reverse;
+  animation-duration: 27s;
+}
+
+.print-lab-beam {
+  animation: print-lab-scan 7s ease-in-out infinite alternate;
+}
+
+@keyframes print-orbit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes print-lab-scan {
+  0% {
+    opacity: 0.15;
+    transform: translateY(-90px) rotate(-12deg);
+  }
+  100% {
+    opacity: 0.75;
+    transform: translateY(110px) rotate(-12deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .print-orbit,
+  .print-lab-beam {
+    animation: none;
+  }
+}
