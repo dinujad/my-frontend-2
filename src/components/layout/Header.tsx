@@ -18,6 +18,7 @@ import { useAuthStore } from "@/stores/auth-store";
 import { HeaderSearchBar } from "@/components/layout/HeaderSearchBar";
 import { SocialIconLinks } from "@/components/layout/SocialIconLinks";
 import { DepartmentsMegaMenu } from "@/components/layout/DepartmentsMegaMenu";
+import { POLICY_LINKS } from "@/lib/policies";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -121,6 +122,14 @@ function BurgerIcon({ open }: { open: boolean }) {
   );
 }
 
+function ChevronDownIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M7 10l5 5 5-5H7z" />
+    </svg>
+  );
+}
+
 export function Header() {
   const cartCount = useCartStore((s) => s.items.length);
   const wishlistCount = useWishlistStore((s) => s.items.length);
@@ -128,8 +137,11 @@ export function Header() {
   const { isAuthenticated, logout } = useAuthStore();
   const [menuOpen, setMenuOpen] = useState(false);
   const [shopCategoriesOpen, setShopCategoriesOpen] = useState(false);
+  const [policiesOpen, setPoliciesOpen] = useState(false);
+  const [mobilePoliciesOpen, setMobilePoliciesOpen] = useState(false);
   const pathname = usePathname();
   const isHomePage = pathname === "/";
+  const isPolicyPage = POLICY_LINKS.some((p) => pathname === p.href);
   const [departments, setDepartments] = useState<CategoryItem[]>([]);
   const departmentsNavRef = useRef<HTMLDivElement>(null);
 
@@ -384,7 +396,7 @@ export function Header() {
 
           {/* Desktop nav links */}
           <div className="hidden flex-1 items-center justify-between pl-8 md:flex pr-4">
-            <ul className="flex items-center gap-6">
+            <ul className="flex items-center gap-5 lg:gap-6">
               {navLinks.map((item) => {
                 const active = isNavLinkActive(item.href, pathname);
                 return (
@@ -395,6 +407,42 @@ export function Header() {
                   </li>
                 );
               })}
+              <li
+                className="relative"
+                onMouseEnter={() => setPoliciesOpen(true)}
+                onMouseLeave={() => setPoliciesOpen(false)}
+              >
+                <button
+                  type="button"
+                  className={`inline-flex items-center gap-0.5 ${navLinkClass(isPolicyPage)}`}
+                  aria-expanded={policiesOpen}
+                  aria-haspopup="true"
+                >
+                  Our Policies
+                  <ChevronDownIcon
+                    className={`h-4 w-4 transition-transform ${policiesOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+                <div
+                  className={`absolute left-0 top-full z-50 min-w-[220px] pt-1 ${
+                    policiesOpen ? "block" : "hidden"
+                  }`}
+                >
+                  <div className="overflow-hidden rounded-xl border border-gray-100 bg-white py-1 shadow-xl">
+                    {POLICY_LINKS.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={`block px-4 py-2.5 text-sm font-medium transition hover:bg-gray-50 hover:text-brand-red ${
+                          pathname === item.href ? "bg-gray-50 text-brand-red" : "text-gray-700"
+                        }`}
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </li>
             </ul>
 
             <div className="flex flex-col items-end gap-1.5 border-l border-gray-200 pl-5">
@@ -513,6 +561,39 @@ export function Header() {
               </Link>
             );
           })}
+          <div className="rounded-lg">
+            <button
+              type="button"
+              onClick={() => setMobilePoliciesOpen((o) => !o)}
+              className={`flex w-full items-center justify-between rounded-lg px-4 py-3 text-base font-medium transition ${
+                isPolicyPage ? "bg-brand-red/10 text-brand-red" : "text-gray-800 hover:bg-gray-100"
+              }`}
+              aria-expanded={mobilePoliciesOpen}
+            >
+              Our Policies
+              <ChevronDownIcon
+                className={`h-5 w-5 transition-transform ${mobilePoliciesOpen ? "rotate-180" : ""}`}
+              />
+            </button>
+            {mobilePoliciesOpen && (
+              <div className="mb-1 ml-2 space-y-1 border-l-2 border-brand-red/20 pl-2">
+                {POLICY_LINKS.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMenuOpen(false)}
+                    className={`block rounded-lg px-4 py-2.5 text-sm font-medium transition ${
+                      pathname === item.href
+                        ? "bg-brand-red text-white"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
           <div className="mt-4 border-t border-gray-200 px-4 pt-4">
             <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted">Follow us</p>
             <SocialIconLinks

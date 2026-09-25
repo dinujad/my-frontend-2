@@ -9,6 +9,7 @@ import {
   PRINTWORKS_MAP_EMBED,
   PRINTWORKS_MAP_LINK,
 } from "@/components/contact/ContactMap";
+import { POLICY_LINKS } from "@/lib/policies";
 
 const SERVICES = [
     "Acrylic Laser Cutting",
@@ -45,8 +46,8 @@ export function Footer() {
                 {/* Info & Links Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8 w-full">
 
-                    {/* Column 1: About & Logo (Takes up 4 cols on lg) */}
-                    <div className="lg:col-span-4 flex flex-col space-y-8">
+                    {/* Column 1: About & Logo (Takes up 3 cols on lg) */}
+                    <div className="lg:col-span-3 flex flex-col space-y-8">
                         {/* Logo Section */}
                         <div className="bg-white/5 backdrop-blur-md border border-white/10 p-5 rounded-3xl w-fit shadow-[0_0_30px_rgba(255,31,64,0.15)]">
                             <Image
@@ -75,8 +76,24 @@ export function Footer() {
                         </nav>
                     </div>
 
-                    {/* Column 3: Contact (Takes up 3 cols on lg) */}
-                    <div className="lg:col-span-3 flex flex-col space-y-6">
+                    {/* Column: Our Policies */}
+                    <div className="lg:col-span-2 flex flex-col space-y-6">
+                        <h4 className="text-sm font-bold tracking-widest uppercase text-brand-red">Our Policies</h4>
+                        <nav className="flex flex-col space-y-3 text-sm font-light text-gray-400">
+                            {POLICY_LINKS.map((item) => (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    className="hover:text-white transition-colors w-fit"
+                                >
+                                    {item.label}
+                                </Link>
+                            ))}
+                        </nav>
+                    </div>
+
+                    {/* Column 3: Contact (Takes up 2 cols on lg) */}
+                    <div className="lg:col-span-2 flex flex-col space-y-6">
                         <h4 className="text-sm font-bold tracking-widest uppercase text-brand-red">Get In Touch</h4>
                         <div className="text-sm font-light text-gray-400 space-y-3">
                             <p className="flex items-start gap-3">
@@ -176,9 +193,16 @@ export function Footer() {
                         <p>© {new Date().getFullYear()} Print Works.LK. All Rights Reserved.</p>
                         <p className="mt-1 text-[11px] text-gray-400">Developed and designed by E Media solution pvt Ltd</p>
                     </div>
-                    <div className="flex space-x-6">
-                        <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
-                        <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
+                    <div className="flex flex-wrap justify-center gap-x-5 gap-y-2 md:justify-end">
+                        {POLICY_LINKS.map((item) => (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                className="hover:text-white transition-colors"
+                            >
+                                {item.label}
+                            </Link>
+                        ))}
                     </div>
                 </div>
 
