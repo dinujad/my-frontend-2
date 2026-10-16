@@ -23,6 +23,23 @@ export const metadata: Metadata = {
   alternates: {
     canonical: SITE_URL,
   },
+  // Site-wide social defaults; pages with their own openGraph override these.
+  openGraph: {
+    type: "website",
+    locale: "en_LK",
+    siteName: "Print Works.LK",
+    url: SITE_URL,
+    title: "Print Works.LK – Premium Custom Printing in Sri Lanka",
+    description:
+      "Sri Lanka's leading custom printing service. UV printing, laser cutting, acrylic products, signage, PVC cards & more. Island-wide delivery.",
+    images: [{ url: `${SITE_URL}/images/logo.png` }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Print Works.LK – Premium Custom Printing in Sri Lanka",
+    description:
+      "Sri Lanka's leading custom printing service. UV printing, laser cutting, acrylic products, signage, PVC cards & more. Island-wide delivery.",
+  },
   verification: {
     google: "QSpW8qYreBWt87Y_LEL6hYu_RwhKpadAjR6EfBzilcs",
   },
