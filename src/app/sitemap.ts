@@ -13,7 +13,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/about`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
     { url: `${base}/career`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.65 },
     { url: `${base}/contact`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.6 },
-    { url: `${base}/faq`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.5 },
+    // NOTE: /faq intentionally omitted — the route does not exist (404).
+    // Re-add here only if an FAQ page (with FAQPage schema) is restored.
   ];
 
   const catSlugs = await getAllCategorySlugs();
