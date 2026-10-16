@@ -31,8 +31,9 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const baseUrl = `${SITE_URL}/product-category/${slug}`;
   const canonical = page === 1 ? baseUrl : `${baseUrl}?page=${page}`;
 
+  // Bare name: the root layout template appends " | Print Works.LK".
   const title =
-    page === 1 ? `${category.name} | Print Works.LK` : `${category.name} (Page ${page}) | Print Works.LK`;
+    page === 1 ? `${category.name}` : `${category.name} (Page ${page})`;
   const descriptionText = category.description || "";
   const description =
     descriptionText.slice(0, 155) + (descriptionText.length > 155 ? "…" : "");

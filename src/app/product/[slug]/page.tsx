@@ -47,7 +47,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description = metaDescription(product);
 
   return {
-    title,
+    // Bare product name: the root layout template appends " | Print Works.LK".
+    // (openGraph/twitter below keep the fully-suffixed `title` string.)
+    title: product.title,
     description,
     alternates: { canonical },
     openGraph: {
