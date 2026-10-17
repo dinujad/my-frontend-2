@@ -32,9 +32,12 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const baseUrl = `${SITE_URL}/product-category/${slug}`;
   const canonical = page === 1 ? baseUrl : `${baseUrl}?page=${page}`;
 
-  // Bare name: the root layout template appends " | Print Works.LK".
+  // Geo modifier (P1 SEO): "… in Sri Lanka" — the root layout template
+  // appends " | Print Works.LK".
   const title =
-    page === 1 ? `${category.name}` : `${category.name} (Page ${page})`;
+    page === 1
+      ? `${category.name} in Sri Lanka`
+      : `${category.name} in Sri Lanka (Page ${page})`;
   const descriptionText = category.description || "";
   const description =
     descriptionText.slice(0, 155) + (descriptionText.length > 155 ? "…" : "");
@@ -46,14 +49,14 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
       canonical,
     },
     openGraph: {
-      title: `${category.name} | Print Works.LK`,
+      title: `${category.name} in Sri Lanka | Print Works.LK`,
       description,
       url: baseUrl,
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
-      title: `${category.name} | Print Works.LK`,
+      title: `${category.name} in Sri Lanka | Print Works.LK`,
       description,
     },
   };
