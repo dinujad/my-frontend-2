@@ -38,6 +38,33 @@ const nextConfig: NextConfig = {
       ...remotePatternsForApi(apiOrigin),
     ],
   },
+  async redirects() {
+    return [
+      // P1 SEO 2026-10-17: recover verified-dead old WordPress URLs.
+      // permanent: true emits 308 — treated as permanent by Google, same as 301.
+      {
+        source: "/product/acrylic-donations-and-tip-boxes-in-sri-lanka",
+        destination: "/product/acrylic-donation-box-built-in-lock-series",
+        permanent: true,
+      },
+      {
+        source: "/business-stationery/pvc-id-cards-office-id-printing",
+        destination: "/product-category/pvc-card-printing",
+        permanent: true,
+      },
+      {
+        source: "/business-stationery/pvc-id-cards-office-id-printing/",
+        destination: "/product-category/pvc-card-printing",
+        permanent: true,
+      },
+      // WooCommerce leftovers, live-checked dead (404) on 2026-10-17.
+      // /cart and /checkout return 200 on the current site — not touched.
+      { source: "/shop", destination: "/products", permanent: true },
+      { source: "/shop/:path*", destination: "/products", permanent: true },
+      { source: "/my-account", destination: "/products", permanent: true },
+      { source: "/my-account/:path*", destination: "/products", permanent: true },
+    ];
+  },
   async rewrites() {
     return [
       { source: "/api/:path*", destination: `${apiOrigin}/api/:path*` },
