@@ -11,6 +11,7 @@ import {
 } from "@/lib/products-data";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { catalogImageSrc } from "@/lib/media-url";
+import { getCategoryContent } from "@/data/category-content";
 
 const PRODUCTS_PER_PAGE = 12;
 
@@ -64,6 +65,8 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   if (!category) notFound();
 
   const page = Math.max(1, parseInt((await searchParams).page ?? "1", 10) || 1);
+  // SEO buying-guide + FAQ content (page 1 only), from src/data/category-content.ts.
+  const content = page === 1 ? getCategoryContent(slug) : undefined;
   const allProducts = await getProductsByCategorySlug(slug);
   const totalPages = Math.max(1, Math.ceil(allProducts.length / PRODUCTS_PER_PAGE));
   const start = (page - 1) * PRODUCTS_PER_PAGE;
@@ -152,6 +155,55 @@ export default async function CategoryPage({ params, searchParams }: Props) {
               </nav>
             )}
           </>
+        )}
+
+        {content && (
+          <section
+            className="mt-16 border-t border-gray-200 pt-10"
+            aria-label={`About ${category.name}`}
+          >
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{
+                __html: JSON.stringify({
+                  "@context": "https://schema.org",
+                  "@type": "FAQPage",
+                  mainEntity: content.faqs.map((f) => ({
+                    "@type": "Question",
+                    name: f.q,
+                    acceptedAnswer: { "@type": "Answer", text: f.a },
+                  })),
+                }),
+              }}
+            />
+            <h2 className="text-2xl font-bold tracking-tight text-gray-900">
+              {category.name} in Sri Lanka
+            </h2>
+            <p className="mt-4 max-w-3xl leading-relaxed text-gray-600">{content.intro}</p>
+
+            {content.sections.map((s) => (
+              <div key={s.heading} className="mt-8">
+                <h3 className="text-lg font-semibold text-gray-900">{s.heading}</h3>
+                {s.paragraphs.map((p, i) => (
+                  <p key={i} className="mt-3 max-w-3xl leading-relaxed text-gray-600">
+                    {p}
+                  </p>
+                ))}
+              </div>
+            ))}
+
+            <div className="mt-10">
+              <h2 className="text-2xl font-bold tracking-tight text-gray-900">
+                {category.name} — Frequently Asked Questions
+              </h2>
+              {content.faqs.map((f) => (
+                <div key={f.q} className="mt-6">
+                  <h3 className="font-semibold text-gray-900">{f.q}</h3>
+                  <p className="mt-2 max-w-3xl leading-relaxed text-gray-600">{f.a}</p>
+                </div>
+              ))}
+            </div>
+          </section>
         )}
       </div>
     </main>
