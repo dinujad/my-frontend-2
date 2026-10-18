@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { CartAdditionalService } from "@/lib/cart-services";
+import { cartValue, ga4ItemsFromCart, trackGa4Event } from "@/lib/analytics";
 
 export type { CartAdditionalService };
 
@@ -28,7 +29,7 @@ interface CartState {
 
 export const useCartStore = create<CartState>((set) => ({
   items: [],
-  addItem: (item) =>
+  addItem: (item) => {
     set((state) => {
       const existing = state.items.find((i) => i.id === item.id);
       if (
@@ -55,7 +56,20 @@ export const useCartStore = create<CartState>((set) => ({
           },
         ],
       };
-    }),
+    });
+    // GA4 add_to_cart (no-ops when gtag is unavailable)
+    const added: CartItem = {
+      ...item,
+      quantity: item.quantity ?? 1,
+      additional_services_fee: item.additional_services_fee ?? 0,
+      additional_services: item.additional_services ?? [],
+    };
+    trackGa4Event("add_to_cart", {
+      currency: "LKR",
+      value: cartValue([added]),
+      items: ga4ItemsFromCart([added]),
+    });
+  },
   removeItem: (id) =>
     set((state) => ({ items: state.items.filter((i) => i.id !== id) })),
   updateQuantity: (id, quantity) =>

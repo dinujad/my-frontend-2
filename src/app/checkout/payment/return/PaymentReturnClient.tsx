@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { takePendingPurchase, trackPurchase } from "@/lib/analytics";
 
 export function PaymentReturnClient() {
   const searchParams = useSearchParams();
@@ -24,6 +25,10 @@ export function PaymentReturnClient() {
         if (res.ok) {
           const data = await res.json();
           if (data.payment_status === "paid") {
+            // GA4 purchase — payload was stashed at checkout; taking it
+            // removes it, so this fires exactly once per order.
+            const pending = takePendingPurchase(orderNumber);
+            if (pending) trackPurchase(pending);
             setStatus("paid");
             return;
           }

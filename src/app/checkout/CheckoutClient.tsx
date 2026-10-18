@@ -10,6 +10,14 @@ import { useCartStore, type CartItem } from "@/stores/cart-store";
 import { submitOrder } from "@/lib/checkout-api";
 import { catalogImageSrc } from "@/lib/media-url";
 import { cartLineTotal } from "@/lib/cart-services";
+import {
+  cartValue,
+  ga4ItemsFromCart,
+  stashPendingPurchase,
+  trackGa4Event,
+  trackPurchase,
+  type PendingPurchase,
+} from "@/lib/analytics";
 import { useToast } from "@/components/ui/ToastProvider";
 import { useAuthStore } from "@/stores/auth-store";
 
@@ -263,6 +271,19 @@ export default function CheckoutClient() {
     if (!success && items.length === 0) router.replace("/cart");
   }, [items.length, success, router]);
 
+  // GA4 begin_checkout — once, when the checkout first has items
+  const checkoutTracked = useRef(false);
+  useEffect(() => {
+    if (checkoutTracked.current || items.length === 0) return;
+    checkoutTracked.current = true;
+    trackGa4Event("begin_checkout", {
+      currency: "LKR",
+      value: cartValue(items),
+      items: ga4ItemsFromCart(items),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items.length > 0]);
+
   const {
     register,
     handleSubmit,
@@ -308,7 +329,17 @@ export default function CheckoutClient() {
         useAuthStore.getState().login(result.user);
       }
 
+      // GA4 purchase payload — captured before the cart is cleared
+      const purchase: PendingPurchase = {
+        transaction_id: result.order_number,
+        value: grandTotal,
+        shipping: shippingCost,
+        items: ga4ItemsFromCart(items),
+      };
+
       if (result.payment_method === "payhere") {
+        // Fired by the payment-return page once the payment reads "paid"
+        stashPendingPurchase(purchase);
         // Redirect to PayHere gateway
         setPayhereRedirecting(true);
         clearCart();
@@ -340,6 +371,7 @@ export default function CheckoutClient() {
       }
 
       // COD / other offline methods
+      trackPurchase(purchase);
       clearCart();
       setSuccess({ order_number: result.order_number });
       showToast(`Order ${result.order_number} placed! We'll confirm delivery.`, "success");

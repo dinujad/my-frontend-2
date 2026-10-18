@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import * as Dialog from "@radix-ui/react-dialog";
 import type { ProductItem, ProductVariationItem } from "@/lib/products-data";
 import { useCartStore } from "@/stores/cart-store";
+import { trackGa4Event } from "@/lib/analytics";
 import { useWishlistStore } from "@/stores/wishlist-store";
 import { useQuoteCartStore } from "@/stores/quote-cart-store";
 import { useToast } from "@/components/ui/ToastProvider";
@@ -164,6 +165,22 @@ function slugifyAttrId(key: string): string {
 
 export default function ProductInteractive({ product }: { product: ProductItem }) {
   const router = useRouter();
+
+  // GA4 view_item — once per product view (price omitted for quote-based items)
+  useEffect(() => {
+    const price = product.numericPrice ?? 0;
+    trackGa4Event("view_item", {
+      ...(price > 0 ? { currency: "LKR", value: price } : {}),
+      items: [
+        {
+          item_id: (product as { sku?: string }).sku ?? String(product.id),
+          item_name: product.title,
+          ...(price > 0 ? { price } : {}),
+        },
+      ],
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product.id]);
   const { addItem } = useCartStore();
   const { showToast } = useToast();
   const { addItem: addToQuote, hasItem: inQuoteCart } = useQuoteCartStore();
