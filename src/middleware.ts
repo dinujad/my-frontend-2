@@ -17,6 +17,20 @@ const BYPASS_PREFIXES = [
 ];
 
 export function middleware(request: NextRequest) {
+  // Permanent http -> https upgrade (308 — treated by Google like a 301).
+  // Coolify's "Force Https" toggle redirects at the Traefik layer with a
+  // temporary 302/307, so that toggle must stay OFF; Traefik then passes
+  // plain-HTTP requests through with X-Forwarded-Proto: http and this
+  // middleware upgrades them permanently instead.
+  const proto =
+    request.headers.get("x-forwarded-proto") ??
+    request.nextUrl.protocol.replace(":", "");
+  if (proto === "http") {
+    const url = request.nextUrl.clone();
+    url.protocol = "https";
+    return NextResponse.redirect(url, 308);
+  }
+
   if (!MAINTENANCE) return NextResponse.next();
 
   const { pathname } = request.nextUrl;
