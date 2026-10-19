@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { SocialIconLinks } from "@/components/layout/SocialIconLinks";
 import {
@@ -50,13 +49,14 @@ export function Footer() {
                     <div className="lg:col-span-3 flex flex-col space-y-8">
                         {/* Logo Section */}
                         <div className="bg-white/5 backdrop-blur-md border border-white/10 p-5 rounded-3xl w-fit shadow-[0_0_30px_rgba(255,31,64,0.15)]">
-                            <Image
+                            {/* Direct file — /_next/image returns 500 for this logo */}
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
                                 src="/images/logo.png"
                                 alt="Print Works.LK"
                                 width={160}
                                 height={60}
-                                className="object-contain brightness-0 invert opacity-90 transition-opacity hover:opacity-100"
-                                priority
+                                className="h-[60px] w-auto object-contain brightness-0 invert opacity-90 transition-opacity hover:opacity-100"
                             />
                         </div>
                         <p className="text-gray-400 font-light leading-relaxed max-w-sm text-sm">

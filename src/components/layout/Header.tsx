@@ -7,7 +7,6 @@
 // None of these can run on the server.
 
 import Link from "next/link";
-import Image from "next/image";
 import { useCartStore } from "@/stores/cart-store";
 import { useWishlistStore } from "@/stores/wishlist-store";
 import { useQuoteCartStore } from "@/stores/quote-cart-store";
@@ -252,13 +251,14 @@ export function Header() {
               href="/"
               className="flex shrink-0 transition-opacity hover:opacity-90"
             >
-              <Image
+              {/* Direct file — /_next/image returns 500 for this logo */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src="/images/logo.png"
                 alt="Print Works.LK"
                 width={180}
                 height={72}
                 className="h-[3.25rem] w-auto max-w-[11rem] object-contain object-left sm:h-12 sm:max-w-none md:h-14"
-                priority
               />
             </Link>
           </div>
