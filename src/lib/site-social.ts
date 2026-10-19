@@ -7,25 +7,38 @@ export type SocialLink = {
   href: string;
 };
 
+const DEFAULT_SOCIAL: Record<SocialNetwork, string> = {
+  facebook: "https://www.facebook.com/share/1QCFT42wL4/",
+  instagram: "https://www.instagram.com/print_works_sl",
+  tiktok: "https://www.tiktok.com/@printworks.lk",
+  pinterest: "",
+};
+
+function socialHref(envValue: string | undefined, fallback: string): string {
+  const value = (envValue ?? "").trim();
+  if (!value || value === "#" || value.includes("yourpage")) return fallback;
+  return value;
+}
+
 export const SITE_SOCIAL_LINKS: SocialLink[] = [
   {
     id: "facebook",
     label: "Facebook",
-    href: process.env.NEXT_PUBLIC_SOCIAL_FACEBOOK ?? "#",
+    href: socialHref(process.env.NEXT_PUBLIC_SOCIAL_FACEBOOK, DEFAULT_SOCIAL.facebook),
   },
   {
     id: "instagram",
     label: "Instagram",
-    href: process.env.NEXT_PUBLIC_SOCIAL_INSTAGRAM ?? "#",
+    href: socialHref(process.env.NEXT_PUBLIC_SOCIAL_INSTAGRAM, DEFAULT_SOCIAL.instagram),
   },
   {
     id: "tiktok",
     label: "TikTok",
-    href: process.env.NEXT_PUBLIC_SOCIAL_TIKTOK ?? "#",
+    href: socialHref(process.env.NEXT_PUBLIC_SOCIAL_TIKTOK, DEFAULT_SOCIAL.tiktok),
   },
   {
     id: "pinterest",
     label: "Pinterest",
-    href: process.env.NEXT_PUBLIC_SOCIAL_PINTEREST ?? "#",
+    href: socialHref(process.env.NEXT_PUBLIC_SOCIAL_PINTEREST, DEFAULT_SOCIAL.pinterest),
   },
-];
+].filter((item) => item.href.startsWith("http"));
