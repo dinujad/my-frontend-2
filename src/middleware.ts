@@ -31,6 +31,15 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url, 308);
   }
 
+  // Canonical host: www -> apex (308). Inert until the www DNS record
+  // exists (Cloudflare), then it guarantees a single canonical host.
+  if (request.nextUrl.hostname === "www.printworks.lk") {
+    const url = request.nextUrl.clone();
+    url.hostname = "printworks.lk";
+    url.protocol = "https";
+    return NextResponse.redirect(url, 308);
+  }
+
   if (!MAINTENANCE) return NextResponse.next();
 
   const { pathname } = request.nextUrl;

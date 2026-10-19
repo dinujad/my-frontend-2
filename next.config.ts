@@ -26,6 +26,11 @@ const nextConfig: NextConfig = {
   output: "standalone",
   reactStrictMode: true,
   images: {
+    // Prefer AVIF (smaller than WebP) for the image optimiser — improves LCP.
+    formats: ["image/avif", "image/webp"],
+    // Keep optimised variants cached for 30 days (default is 60s), so the
+    // optimiser is not re-encoding the same images on every cold request.
+    minimumCacheTTL: 2592000,
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com", pathname: "/**" },
       { protocol: "http", hostname: "localhost", port: "8000", pathname: "/**" },
@@ -37,6 +42,22 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "**.sslip.io", pathname: "/**" },
       ...remotePatternsForApi(apiOrigin),
     ],
+  },
+  async headers() {
+    return [
+      {
+        // Site images (logos, banners, category art) change rarely — let
+        // browsers and the CDN hold them for 30 days instead of the API's
+        // current max-age=0, which forces a re-download on every visit.
+        source: "/images/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=2592000, stale-while-revalidate=86400",
+          },
+        ],
+      },
+    ];
   },
   async redirects() {
     return [
