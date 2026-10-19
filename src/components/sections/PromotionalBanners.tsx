@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { catalogImageSrc } from "@/lib/media-url";
 import type { PromoBanner } from "@/lib/promo-banners";
@@ -31,22 +30,14 @@ export function PromotionalBanners({ banners }: Props) {
               >
                 <div className="relative z-10 -ml-1 flex h-full w-[42%] items-center justify-center transition-transform duration-300 group-hover:scale-105 sm:-ml-2 sm:w-[45%]">
                   {imageSrc ? (
-                    banner.image?.startsWith("http") ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={imageSrc}
-                        alt={banner.alt || banner.title}
-                        className="max-h-[88px] w-full object-contain drop-shadow-md mix-blend-multiply sm:max-h-[100px]"
-                      />
-                    ) : (
-                      <Image
-                        src={imageSrc}
-                        alt={banner.alt || banner.title}
-                        width={150}
-                        height={150}
-                        className="max-h-[88px] w-full object-contain drop-shadow-md mix-blend-multiply sm:max-h-[100px]"
-                      />
-                    )
+                    // Plain <img> — /_next/image currently 500s for these local PNGs,
+                    // which left the promo strip showing only the alt text.
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={imageSrc}
+                      alt={banner.alt || banner.title}
+                      className="max-h-[88px] w-full object-contain drop-shadow-md sm:max-h-[100px]"
+                    />
                   ) : (
                     <div className="h-20 w-20 rounded-lg bg-gray-200" />
                   )}
