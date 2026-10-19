@@ -20,7 +20,7 @@ function socialHref(envValue: string | undefined, fallback: string): string {
   return value;
 }
 
-export const SITE_SOCIAL_LINKS: SocialLink[] = [
+const ALL_SOCIAL_LINKS: SocialLink[] = [
   {
     id: "facebook",
     label: "Facebook",
@@ -41,4 +41,8 @@ export const SITE_SOCIAL_LINKS: SocialLink[] = [
     label: "Pinterest",
     href: socialHref(process.env.NEXT_PUBLIC_SOCIAL_PINTEREST, DEFAULT_SOCIAL.pinterest),
   },
-].filter((item) => item.href.startsWith("http"));
+];
+
+export const SITE_SOCIAL_LINKS = ALL_SOCIAL_LINKS.filter((item) =>
+  item.href.startsWith("http")
+);
