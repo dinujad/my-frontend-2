@@ -43,22 +43,6 @@ const nextConfig: NextConfig = {
       ...remotePatternsForApi(apiOrigin),
     ],
   },
-  async headers() {
-    return [
-      {
-        // Site images (logos, banners, category art) change rarely — let
-        // browsers and the CDN hold them for 30 days instead of the API's
-        // current max-age=0, which forces a re-download on every visit.
-        source: "/images/:path*",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=2592000, stale-while-revalidate=86400",
-          },
-        ],
-      },
-    ];
-  },
   async redirects() {
     return [
       // P1 SEO 2026-10-17: recover verified-dead old WordPress URLs.

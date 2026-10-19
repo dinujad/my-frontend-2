@@ -16,6 +16,11 @@ const BYPASS_PREFIXES = [
   "/sitemap",
 ];
 
+// The app runs behind Coolify/Traefik on an internal localhost:3000
+// origin, so request.nextUrl's host is NOT the public host. Redirects
+// must be built on the canonical public origin, never on nextUrl.
+const PUBLIC_ORIGIN = "https://printworks.lk";
+
 export function middleware(request: NextRequest) {
   // Permanent http -> https upgrade (308 — treated by Google like a 301).
   // Coolify's "Force Https" toggle redirects at the Traefik layer with a
@@ -25,19 +30,25 @@ export function middleware(request: NextRequest) {
   const proto =
     request.headers.get("x-forwarded-proto") ??
     request.nextUrl.protocol.replace(":", "");
-  if (proto === "http") {
-    const url = request.nextUrl.clone();
-    url.protocol = "https";
-    return NextResponse.redirect(url, 308);
+  const path = request.nextUrl.pathname + request.nextUrl.search;
+  // Requests reach the app via the public host, or via www when its DNS
+  // record exists (Cloudflare) — both are canonicalised the same way.
+  const host =
+    request.headers.get("x-forwarded-host") ?? request.headers.get("host");
+  if (proto === "http" || host === "www.printworks.lk") {
+    return NextResponse.redirect(new URL(path, PUBLIC_ORIGIN), 308);
   }
 
-  // Canonical host: www -> apex (308). Inert until the www DNS record
-  // exists (Cloudflare), then it guarantees a single canonical host.
-  if (request.nextUrl.hostname === "www.printworks.lk") {
-    const url = request.nextUrl.clone();
-    url.hostname = "printworks.lk";
-    url.protocol = "https";
-    return NextResponse.redirect(url, 308);
+  // Long-lived caching for site images. They are rewritten to the Laravel
+  // API, whose own Cache-Control (max-age=0) passes through untouched by
+  // next.config headers() — middleware response headers do apply.
+  if (request.nextUrl.pathname.startsWith("/images/")) {
+    const res = NextResponse.next();
+    res.headers.set(
+      "Cache-Control",
+      "public, max-age=2592000, stale-while-revalidate=86400"
+    );
+    return res;
   }
 
   if (!MAINTENANCE) return NextResponse.next();
@@ -57,6 +68,8 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|images/|icons/).*)",
+    // images/ is matched so the cache-header branch above can run; the
+    // maintenance gate below bypasses /images itself.
+    "/((?!_next/static|_next/image|favicon.ico|icons/).*)",
   ],
 };
