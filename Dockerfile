@@ -4,8 +4,10 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 FROM base AS deps
-COPY package.json package-lock.json ./
-RUN npm ci
+# .npmrc sets legacy-peer-deps. Without it, npm ci rejects the lockfile (picomatch).
+COPY package.json package-lock.json .npmrc ./
+# Coolify injects NODE_ENV=production, which skips devDependencies that next build needs.
+RUN npm ci --include=dev
 
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
