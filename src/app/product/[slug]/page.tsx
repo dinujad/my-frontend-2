@@ -12,6 +12,7 @@ import {
   SITE_URL,
 } from "@/lib/products-data";
 import type { ProductItem } from "@/lib/products-data";
+import { productSeoOverrides } from "@/data/product-seo";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { absolutePublicMediaUrl } from "@/lib/media-url";
 import ProductInteractive from "./ProductInteractive";
@@ -43,13 +44,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!product) return { title: "Product Not Found" };
 
   const canonical = `${SITE_URL}/product/${product.slug}`;
-  const title = `${product.title} | Print Works.LK`;
-  const description = metaDescription(product);
+  const seo = productSeoOverrides[product.slug];
+  const title = `${seo?.title ?? product.title} | Print Works.LK`;
+  const description = seo?.description ?? metaDescription(product);
 
   return {
-    // Bare product name: the root layout template appends " | Print Works.LK".
+    // Bare title: the root layout template appends " | Print Works.LK".
     // (openGraph/twitter below keep the fully-suffixed `title` string.)
-    title: product.title,
+    title: seo?.title ?? product.title,
     description,
     alternates: { canonical },
     openGraph: {
@@ -149,6 +151,7 @@ export default async function ProductPage({ params }: Props) {
   const category = await getCategoryBySlug(product.categorySlug || "");
   const related = await getRelatedProducts(product, 4);
   const schema = buildProductSchema(product);
+  const seo = productSeoOverrides[product.slug];
 
   const breadcrumbs = [
     { label: "Home", href: "/" },
@@ -209,7 +212,7 @@ export default async function ProductPage({ params }: Props) {
                   ) : null}
 
                   <h1 className="mt-3 text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl lg:text-[2.15rem] lg:leading-[1.15]">
-                    {product.title}
+                    {seo?.h1 ?? product.title}
                   </h1>
 
                   {showShortDesc ? (
