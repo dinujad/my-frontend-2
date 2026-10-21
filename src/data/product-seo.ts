@@ -56,4 +56,12 @@ export const productSeoOverrides: Record<string, ProductSeoOverride> = {
       "Flex banner printing in Sri Lanka for events, promotions and shopfronts — durable PVC, crisp colours, hemming, eyelets and pole pockets. Island-wide delivery.",
     h1: "Flex Banner Printing in Sri Lanka",
   },
+  // "business card printing colombo" — 13 impressions, position 8.5;
+  // page 229 impressions, CTR 6.1%, position 8.1 (28d, SC 2026-10-21)
+  "pvc-translucent-business-cards": {
+    title: "PVC Translucent Business Cards — Business Card Printing in Colombo, Sri Lanka",
+    description:
+      "Business card printing in Colombo, Sri Lanka — frosted translucent PVC cards with durable UV print. Quality prints, island-wide delivery.",
+    h1: "PVC Translucent Business Cards — Business Card Printing in Colombo, Sri Lanka",
+  },
 };
