@@ -6,44 +6,47 @@ import { Providers } from "@/components/providers/Providers";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { LiveChatWidget } from "@/components/ai/LiveChatWidget";
+import { fetchPublicSiteSeo } from "@/lib/seo-metadata";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://printworks.lk";
 const MAINTENANCE = process.env.NEXT_PUBLIC_MAINTENANCE_MODE === "true";
 
 /** Avoid static prerender of the whole tree; prevents build failures (ReactCurrentBatchConfig) with client layout + RSC pages. */
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
-  title: {
-    default: "Print Works.LK – Premium Custom Printing in Sri Lanka",
-    template: "%s | Print Works.LK",
-  },
-  description:
-    "Sri Lanka's leading custom printing service. UV printing, laser cutting, acrylic products, signage, PVC cards & more. Island-wide delivery.",
-  alternates: {
-    canonical: SITE_URL,
-  },
-  // Site-wide social defaults; pages with their own openGraph override these.
-  openGraph: {
-    type: "website",
-    locale: "en_LK",
-    siteName: "Print Works.LK",
-    url: SITE_URL,
-    title: "Print Works.LK – Premium Custom Printing in Sri Lanka",
-    description:
-      "Sri Lanka's leading custom printing service. UV printing, laser cutting, acrylic products, signage, PVC cards & more. Island-wide delivery.",
-    images: [{ url: `${SITE_URL}/images/logo.png` }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Print Works.LK – Premium Custom Printing in Sri Lanka",
-    description:
-      "Sri Lanka's leading custom printing service. UV printing, laser cutting, acrylic products, signage, PVC cards & more. Island-wide delivery.",
-  },
-  verification: {
-    google: "QSpW8qYreBWt87Y_LEL6hYu_RwhKpadAjR6EfBzilcs",
-  },
-};
+
+export async function generateMetadata(): Promise<Metadata> {
+  const site = await fetchPublicSiteSeo();
+
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: {
+      default: site.title,
+      template: "%s | Print Works.LK",
+    },
+    description: site.description,
+    alternates: {
+      canonical: SITE_URL,
+    },
+    // Site-wide social defaults; pages with their own openGraph override these.
+    openGraph: {
+      type: "website",
+      locale: "en_LK",
+      siteName: "Print Works.LK",
+      url: SITE_URL,
+      title: site.title,
+      description: site.description,
+      images: [{ url: `${SITE_URL}/images/logo.png` }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: site.title,
+      description: site.description,
+    },
+    verification: {
+      google: "QSpW8qYreBWt87Y_LEL6hYu_RwhKpadAjR6EfBzilcs",
+    },
+  };
+}
 
 export default function RootLayout({
   children,

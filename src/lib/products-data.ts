@@ -103,6 +103,9 @@ export type ProductItem = {
   /** Optional maximum quantity customer can order. */
   max_purchase?: number | null;
   review_summary?: ReviewSummary;
+  /** Admin SEO fields. Null, empty, and whitespace are treated as unset by metadata resolution. */
+  seo_title?: string | null;
+  seo_description?: string | null;
   is_featured?: boolean;
   is_special_offer?: boolean;
   is_on_sale?: boolean;
@@ -199,7 +202,7 @@ function applyVariationListingPrice(p: ProductItem): ProductItem {
   };
 }
 
-function normalizeProduct(p: ProductItem): ProductItem {
+export function normalizeProduct(p: ProductItem): ProductItem {
   const normalizedGalleryItems = p.gallery_items?.map((g) => ({
     ...g,
     src: normalizeProductImageSrc(g.src),
@@ -207,6 +210,8 @@ function normalizeProduct(p: ProductItem): ProductItem {
 
   const normalized: ProductItem = {
     ...p,
+    seo_title: typeof p.seo_title === "string" ? p.seo_title : null,
+    seo_description: typeof p.seo_description === "string" ? p.seo_description : null,
     image: normalizeProductImageSrc(p.image),
     gallery: normalizedGalleryItems?.map((g) => g.src) ?? p.gallery?.map((g) => normalizeProductImageSrc(g)),
     gallery_items: normalizedGalleryItems,

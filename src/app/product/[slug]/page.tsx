@@ -15,6 +15,7 @@ import type { ProductItem } from "@/lib/products-data";
 import { productSeoOverrides } from "@/data/product-seo";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { absolutePublicMediaUrl } from "@/lib/media-url";
+import { htmlTitle, resolveProductSeo, socialTitle } from "@/lib/seo-metadata";
 import ProductInteractive from "./ProductInteractive";
 import ProductGallery from "./ProductGallery";
 import ProductDetailsTabs from "@/components/product/ProductDetailsTabs";
@@ -31,31 +32,24 @@ function isPageSettingOn(value: unknown): boolean {
   return value === true || value === 1 || value === "1";
 }
 
-function metaDescription(product: ProductItem): string {
-  const short = product.short_description?.trim();
-  const long = product.description?.trim() ?? "";
-  const base = short || long || product.title;
-  return base.slice(0, 155) + (base.length > 155 ? "…" : "");
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product) return { title: "Product Not Found" };
 
   const canonical = `${SITE_URL}/product/${product.slug}`;
-  const seo = productSeoOverrides[product.slug];
-  const title = `${seo?.title ?? product.title} | Print Works.LK`;
-  const description = seo?.description ?? metaDescription(product);
+  const seo = resolveProductSeo(product, productSeoOverrides[product.slug]);
+  const description = seo.description;
+  const sharedTitle = socialTitle(seo.title);
 
   return {
-    // Bare title: the root layout template appends " | Print Works.LK".
-    // (openGraph/twitter below keep the fully-suffixed `title` string.)
-    title: seo?.title ?? product.title,
+    // A bare title lets the root template add "| Print Works.LK" once.
+    // A title that already ends with either brand form is marked absolute.
+    title: htmlTitle(seo.title),
     description,
     alternates: { canonical },
     openGraph: {
-      title,
+      title: sharedTitle,
       description,
       url: canonical,
       type: "website",
@@ -72,7 +66,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: "summary_large_image",
-      title,
+      title: sharedTitle,
       description,
     },
   };
