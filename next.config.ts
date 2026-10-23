@@ -25,6 +25,8 @@ function remotePatternsForApi(origin: string) {
 const nextConfig: NextConfig = {
   output: "standalone",
   reactStrictMode: true,
+  // Lint runs in CI/local. Skipping it here keeps `next build` under small Coolify RAM.
+  eslint: { ignoreDuringBuilds: true },
   images: {
     // Prefer AVIF (smaller than WebP) for the image optimiser — improves LCP.
     formats: ["image/avif", "image/webp"],
