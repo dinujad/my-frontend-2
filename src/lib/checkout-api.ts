@@ -35,6 +35,7 @@ export async function submitOrder(
   const itemsPayload = cartItems.map((item) => ({
     product_id: item.product_id,
     quantity: item.quantity,
+    unit_price: item.price,
     customization_fee: item.customization_fee,
     additional_services_fee: item.additional_services_fee ?? 0,
     additional_services: item.additional_services ?? [],
