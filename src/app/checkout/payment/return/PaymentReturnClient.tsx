@@ -7,7 +7,9 @@ import { takePendingPurchase, trackPurchase } from "@/lib/analytics";
 
 export function PaymentReturnClient() {
   const searchParams = useSearchParams();
-  const orderNumber = searchParams.get("order") ?? "";
+    const orderNumber = searchParams.get("order") ?? searchParams.get("x_order_id") ?? "";
+    const responseCode = searchParams.get("response_code");
+    const signature = searchParams.get("signature");
   const [status, setStatus] = useState<"loading" | "paid" | "pending" | "failed">("loading");
 
   useEffect(() => {
@@ -18,9 +20,23 @@ export function PaymentReturnClient() {
     let attempts = 0;
     const maxAttempts = 8;
 
+    let confirmed = false;
+
     const check = async () => {
       attempts++;
       try {
+        if (responseCode && signature && !confirmed) {
+          confirmed = true;
+          await fetch("/api/payments/payzy/confirm", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              order_number: orderNumber,
+              response_code: responseCode,
+              signature,
+            }),
+          });
+        }
         const res = await fetch(`/api/orders/${orderNumber}/payment-status`);
         if (res.ok) {
           const data = await res.json();
@@ -45,7 +61,7 @@ export function PaymentReturnClient() {
     };
 
     setTimeout(check, 2000);
-  }, [orderNumber]);
+  }, [orderNumber, responseCode, signature]);
 
   if (status === "loading") {
     return (

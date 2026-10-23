@@ -52,11 +52,14 @@ export function catalogImageSrc(path: string | null | undefined): string {
     return `/${bare}`;
   }
 
-  if (apiBase && !p.startsWith("/")) {
-    return `${apiBase}/${bare}`;
+  // Public-disk path saved without the storage/ prefix (products/file.jpg).
+  // Same rule as the API: asset('storage/' . $path).
+  if (!p.startsWith("/")) {
+    const storagePath = `storage/${bare}`;
+    return apiBase ? `${apiBase}/${storagePath}` : `/${storagePath}`;
   }
 
-  return p.startsWith("/") ? p : `/${p}`;
+  return p;
 }
 
 /** Retry once if image failed (wrong host / deploy). */

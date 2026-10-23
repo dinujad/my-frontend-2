@@ -6,6 +6,7 @@ import { dispatchProductHover } from "@/components/ai/aiChatCopy";
 import { catalogImageSrc, onCatalogImageError } from "@/lib/media-url";
 
 import { PRODUCT_IMAGE_PLACEHOLDER, type ProductItem } from "@/lib/products-data";
+import { PayzyInstallment } from "@/components/payzy/PayzyInstallment";
 
 const tabs = ["Featured", "On Sale", "Top Rated"];
 
@@ -101,6 +102,7 @@ export function FeaturedProducts({ products = [] }: { products: ProductItem[] })
                         <div className="text-[30px] font-normal leading-none tracking-tight text-brand-red sm:text-[34px]">
                           {prices.main}
                         </div>
+                        <PayzyInstallment goods={offer.offer_price && offer.offer_price > 0 ? offer.offer_price : offer.numericPrice} className="justify-center" />
                       </div>
                     </div>
                   </Link>
@@ -188,6 +190,7 @@ export function FeaturedProducts({ products = [] }: { products: ProductItem[] })
                           <span className={`text-lg font-bold ${product.oldPrice ? "text-brand-red" : "text-gray-800"}`}>
                             {product.price}
                           </span>
+                          <PayzyInstallment goods={product.numericPrice} />
                         </div>
 
                         <div onClick={(e) => e.preventDefault()} className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-brand-red hover:text-white transition-colors duration-300">

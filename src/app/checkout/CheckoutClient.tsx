@@ -20,6 +20,7 @@ import {
 } from "@/lib/analytics";
 import { useToast } from "@/components/ui/ToastProvider";
 import { useAuthStore } from "@/stores/auth-store";
+import { PayzyInstallment } from "@/components/payzy/PayzyInstallment";
 
 const ONEPAY_LOGO = "https://docs.onepay.lk/brand-assets/onepay-logo-horizontal.png";
 
@@ -371,6 +372,35 @@ export default function CheckoutClient() {
         return;
       }
 
+      if (result.payment_method === "payzy") {
+        stashPendingPurchase(purchase);
+        setPayhereRedirecting(true);
+
+        const pzRes = await fetch("/api/payments/payzy/initiate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ order_number: result.order_number }),
+        });
+        if (!pzRes.ok) {
+          const err = await pzRes.json().catch(() => null);
+          throw new Error(err?.message || "Failed to start Payzy checkout.");
+        }
+        const pzData: { redirect_url?: string } = await pzRes.json();
+        let redirectHost = "";
+        try {
+          redirectHost = new URL(pzData.redirect_url ?? "").hostname.toLowerCase();
+        } catch {
+          redirectHost = "";
+        }
+        const payzyHost = redirectHost === "payzy.lk" || redirectHost.endsWith(".payzy.lk");
+        if (!pzData.redirect_url?.startsWith("https://") || !payzyHost) {
+          throw new Error("Payzy did not return a payment page.");
+        }
+        clearCart();
+        window.location.assign(pzData.redirect_url);
+        return;
+      }
+
       if (result.payment_method === "payhere") {
         // Fired by the payment-return page once the payment reads "paid"
         stashPendingPurchase(purchase);
@@ -481,6 +511,7 @@ export default function CheckoutClient() {
           {/* ─── Form ───────────────────────────────────────────────────── */}
           <div className="lg:col-span-3">
             <form
+              id="checkout-form"
               onSubmit={handleSubmit(onSubmit)}
               className="space-y-8 rounded-3xl border border-gray-200/80 bg-white p-6 shadow-lg shadow-gray-900/[0.03] sm:p-8"
             >
@@ -683,143 +714,6 @@ export default function CheckoutClient() {
                   </div>
                 )}
               </div>
-
-              {/* Section 3 — Payment Method */}
-              <div className="border-t border-gray-100 pt-6">
-                <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900 mb-4">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-red/10 text-sm font-black text-brand-red">3</span>
-                  Payment Method
-                </h2>
-
-                {loadingPaymentMethods && (
-                  <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-5 py-4 text-sm text-gray-500">
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-brand-red border-t-transparent" />
-                    Loading payment options…
-                  </div>
-                )}
-
-                {!loadingPaymentMethods && paymentMethods.length === 0 && (
-                  <div className="rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-700">
-                    <i className="bi bi-exclamation-triangle me-2" />
-                    No payment methods available. Please contact us.
-                  </div>
-                )}
-
-                {!loadingPaymentMethods && paymentMethods.length > 0 && (
-                  <div className="space-y-3">
-                    {paymentMethods.map((method) => (
-                      <label
-                        key={method.code}
-                        className={`flex cursor-pointer items-start gap-4 rounded-xl border p-4 transition ${
-                          selectedPaymentCode === method.code
-                            ? "border-brand-red bg-red-50 ring-2 ring-brand-red/20"
-                            : "border-gray-200 bg-white hover:border-gray-300"
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="payment_method_radio"
-                          value={method.code}
-                          checked={selectedPaymentCode === method.code}
-                          onChange={() => setSelectedPaymentCode(method.code)}
-                          className="mt-0.5 h-4 w-4 text-brand-red focus:ring-brand-red"
-                        />
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            {method.code === "onepay" ? (
-                              <img
-                                src={ONEPAY_LOGO}
-                                alt="OnePay"
-                                className="h-8 w-auto max-w-[148px] object-contain"
-                              />
-                            ) : (
-                              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-red/10 text-brand-red">
-                                {method.code === "cod" ? (
-                                  <i className="bi bi-cash-coin" />
-                                ) : method.code === "payhere" ? (
-                                  <i className="bi bi-credit-card-2-front" />
-                                ) : (
-                                  <i className="bi bi-wallet2" />
-                                )}
-                              </div>
-                            )}
-                            {method.code !== "onepay" && (
-                              <p className="font-bold text-gray-900">{method.name}</p>
-                            )}
-                            <span className={`ml-auto text-xs rounded-full px-2.5 py-0.5 font-semibold ${
-                              method.type === "online" ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-600"
-                            }`}>
-                              {method.type === "online" ? "Online" : "Offline"}
-                            </span>
-                          </div>
-                          {method.description && (
-                            <p className={`mt-1 text-xs text-gray-500 ${method.code === "onepay" ? "" : "ml-10"}`}>{method.description}</p>
-                          )}
-                          {method.code === "payhere" && selectedPaymentCode === "payhere" && (
-                            <div className="mt-2 ml-10 flex flex-wrap gap-1.5">
-                              {["VISA","MASTER","AMEX","FRIMI","eZ Cash","mCash"].map((c) => (
-                                <span key={c} className="rounded border border-gray-200 bg-white px-2 py-0.5 text-[10px] font-semibold text-gray-600">{c}</span>
-                              ))}
-                            </div>
-                          )}
-                          {method.code === "onepay" && selectedPaymentCode === "onepay" && (
-                            <div className="mt-2 ml-10 flex flex-wrap gap-1.5">
-                              {["VISA", "Mastercard", "AMEX", "FriMi", "HelaPay", "QPlus", "GPay"].map((c) => (
-                                <span key={c} className="rounded border border-gray-200 bg-white px-2 py-0.5 text-[10px] font-semibold text-gray-600">{c}</span>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </label>
-                    ))}
-                  </div>
-                )}
-
-                {payhereRedirecting && (
-                  <div className="mt-4 flex items-center gap-3 rounded-xl border border-blue-200 bg-blue-50 px-5 py-4 text-sm text-blue-700">
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
-                    Redirecting to secure checkout…
-                  </div>
-                )}
-              </div>
-
-              {/* Submit */}
-              <div className="flex flex-col gap-4 border-t border-gray-100 pt-6 sm:flex-row sm:items-center sm:justify-between">
-                <Link href="/cart" className="text-center text-sm font-semibold text-gray-600 hover:text-brand-red sm:text-left">
-                  ← Back to cart
-                </Link>
-                <button
-                  type="submit"
-                  disabled={submitting || (district !== "" && !loadingShipping && shippingMethods.length > 0 && selectedMethodId === null)}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-red to-red-600 px-8 py-4 text-base font-bold text-white shadow-lg shadow-brand-red/35 transition hover:from-red-600 hover:to-red-700 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {submitting ? (
-                    <>
-                      <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                      {payhereRedirecting ? "Redirecting…" : "Placing order…"}
-                    </>
-                  ) : selectedPaymentCode === "payhere" ? (
-                    <>
-                      <i className="bi bi-credit-card text-xl" aria-hidden />
-                      Pay with PayHere
-                    </>
-                  ) : selectedPaymentCode === "onepay" ? (
-                    <>
-                      <img
-                        src={ONEPAY_LOGO}
-                        alt=""
-                        className="h-6 w-auto max-w-[112px] rounded bg-white px-1.5 py-0.5 object-contain"
-                      />
-                      Pay with OnePay
-                    </>
-                  ) : (
-                    <>
-                      <i className="bi bi-bag-check text-xl" aria-hidden />
-                      Place order
-                    </>
-                  )}
-                </button>
-              </div>
             </form>
           </div>
 
@@ -905,7 +799,150 @@ export default function CheckoutClient() {
                       <span className="text-brand-red">{fmtRs(grandTotal)}</span>
                     </div>
                   )}
+                  <PayzyInstallment goods={subtotal} freight={shippingCost} className="pt-1 text-xs" logoClassName="h-5 w-auto" />
                 </div>
+              </div>
+
+              <div className="rounded-3xl border border-gray-200/80 bg-white p-6 shadow-lg shadow-gray-900/[0.03]">
+                <h2 className="mb-4 text-lg font-bold text-gray-900">Payment method</h2>
+
+                {loadingPaymentMethods && (
+                  <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-5 py-4 text-sm text-gray-500">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-brand-red border-t-transparent" />
+                    Loading payment options…
+                  </div>
+                )}
+
+                {!loadingPaymentMethods && paymentMethods.length === 0 && (
+                  <div className="rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-700">
+                    <i className="bi bi-exclamation-triangle me-2" />
+                    No payment methods available. Please contact us.
+                  </div>
+                )}
+
+                {!loadingPaymentMethods && paymentMethods.length > 0 && (
+                  <div className="space-y-3">
+                    {paymentMethods.map((method) => (
+                      <label
+                        key={method.code}
+                        className={`flex cursor-pointer items-start gap-4 rounded-xl border p-4 transition ${
+                          selectedPaymentCode === method.code
+                            ? "border-brand-red bg-red-50 ring-2 ring-brand-red/20"
+                            : "border-gray-200 bg-white hover:border-gray-300"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="payment_method_radio"
+                          value={method.code}
+                          checked={selectedPaymentCode === method.code}
+                          onChange={() => setSelectedPaymentCode(method.code)}
+                          className="mt-0.5 h-4 w-4 text-brand-red focus:ring-brand-red"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {method.code === "onepay" ? (
+                              <img
+                                src={ONEPAY_LOGO}
+                                alt="OnePay"
+                                className="h-8 w-auto max-w-[148px] object-contain"
+                              />
+                            ) : method.code === "payzy" ? (
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src="/images/payzy.png" alt="Payzy" className="h-6 w-auto object-contain" />
+                            ) : (
+                              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-red/10 text-brand-red">
+                                {method.code === "cod" ? (
+                                  <i className="bi bi-cash-coin" />
+                                ) : method.code === "payhere" ? (
+                                  <i className="bi bi-credit-card-2-front" />
+                                ) : (
+                                  <i className="bi bi-wallet2" />
+                                )}
+                              </div>
+                            )}
+                            {method.code !== "onepay" && method.code !== "payzy" && (
+                              <p className="font-bold text-gray-900">{method.name}</p>
+                            )}
+                            <span className={`ml-auto text-xs rounded-full px-2.5 py-0.5 font-semibold ${
+                              method.type === "online" ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-600"
+                            }`}>
+                              {method.type === "online" ? "Online" : "Offline"}
+                            </span>
+                          </div>
+                          {method.description && (
+                            <p className={`mt-1 text-xs text-gray-500 ${method.code === "onepay" ? "" : "ml-10"}`}>{method.description}</p>
+                          )}
+                          {method.code === "payhere" && selectedPaymentCode === "payhere" && (
+                            <div className="mt-2 ml-10 flex flex-wrap gap-1.5">
+                              {["VISA","MASTER","AMEX","FRIMI","eZ Cash","mCash"].map((c) => (
+                                <span key={c} className="rounded border border-gray-200 bg-white px-2 py-0.5 text-[10px] font-semibold text-gray-600">{c}</span>
+                              ))}
+                            </div>
+                          )}
+                          {method.code === "payzy" && selectedPaymentCode === "payzy" && (
+                            <div className="mt-2">
+                              <PayzyInstallment goods={subtotal} freight={shippingCost} />
+                            </div>
+                          )}
+                          {method.code === "onepay" && selectedPaymentCode === "onepay" && (
+                            <div className="mt-2 flex flex-wrap gap-1.5">
+                              {["VISA", "Mastercard", "AMEX", "FriMi", "HelaPay", "QPlus", "GPay"].map((c) => (
+                                <span key={c} className="rounded border border-gray-200 bg-white px-2 py-0.5 text-[10px] font-semibold text-gray-600">{c}</span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                )}
+
+                {payhereRedirecting && (
+                  <div className="mt-4 flex items-center gap-3 rounded-xl border border-blue-200 bg-blue-50 px-5 py-4 text-sm text-blue-700">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+                    Redirecting to secure checkout…
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  form="checkout-form"
+                  disabled={submitting || (district !== "" && !loadingShipping && shippingMethods.length > 0 && selectedMethodId === null)}
+                  className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-red to-red-600 px-8 py-4 text-base font-bold text-white shadow-lg shadow-brand-red/35 transition hover:from-red-600 hover:to-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {submitting ? (
+                    <>
+                      <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      {payhereRedirecting ? "Redirecting…" : "Placing order…"}
+                    </>
+                  ) : selectedPaymentCode === "payhere" ? (
+                    <>
+                      <i className="bi bi-credit-card text-xl" aria-hidden />
+                      Pay with PayHere
+                    </>
+                  ) : selectedPaymentCode === "onepay" ? (
+                    <>
+                      <img
+                        src={ONEPAY_LOGO}
+                        alt=""
+                        className="h-6 w-auto max-w-[112px] rounded bg-white px-1.5 py-0.5 object-contain"
+                      />
+                      Pay with OnePay
+                    </>
+                  ) : selectedPaymentCode === "payzy" ? (
+                    <>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src="/images/payzy.png" alt="" className="h-5 w-auto object-contain" />
+                      Pay in 4 with Payzy
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-bag-check text-xl" aria-hidden />
+                      Place order
+                    </>
+                  )}
+                </button>
               </div>
 
               {/* Shipping info badge */}

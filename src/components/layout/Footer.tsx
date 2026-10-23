@@ -27,6 +27,36 @@ export function Footer() {
     if (pathname?.startsWith("/admin")) return null;
 
     return (
+        <>
+        <section className="border-t border-gray-100 bg-white">
+            <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-6 py-8 sm:flex-row sm:gap-8 lg:px-8">
+                <div className="flex min-w-0 items-center gap-4">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/images/payzy.png" alt="Payzy" className="h-8 w-auto shrink-0 object-contain" />
+                    <div className="min-w-0 text-left">
+                        <p className="text-sm font-semibold text-gray-900">Buy now, pay later</p>
+                        <p className="mt-0.5 text-xs font-medium text-gray-500">4 installment payments accepted with Payzy</p>
+                    </div>
+                </div>
+
+                <div className="flex shrink-0 flex-col items-center gap-2 sm:items-end">
+                    <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400">We accepted</p>
+                    <a
+                        href="https://www.onepay.lk"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex max-w-full rounded-xl border border-gray-200 bg-white px-4 py-2 shadow-sm"
+                    >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                            src="https://docs.onepay.lk/brand-assets/payment-methods-icons.png"
+                            alt="OnePay"
+                            className="h-7 w-auto max-w-full object-contain sm:h-8"
+                        />
+                    </a>
+                </div>
+            </div>
+        </section>
         <footer
             className="relative w-full bg-[#0a0a0a] text-white overflow-hidden border-t border-white/10 pt-16 lg:pt-24"
             suppressHydrationWarning
@@ -187,24 +217,6 @@ export function Footer() {
                     <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-[#0a0a0a] to-transparent pointer-events-none" />
                 </div>
 
-                <div className="mt-10 flex flex-col items-center gap-3">
-                    <p className="text-[11px] font-bold uppercase tracking-widest text-gray-500">We accepted</p>
-                    <a
-                        href="https://www.onepay.lk"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex max-w-full rounded-xl bg-white px-4 py-2.5"
-                    >
-                        {/* Direct file — keep the official OnePay strip at footer size */}
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                            src="https://docs.onepay.lk/brand-assets/payment-methods-icons.png"
-                            alt="OnePay"
-                            className="h-8 w-auto max-w-full object-contain sm:h-10"
-                        />
-                    </a>
-                </div>
-
                 {/* Bottom Bar */}
                 <div className="w-full pt-8 pb-8 text-xs text-gray-500 flex flex-col md:flex-row justify-between items-center gap-4">
                     <div className="text-center md:text-left">
@@ -226,5 +238,6 @@ export function Footer() {
 
             </div>
         </footer>
+        </>
     );
 }

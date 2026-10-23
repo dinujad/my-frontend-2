@@ -10,6 +10,7 @@ import { dispatchProductHover } from "@/components/ai/aiChatCopy";
 import { catalogImageSrc, onCatalogImageError } from "@/lib/media-url";
 
 import { PRODUCT_IMAGE_PLACEHOLDER, type ProductItem } from "@/lib/products-data";
+import { PayzyInstallment } from "@/components/payzy/PayzyInstallment";
 
 function ProductCard({ product }: { product: any }) {
     return (
@@ -50,6 +51,7 @@ function ProductCard({ product }: { product: any }) {
                         <span className={`text-[15px] font-medium sm:text-[16px] ${product.oldPrice ? 'text-brand-red' : 'text-gray-700'}`}>
                             {product.price}
                         </span>
+                        <PayzyInstallment goods={product.numericPrice} />
                     </div>
 
                     <div onClick={(e) => e.preventDefault()} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-400 transition-colors duration-300 hover:bg-brand-red hover:text-white">

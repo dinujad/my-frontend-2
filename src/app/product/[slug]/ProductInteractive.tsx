@@ -14,6 +14,7 @@ import { ProductCustomizationFields } from "./ProductCustomizationFields";
 import { ProductShareBar } from "@/components/product/ProductShareBar";
 import { useProductGalleryStore } from "@/stores/product-gallery-store";
 import { catalogImageSrc } from "@/lib/media-url";
+import { PayzyInstallment } from "@/components/payzy/PayzyInstallment";
 import {
   additionalServicesTotal,
   pricingTypeLabel,
@@ -553,6 +554,7 @@ export default function ProductInteractive({ product }: { product: ProductItem }
               {activeTiers.length > 0 ? (
                 <p className="mt-2 text-sm text-gray-500">Unit price updates with quantity tiers below.</p>
               ) : null}
+              <PayzyInstallment goods={currentPricePerUnit} logoClassName="h-5 w-auto" className="text-xs" />
               {serviceFees.perItem > 0 ? (
                 <p className="mt-2 text-sm font-medium text-brand-red">
                   + {fmtRs(serviceFees.perItem)} add-on services per item

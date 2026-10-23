@@ -12,6 +12,7 @@ import { useCartStore } from "@/stores/cart-store";
 import { useWishlistStore } from "@/stores/wishlist-store";
 import type { Product } from "./page";
 import type { CategoryItem } from "@/lib/products-data";
+import { PayzyInstallment } from "@/components/payzy/PayzyInstallment";
 // Hardcoded categories removed. We use dynamic initialCategories from props.
 
 // Materials are now dynamic, computed from initialProducts
@@ -169,6 +170,7 @@ function ProductGridCard({ product }: { product: Product }) {
           <span className={`text-base font-bold ${product.oldPrice ? "text-brand-red" : "text-gray-800"}`}>
             {product.price}
           </span>
+          <PayzyInstallment goods={product.numericPrice} />
           {product.variantsNote && (
             <span className="mt-0.5 line-clamp-2 text-[10px] text-gray-500">{product.variantsNote}</span>
           )}

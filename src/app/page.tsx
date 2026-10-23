@@ -8,6 +8,7 @@ import { BestSellers } from "@/components/sections/BestSellers";
 import { HomeStaticSections } from "@/components/sections/HomeStaticSections";
 import { getClientLogos } from "@/lib/client-logos";
 import { getAllProducts } from "@/lib/products-data";
+import { HomePopup } from "@/components/home/HomePopup";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://printworks.lk";
 
@@ -93,6 +94,7 @@ export default async function HomePage() {
       <BestSellers products={products} />
       <HomeStaticSections />
       <OurClientsSection logos={clientLogos} />
+      <HomePopup />
     </main>
   );
 }

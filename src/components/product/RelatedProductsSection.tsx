@@ -2,6 +2,7 @@ import Link from "next/link";
 import { clsx } from "clsx";
 import type { ProductItem } from "@/lib/products-data";
 import { catalogImageSrc } from "@/lib/media-url";
+import { PayzyInstallment } from "@/components/payzy/PayzyInstallment";
 
 type Props = {
   products: ProductItem[];
@@ -121,6 +122,7 @@ export function RelatedProductsSection({ products, variant = "default", classNam
                       <span className="text-xs font-medium text-gray-400 line-through">{p.oldPrice}</span>
                     ) : null}
                   </div>
+                  <PayzyInstallment goods={p.numericPrice} />
                 </div>
               </Link>
             </li>

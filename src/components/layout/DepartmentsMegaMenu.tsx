@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { CategoryItem } from "@/lib/products-data";
 import { catalogImageSrc, onCatalogImageError } from "@/lib/media-url";
 import { PRODUCT_IMAGE_PLACEHOLDER } from "@/lib/products-data";
+import { PayzyInstallment } from "@/components/payzy/PayzyInstallment";
 
 type PreviewProduct = {
   id: number;
@@ -273,6 +274,7 @@ function ProductPreviewCard({
         {title}
       </p>
       <p className="mt-1 text-xs font-bold text-brand-red">{product.price}</p>
+      <PayzyInstallment goods={parseFloat(String(product.price).replace(/[^\d.]/g, "")) || 0} logoClassName="h-3.5 w-auto" />
     </Link>
   );
 }

@@ -12,6 +12,7 @@ import {
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { catalogImageSrc } from "@/lib/media-url";
 import { getCategoryContent } from "@/data/category-content";
+import { PayzyInstallment } from "@/components/payzy/PayzyInstallment";
 
 const PRODUCTS_PER_PAGE = 12;
 
@@ -128,6 +129,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
                       {p.title}
                     </h2>
                     <p className="mt-1 text-lg font-bold text-gray-800">{p.price}</p>
+                    <PayzyInstallment goods={p.numericPrice} />
                   </Link>
                 </li>
               ))}

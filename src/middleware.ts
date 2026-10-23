@@ -35,7 +35,9 @@ export function middleware(request: NextRequest) {
   // record exists (Cloudflare) — both are canonicalised the same way.
   const host =
     request.headers.get("x-forwarded-host") ?? request.headers.get("host");
-  if (proto === "http" || host === "www.printworks.lk") {
+  // `next dev` also receives X-Forwarded-Host: 127.0.0.1, so host alone cannot
+  // tell local from production. The public redirect stays on in production.
+  if (process.env.NODE_ENV !== "development" && (proto === "http" || host === "www.printworks.lk")) {
     return NextResponse.redirect(new URL(path, PUBLIC_ORIGIN), 308);
   }
 

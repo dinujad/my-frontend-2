@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import { useQuoteCartStore, type QuoteCartItem } from "@/stores/quote-cart-store";
 import { useToast } from "@/components/ui/ToastProvider";
 import { clsx } from "clsx";
-import { catalogImageSrc } from "@/lib/media-url";
+import { catalogImageSrc, onCatalogImageError } from "@/lib/media-url";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 interface ProductSuggestion {
@@ -15,7 +15,81 @@ interface ProductSuggestion {
   sku: string;
   image: string;
   price: string;
-  variations: { id: number; sku: string; attributes: Record<string, string> }[];
+  variations: { id: number; sku: string; attributes: Record<string, string>; image?: string | null }[];
+}
+
+function QuoteThumb({
+  src,
+  slug,
+  variationId,
+  boxClass,
+  onResolved,
+}: {
+  src?: string;
+  slug?: string;
+  variationId?: number | null;
+  boxClass: string;
+  onResolved?: (url: string) => void;
+}) {
+  const [url, setUrl] = useState(() => catalogImageSrc(src));
+  const [hidden, setHidden] = useState(() => !catalogImageSrc(src));
+  const rescue = useRef(false);
+
+  useEffect(() => {
+    const next = catalogImageSrc(src);
+    setUrl(next);
+    setHidden(!next);
+    rescue.current = false;
+  }, [src]);
+
+  if (hidden) {
+    return (
+      <div className={clsx(boxClass, "flex shrink-0 items-center justify-center rounded-xl bg-gray-100 text-gray-300")}>
+        <svg className="h-1/2 w-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      </div>
+    );
+  }
+
+  return (
+    <div className={clsx(boxClass, "shrink-0 overflow-hidden rounded-xl bg-gray-50")}>
+      <img
+        src={url}
+        alt=""
+        className="h-full w-full object-contain p-1"
+        onError={(e) => {
+          const before = e.currentTarget.currentSrc || e.currentTarget.src;
+          onCatalogImageError(e);
+          if ((e.currentTarget.currentSrc || e.currentTarget.src) !== before) return;
+          if (rescue.current || !slug) {
+            setHidden(true);
+            return;
+          }
+          rescue.current = true;
+          fetch(`/api/products/${encodeURIComponent(slug)}`)
+            .then((r) => (r.ok ? r.json() : null))
+            .then((product) => {
+              const variations = Array.isArray(product?.variations) ? product.variations : [];
+              const variation = variationId
+                ? variations.find((v: { id?: number; image?: string | null }) => v.id === variationId)
+                : null;
+              const gallery = Array.isArray(product?.gallery) ? product.gallery : [];
+              const next = [variation?.image, product?.image, ...gallery]
+                .map((candidate) => catalogImageSrc(candidate))
+                .find((candidate) => candidate && candidate !== url);
+              if (!next) {
+                setHidden(true);
+                return;
+              }
+              setUrl(next);
+              onResolved?.(next);
+            })
+            .catch(() => setHidden(true));
+        }}
+      />
+    </div>
+  );
 }
 
 // ── Product Search ──────────────────────────────────────────────────────────
@@ -58,7 +132,7 @@ function ProductSearchBox({ onAdd }: { onAdd: (item: Omit<QuoteCartItem, "id">) 
       product_variation_id: variation?.id ?? null,
       product_name: label ? `${product.name} — ${label}` : product.name,
       product_sku: variation?.sku ?? product.sku,
-      product_image: product.image,
+      product_image: variation?.image || product.image,
       product_slug: product.slug,
       variation_attributes: variation?.attributes ?? null,
       quantity: 1,
@@ -95,7 +169,7 @@ function ProductSearchBox({ onAdd }: { onAdd: (item: Omit<QuoteCartItem, "id">) 
                   className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-red-50"
                 >
                   {p.image && (
-                    <img src={catalogImageSrc(p.image)} alt={p.name} className="h-10 w-10 rounded-lg object-contain" />
+                    <QuoteThumb src={p.image} slug={p.slug} boxClass="h-10 w-10 rounded-lg" />
                   )}
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold text-gray-900">{p.name}</p>
@@ -107,7 +181,7 @@ function ProductSearchBox({ onAdd }: { onAdd: (item: Omit<QuoteCartItem, "id">) 
                 <>
                   <div className="flex items-center gap-3 px-4 py-2 bg-gray-50">
                     {p.image && (
-                      <img src={catalogImageSrc(p.image)} alt={p.name} className="h-8 w-8 rounded-lg object-contain" />
+                      <QuoteThumb src={p.image} slug={p.slug} boxClass="h-8 w-8 rounded-lg" />
                     )}
                     <p className="text-sm font-semibold text-gray-800">{p.name}</p>
                   </div>
@@ -151,17 +225,13 @@ function CartItemRow({
 }) {
   return (
     <div className="flex items-start gap-4 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-      {item.product_image ? (
-        <img
-          src={catalogImageSrc(item.product_image)}
-          alt={item.product_name}
-          className="h-16 w-16 shrink-0 rounded-xl object-contain bg-gray-50 p-1"
-        />
-      ) : (
-        <div className="h-16 w-16 shrink-0 rounded-xl bg-gray-100 flex items-center justify-center text-gray-300">
-          <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-        </div>
-      )}
+      <QuoteThumb
+        src={item.product_image}
+        slug={item.product_slug}
+        variationId={item.product_variation_id}
+        boxClass="h-16 w-16 rounded-xl"
+        onResolved={(next) => onUpdate(item.id, { product_image: next })}
+      />
       <div className="flex-1 min-w-0">
         <p className="font-semibold text-gray-900 text-sm leading-snug">{item.product_name}</p>
         {item.product_sku && <p className="mt-0.5 text-xs text-gray-400">SKU: {item.product_sku}</p>}
@@ -453,11 +523,12 @@ export default function QuotePage() {
                     <div className="space-y-3 mb-5">
                       {items.map((item) => (
                         <div key={item.id} className="flex items-center gap-3">
-                          {item.product_image ? (
-                            <img src={catalogImageSrc(item.product_image)} alt="" className="h-10 w-10 rounded-lg object-contain bg-gray-50 shrink-0" />
-                          ) : (
-                            <div className="h-10 w-10 rounded-lg bg-gray-100 shrink-0" />
-                          )}
+                          <QuoteThumb
+                            src={item.product_image}
+                            slug={item.product_slug}
+                            variationId={item.product_variation_id}
+                            boxClass="h-10 w-10 rounded-lg"
+                          />
                           <div className="flex-1 min-w-0">
                             <p className="text-xs font-semibold text-gray-800 truncate">{item.product_name}</p>
                             <p className="text-xs text-gray-400">Qty: {item.quantity}</p>
