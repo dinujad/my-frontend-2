@@ -799,7 +799,9 @@ export default function CheckoutClient() {
                       <span className="text-brand-red">{fmtRs(grandTotal)}</span>
                     </div>
                   )}
-                  <PayzyInstallment goods={subtotal} freight={shippingCost} className="pt-1 text-xs" logoClassName="h-5 w-auto" />
+                  {selectedPaymentCode === "payzy" && (
+                    <PayzyInstallment goods={subtotal} freight={shippingCost} className="pt-1 text-xs" logoClassName="h-5 w-auto" />
+                  )}
                 </div>
               </div>
 
