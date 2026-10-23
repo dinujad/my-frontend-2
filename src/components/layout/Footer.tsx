@@ -187,6 +187,24 @@ export function Footer() {
                     <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-[#0a0a0a] to-transparent pointer-events-none" />
                 </div>
 
+                <div className="mt-10 flex flex-col items-center gap-3">
+                    <p className="text-[11px] font-bold uppercase tracking-widest text-gray-500">We accepted</p>
+                    <a
+                        href="https://www.onepay.lk"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex max-w-full rounded-xl bg-white px-4 py-2.5"
+                    >
+                        {/* Direct file — keep the official OnePay strip at footer size */}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                            src="https://docs.onepay.lk/brand-assets/payment-methods-icons.png"
+                            alt="OnePay"
+                            className="h-8 w-auto max-w-full object-contain sm:h-10"
+                        />
+                    </a>
+                </div>
+
                 {/* Bottom Bar */}
                 <div className="w-full pt-8 pb-8 text-xs text-gray-500 flex flex-col md:flex-row justify-between items-center gap-4">
                     <div className="text-center md:text-left">
