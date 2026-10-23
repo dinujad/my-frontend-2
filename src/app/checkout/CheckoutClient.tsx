@@ -21,6 +21,8 @@ import {
 import { useToast } from "@/components/ui/ToastProvider";
 import { useAuthStore } from "@/stores/auth-store";
 
+const ONEPAY_LOGO = "https://docs.onepay.lk/brand-assets/onepay-logo-horizontal.png";
+
 // ─── Sri Lanka Districts ──────────────────────────────────────────────────────
 const SL_DISTRICTS = [
   "Ampara","Anuradhapura","Badulla","Batticaloa","Colombo",
@@ -336,6 +338,38 @@ export default function CheckoutClient() {
         shipping: shippingCost,
         items: ga4ItemsFromCart(items),
       };
+
+      if (result.payment_method === "onepay") {
+        stashPendingPurchase(purchase);
+        setPayhereRedirecting(true);
+
+        const opRes = await fetch("/api/payments/onepay/initiate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ order_number: result.order_number }),
+        });
+
+        if (!opRes.ok) {
+          const err = await opRes.json().catch(() => null);
+          throw new Error(err?.message || "Failed to start OnePay checkout.");
+        }
+
+        const opData: { redirect_url?: string } = await opRes.json();
+        let redirectHost = "";
+        try {
+          redirectHost = new URL(opData.redirect_url ?? "").hostname.toLowerCase();
+        } catch {
+          redirectHost = "";
+        }
+        const onepayHost = redirectHost === "onepay.lk" || redirectHost.endsWith(".onepay.lk");
+        if (!opData.redirect_url?.startsWith("https://") || !onepayHost) {
+          throw new Error("OnePay did not return a payment page.");
+        }
+
+        clearCart();
+        window.location.assign(opData.redirect_url);
+        return;
+      }
 
       if (result.payment_method === "payhere") {
         // Fired by the payment-return page once the payment reads "paid"
@@ -692,16 +726,26 @@ export default function CheckoutClient() {
                         />
                         <div className="flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-red/10 text-brand-red">
-                              {method.code === "cod" ? (
-                                <i className="bi bi-cash-coin" />
-                              ) : method.code === "payhere" ? (
-                                <i className="bi bi-credit-card-2-front" />
-                              ) : (
-                                <i className="bi bi-wallet2" />
-                              )}
-                            </div>
-                            <p className="font-bold text-gray-900">{method.name}</p>
+                            {method.code === "onepay" ? (
+                              <img
+                                src={ONEPAY_LOGO}
+                                alt="OnePay"
+                                className="h-8 w-auto max-w-[148px] object-contain"
+                              />
+                            ) : (
+                              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-red/10 text-brand-red">
+                                {method.code === "cod" ? (
+                                  <i className="bi bi-cash-coin" />
+                                ) : method.code === "payhere" ? (
+                                  <i className="bi bi-credit-card-2-front" />
+                                ) : (
+                                  <i className="bi bi-wallet2" />
+                                )}
+                              </div>
+                            )}
+                            {method.code !== "onepay" && (
+                              <p className="font-bold text-gray-900">{method.name}</p>
+                            )}
                             <span className={`ml-auto text-xs rounded-full px-2.5 py-0.5 font-semibold ${
                               method.type === "online" ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-600"
                             }`}>
@@ -709,11 +753,18 @@ export default function CheckoutClient() {
                             </span>
                           </div>
                           {method.description && (
-                            <p className="mt-1 text-xs text-gray-500 ml-10">{method.description}</p>
+                            <p className={`mt-1 text-xs text-gray-500 ${method.code === "onepay" ? "" : "ml-10"}`}>{method.description}</p>
                           )}
                           {method.code === "payhere" && selectedPaymentCode === "payhere" && (
                             <div className="mt-2 ml-10 flex flex-wrap gap-1.5">
                               {["VISA","MASTER","AMEX","FRIMI","eZ Cash","mCash"].map((c) => (
+                                <span key={c} className="rounded border border-gray-200 bg-white px-2 py-0.5 text-[10px] font-semibold text-gray-600">{c}</span>
+                              ))}
+                            </div>
+                          )}
+                          {method.code === "onepay" && selectedPaymentCode === "onepay" && (
+                            <div className="mt-2 ml-10 flex flex-wrap gap-1.5">
+                              {["VISA", "Mastercard", "AMEX", "FriMi", "HelaPay", "QPlus", "GPay"].map((c) => (
                                 <span key={c} className="rounded border border-gray-200 bg-white px-2 py-0.5 text-[10px] font-semibold text-gray-600">{c}</span>
                               ))}
                             </div>
@@ -727,7 +778,7 @@ export default function CheckoutClient() {
                 {payhereRedirecting && (
                   <div className="mt-4 flex items-center gap-3 rounded-xl border border-blue-200 bg-blue-50 px-5 py-4 text-sm text-blue-700">
                     <span className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
-                    Redirecting to PayHere secure checkout…
+                    Redirecting to secure checkout…
                   </div>
                 )}
               </div>
@@ -751,6 +802,15 @@ export default function CheckoutClient() {
                     <>
                       <i className="bi bi-credit-card text-xl" aria-hidden />
                       Pay with PayHere
+                    </>
+                  ) : selectedPaymentCode === "onepay" ? (
+                    <>
+                      <img
+                        src={ONEPAY_LOGO}
+                        alt=""
+                        className="h-6 w-auto max-w-[112px] rounded bg-white px-1.5 py-0.5 object-contain"
+                      />
+                      Pay with OnePay
                     </>
                   ) : (
                     <>

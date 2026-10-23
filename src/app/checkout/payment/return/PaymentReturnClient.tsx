@@ -55,7 +55,7 @@ export function PaymentReturnClient() {
             <span className="h-8 w-8 animate-spin rounded-full border-4 border-blue-400 border-t-transparent" />
           </div>
           <h1 className="text-xl font-bold text-gray-900">Confirming your payment…</h1>
-          <p className="mt-2 text-sm text-gray-500">Please wait while we verify your payment with PayHere.</p>
+          <p className="mt-2 text-sm text-gray-500">Please wait while we verify your payment.</p>
         </div>
       </main>
     );
