@@ -848,7 +848,6 @@ export default function CheckoutClient() {
                                 className="h-8 w-auto max-w-[148px] object-contain"
                               />
                             ) : method.code === "payzy" ? (
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
                               <img src="/images/payzy.png" alt="Payzy" className="h-6 w-auto object-contain" />
                             ) : (
                               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-red/10 text-brand-red">
