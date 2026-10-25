@@ -128,8 +128,12 @@ export default async function CategoryPage({ params, searchParams }: Props) {
                     <h2 className="mt-3 font-semibold text-gray-900 group-hover:text-brand-red line-clamp-2">
                       {p.title}
                     </h2>
-                    <p className="mt-1 text-lg font-bold text-gray-800">{p.price}</p>
-                    <PayzyInstallment goods={p.numericPrice} />
+                    {p.numericPrice > 0 ? (
+                      <p className="mt-1 text-lg font-bold text-gray-800">{p.price}</p>
+                    ) : (
+                      <p className="mt-1 text-lg font-bold text-gray-800">Price on request</p>
+                    )}
+                    {p.numericPrice > 0 ? <PayzyInstallment goods={p.numericPrice} /> : null}
                   </Link>
                 </li>
               ))}

@@ -116,13 +116,13 @@ export function RelatedProductsSection({ products, variant = "default", classNam
                   </h3>
                   <div className={clsx("mt-auto flex items-baseline gap-2 pt-3", inline && "pt-2")}>
                     <span className={clsx("font-extrabold tabular-nums text-gray-900", inline ? "text-sm" : "text-base")}>
-                      {p.price}
+                      {p.numericPrice > 0 ? p.price : "Price on request"}
                     </span>
-                    {p.oldPrice ? (
+                    {p.numericPrice > 0 && p.oldPrice ? (
                       <span className="text-xs font-medium text-gray-400 line-through">{p.oldPrice}</span>
                     ) : null}
                   </div>
-                  <PayzyInstallment goods={p.numericPrice} />
+                  {p.numericPrice > 0 ? <PayzyInstallment goods={p.numericPrice} /> : null}
                 </div>
               </Link>
             </li>

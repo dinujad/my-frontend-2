@@ -164,18 +164,19 @@ function ProductGridCard({ product }: { product: Product }) {
 
       <div className="relative z-[2] mt-auto flex items-end justify-between gap-2">
         <div className="pointer-events-none flex min-w-0 flex-col">
-          {product.oldPrice && (
+          {product.numericPrice > 0 && product.oldPrice && (
             <span className="mb-0.5 text-[11px] text-gray-400 line-through">{product.oldPrice}</span>
           )}
           <span className={`text-base font-bold ${product.oldPrice ? "text-brand-red" : "text-gray-800"}`}>
-            {product.price}
+            {product.numericPrice > 0 ? product.price : "Price on request"}
           </span>
-          <PayzyInstallment goods={product.numericPrice} />
+          {product.numericPrice > 0 ? <PayzyInstallment goods={product.numericPrice} /> : null}
           {product.variantsNote && (
             <span className="mt-0.5 line-clamp-2 text-[10px] text-gray-500">{product.variantsNote}</span>
           )}
         </div>
-        <button
+        {product.numericPrice > 0 && (
+<button
           type="button"
           title="Add to cart"
           className="relative z-[3] flex h-7 w-7 shrink-0 pointer-events-auto items-center justify-center rounded-full bg-gray-100 text-gray-500 shadow-sm transition-colors duration-300 hover:bg-brand-red hover:text-white"
@@ -185,6 +186,7 @@ function ProductGridCard({ product }: { product: Product }) {
             <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
         </button>
+        )}
       </div>
     </div>
   );

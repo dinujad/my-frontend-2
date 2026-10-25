@@ -123,17 +123,22 @@ function buildProductSchema(product: ProductItem): object {
           },
         }
       : {}),
-    offers: {
-      "@type": "Offer",
-      url: productUrl,
-      priceCurrency: "LKR",
-      price: priceValue,
-      availability: schemaAvailability(product),
-      seller: {
-        "@type": "Organization",
-        name: "Print Works.LK",
-      },
-    },
+    // Quote-only products (price 0 / null) carry no Offer: never invent a price.
+    ...(priceValue > 0
+      ? {
+          offers: {
+            "@type": "Offer",
+            url: productUrl,
+            priceCurrency: "LKR",
+            price: priceValue,
+            availability: schemaAvailability(product),
+            seller: {
+              "@type": "Organization",
+              name: "Print Works.LK",
+            },
+          },
+        }
+      : {}),
   };
 }
 

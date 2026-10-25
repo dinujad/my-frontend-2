@@ -326,6 +326,10 @@ export default function ProductInteractive({ product }: { product: ProductItem }
     return applicableTier ? applicableTier.unit_price : basePrice;
   }, [activeTiers, qty, basePrice]);
 
+  // Quote-only products have no price at all (unit price 0 / null):
+  // show “Price on request” and the Request Quote CTA only, never Rs. 0.00.
+  const isQuoteOnly = currentPricePerUnit <= 0;
+
   const availableServices = product.additional_services ?? [];
 
   const selectedServices = useMemo(
@@ -528,7 +532,7 @@ export default function ProductInteractive({ product }: { product: ProductItem }
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-gray-400">Price</p>
-                {product.oldPrice && (() => {
+                {!isQuoteOnly && product.oldPrice && (() => {
                   const old = parseFloat(String(product.oldPrice).replace(/[^\d.]/g, ""));
                   if (old > 0 && currentPricePerUnit < old) {
                     const pct = Math.round(((old - currentPricePerUnit) / old) * 100);
@@ -538,23 +542,27 @@ export default function ProductInteractive({ product }: { product: ProductItem }
                 })()}
               </div>
               <div className="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                {product.oldPrice ? (
+                {!isQuoteOnly && product.oldPrice ? (
                   <>
                     <span className="text-base font-medium text-gray-400 line-through sm:text-lg">{product.oldPrice}</span>
                     <span className="text-3xl font-extrabold tracking-tight text-brand-red tabular-nums sm:text-[2.35rem] sm:leading-none">
-                      {fmtRs(currentPricePerUnit)}
+                      {isQuoteOnly ? "Price on request" : fmtRs(currentPricePerUnit)}
                     </span>
                   </>
                 ) : (
                   <span className="text-3xl font-extrabold tracking-tight text-gray-900 tabular-nums sm:text-[2.35rem] sm:leading-none">
-                    {fmtRs(currentPricePerUnit)}
+                    {isQuoteOnly ? "Price on request" : fmtRs(currentPricePerUnit)}
                   </span>
                 )}
               </div>
-              {activeTiers.length > 0 ? (
+              {!isQuoteOnly && activeTiers.length > 0 ? (
                 <p className="mt-2 text-sm text-gray-500">Unit price updates with quantity tiers below.</p>
               ) : null}
-              <PayzyInstallment goods={currentPricePerUnit} logoClassName="h-5 w-auto" className="text-xs" />
+              {!isQuoteOnly ? (
+                <PayzyInstallment goods={currentPricePerUnit} logoClassName="h-5 w-auto" className="text-xs" />
+              ) : (
+                <p className="mt-2 text-sm text-gray-500">Send your design for a custom quotation.</p>
+              )}
               {serviceFees.perItem > 0 ? (
                 <p className="mt-2 text-sm font-medium text-brand-red">
                   + {fmtRs(serviceFees.perItem)} add-on services per item
@@ -756,7 +764,7 @@ export default function ProductInteractive({ product }: { product: ProductItem }
         )}
 
         {/* 3. Wholesale card */}
-        {activeTiers.length > 0 && product.page_settings?.hide_tier_pricing != 1 && (
+        {!isQuoteOnly && activeTiers.length > 0 && product.page_settings?.hide_tier_pricing != 1 && (
           <section aria-label="Wholesale pricing" className="min-w-0">
             {/* Do not use overflow-hidden on the card — it clips horizontal scroll on mobile */}
             <div className="rounded-2xl border border-gray-200/90 bg-white shadow-[0_8px_30px_-12px_rgba(15,23,42,0.15)]">
@@ -1010,7 +1018,7 @@ export default function ProductInteractive({ product }: { product: ProductItem }
           <div className="flex flex-1 flex-col items-end text-right">
             <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Total</span>
             <p className="mt-1 text-2xl font-extrabold tracking-tight text-gray-900 tabular-nums sm:text-3xl">
-              {fmtRs(total)}
+              {isQuoteOnly ? "Price on request" : fmtRs(total)}
             </p>
             {customizationFilled && customizationFee > 0 ? (
               <p className="mt-1 text-xs text-gray-500">Includes +{fmtRs(customizationFee)} customization fee × {qty}</p>
@@ -1035,7 +1043,8 @@ export default function ProductInteractive({ product }: { product: ProductItem }
               <i className={`text-lg ${inWishlist ? "bi bi-heart-fill text-brand-red" : "bi bi-heart"}`} aria-hidden />
               <span>{inWishlist ? "Saved" : "Wishlist"}</span>
             </button>
-            <button
+            {!isQuoteOnly && (
+<button
               type="button"
               disabled={cannotBuy}
               onClick={() => handleAddToCart()}
@@ -1047,7 +1056,9 @@ export default function ProductInteractive({ product }: { product: ProductItem }
               <i className="bi bi-cart-plus text-lg" aria-hidden />
               Add to cart
             </button>
-            <button
+          )}
+            {!isQuoteOnly && (
+<button
               type="button"
               disabled={cannotBuy}
               onClick={() => {
@@ -1060,6 +1071,7 @@ export default function ProductInteractive({ product }: { product: ProductItem }
             >
               Buy now
             </button>
+          )}
           </div>
 
           {/* Request Quote CTA */}
@@ -1093,7 +1105,7 @@ export default function ProductInteractive({ product }: { product: ProductItem }
         <div className="mx-auto flex max-w-lg items-stretch gap-2.5">
           <div className="min-w-0 flex-1 py-0.5 pr-1">
             <p className="text-[10px] font-bold uppercase tracking-wide text-gray-500">Total</p>
-            <p className="truncate text-lg font-extrabold tabular-nums text-gray-900 sm:text-xl">{fmtRs(total)}</p>
+            <p className="truncate text-lg font-extrabold tabular-nums text-gray-900 sm:text-xl">{isQuoteOnly ? "Price on request" : fmtRs(total)}</p>
           </div>
           <button
             type="button"
@@ -1109,7 +1121,8 @@ export default function ProductInteractive({ product }: { product: ProductItem }
               )}
             </span>
           </button>
-          <button
+          {!isQuoteOnly && (
+<button
             type="button"
             disabled={cannotBuy}
             onClick={() => handleAddToCart()}
@@ -1118,6 +1131,7 @@ export default function ProductInteractive({ product }: { product: ProductItem }
             <i className="bi bi-cart-plus shrink-0 text-lg" aria-hidden />
             <span className="truncate">Add to cart</span>
           </button>
+          )}
         </div>
       </div>
 

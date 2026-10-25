@@ -19,6 +19,7 @@ function byHomepageOrder(a: ProductItem, b: ProductItem): number {
 }
 
 function specialOfferPrices(offer: ProductItem): { main: string; old?: string | null } {
+  if (offer.numericPrice <= 0) return { main: "Price on request" };
   if (offer.offer_price && offer.offer_price > 0) {
     const main = formatLkr(offer.offer_price);
     if (offer.numericPrice > offer.offer_price) {
