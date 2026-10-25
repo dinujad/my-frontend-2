@@ -126,4 +126,107 @@ export const productSeoOverrides: Record<string, ProductSeoOverride> = {
       "Submit your own drawing for custom CNC-cut parts, templates and shapes. Include dimensions, material and quantities for a quotation.",
     h1: "Custom CNC Cutting from Your Design Sri Lanka",
   },
+  // Round 2 (Oct 2026, SC query mapping Oct 12-22): pages earning
+  // impressions on generic queries with low CTR and no override yet.
+  // Admin seo_title beats these overrides (see resolveProductSeo).
+  // "laser cutting near me" 58/0 pos 6.7; page 462/34 overall.
+  "acrylic-laser-cutting-and-engraving": {
+    title: "Acrylic Laser Cutting & Engraving in Sri Lanka",
+    description:
+      "Acrylic laser cutting and engraving in Sri Lanka — custom acrylic shapes, signs and displays cut and engraved to your design. Island-wide delivery.",
+    h1: "Acrylic Cutting & Engraving — Laser Cutting in Sri Lanka",
+  },
+  // "number plate maker near me" 107/0 pos 8.3 — house-plate intent only;
+  // vehicle-plate intent is NOT claimed here (no such product).
+  "stainless-steel-house-number-plates": {
+    title: "Stainless Steel House Number Plates in Sri Lanka",
+    description:
+      "Stainless steel house number plates in Sri Lanka — engraved, weather-resistant plates for homes, gates and walls. Custom sizes and text.",
+    h1: "Stainless Steel House Number Plates in Sri Lanka",
+  },
+  // "floor sticker price in sri lanka" 26/2 pos 2.6.
+  "custom-floor-stickers-and-decals": {
+    title: "Custom Floor Stickers & Decals in Sri Lanka",
+    description:
+      "Custom floor stickers and decals in Sri Lanka — durable floor graphics for shops, offices and events, made to your design and size.",
+    h1: "Custom Floor Stickers & Decals in Sri Lanka",
+  },
+  // "dtf sticker price in sri lanka" 40/3 pos 5.2; page 603/34 overall.
+  "uv-dtf-printing": {
+    title: "UV DTF Printing in Sri Lanka — A3 Sheets & Stickers",
+    description:
+      "UV DTF printing in Sri Lanka — detailed A3 transfer sheets and stickers for applying your design to many surfaces. Island-wide delivery.",
+    h1: "UV DTF Printing – A3 Sheet",
+  },
+  // "id card printing" 26/2 pos 8.0.
+  "corporate-and-student-id-cards": {
+    title: "ID Card Printing in Sri Lanka — Corporate & Student Cards",
+    description:
+      "ID card printing in Sri Lanka for companies, schools and events — corporate and student ID cards printed to your design.",
+    h1: "Corporate and Student ID Cards",
+  },
+  // "suggestion box" 26/1 pos 3.0.
+  "acrylic-suggestions-box-slim-series": {
+    title: "Acrylic Suggestion Box in Sri Lanka — Slim Series",
+    description:
+      "Acrylic suggestion boxes in Sri Lanka — slim-series complaint and suggestion boxes for offices, hotels and clinics.",
+    h1: "Acrylic Suggestions Box – Slim Series",
+  },
+  // "badge making shop near me" 19/2 pos 6.9.
+  "acrylic-name-badge": {
+    title: "Acrylic Name Badges in Sri Lanka",
+    description:
+      "Acrylic name badges in Sri Lanka — custom staff, event and company name badges printed with your logo and names.",
+    h1: "Acrylic Name Badges",
+  },
+  // "name board" 62/0 pos 5.1.
+  "acrylic-name-plate-holder-removable-type": {
+    title: "Acrylic Name Plate Holders in Sri Lanka",
+    description:
+      "Acrylic name plate holders in Sri Lanka — removable-type desk name plates for offices, reception desks and events.",
+    h1: "Acrylic Name Plate Holder – Removable Type",
+  },
+  // "coasters" 32/0 pos 6.8.
+  "wooden-coasters": {
+    title: "Wooden Coasters in Sri Lanka",
+    description:
+      "Wooden coasters in Sri Lanka — custom engraved and printed coasters for homes, cafes, hotels and corporate gifts.",
+    h1: "Wooden Coasters",
+  },
+  // "qr code stand" 13/0 pos 4.8.
+  "qr-code-stands": {
+    title: "QR Code Stands in Sri Lanka",
+    description:
+      "QR code stands in Sri Lanka — acrylic stands for menus, payments and promotions in restaurants, shops and events.",
+    h1: "QR Code Stands",
+  },
+  // "keytag printing" 25/0 pos 9.4 (ranking gap, not just snippet).
+  "acrylic-key-tags": {
+    title: "Acrylic Key Tags Printing in Sri Lanka",
+    description:
+      "Acrylic key tags in Sri Lanka — custom printed key tags for hotels, gyms, clubs and businesses, with your logo.",
+    h1: "Acrylic Key Tags",
+  },
+  // Inferred from product uniqueness (not in the 20-query SC mapping):
+  // "transparent sticker printing" 19/3 — only transparent-sticker product.
+  "printed-transparent-stickers": {
+    title: "Transparent Sticker Printing in Sri Lanka",
+    description:
+      "Transparent sticker printing in Sri Lanka — clear stickers for products, packaging and branding that show the surface beneath.",
+    h1: "Printed Transparent Stickers",
+  },
+  // "vinyl sticker" 21/1 — only vinyl product.
+  "custom-vinyl-decals": {
+    title: "Custom Vinyl Decals & Vinyl Stickers in Sri Lanka",
+    description:
+      "Custom vinyl decals in Sri Lanka — durable vinyl stickers for vehicles, shopfronts, walls and products, cut to your design.",
+    h1: "Custom Vinyl Decals",
+  },
+  // "glass printing" 10/1 — only glass product.
+  "uv-printing-on-glass-ceramic": {
+    title: "UV Printing on Glass & Ceramic in Sri Lanka",
+    description:
+      "UV printing on glass and ceramic in Sri Lanka — decorative panels, glass signage and personalised ceramic pieces.",
+    h1: "UV Printing on Glass & Ceramic",
+  },
 };

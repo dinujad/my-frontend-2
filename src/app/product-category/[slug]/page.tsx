@@ -12,6 +12,7 @@ import {
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { catalogImageSrc } from "@/lib/media-url";
 import { getCategoryContent } from "@/data/category-content";
+import { categorySeoOverrides } from "@/data/category-seo";
 import { PayzyInstallment } from "@/components/payzy/PayzyInstallment";
 
 const PRODUCTS_PER_PAGE = 12;
@@ -34,12 +35,13 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const canonical = page === 1 ? baseUrl : `${baseUrl}?page=${page}`;
 
   // Geo modifier (P1 SEO): "… in Sri Lanka" — the root layout template
-  // appends " | Print Works.LK".
+  // appends " | Print Works.LK". A category SEO override (if one exists)
+  // replaces the name-derived title and the backend description snippet.
+  const categorySeo = categorySeoOverrides[slug];
+  const baseTitle = categorySeo?.title ?? `${category.name} in Sri Lanka`;
   const title =
-    page === 1
-      ? `${category.name} in Sri Lanka`
-      : `${category.name} in Sri Lanka (Page ${page})`;
-  const descriptionText = category.description || "";
+    page === 1 ? baseTitle : `${baseTitle} (Page ${page})`;
+  const descriptionText = categorySeo?.description ?? category.description ?? "";
   const description =
     descriptionText.slice(0, 155) + (descriptionText.length > 155 ? "…" : "");
 
@@ -50,14 +52,14 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
       canonical,
     },
     openGraph: {
-      title: `${category.name} in Sri Lanka | Print Works.LK`,
+      title: `${baseTitle} | Print Works.LK`,
       description,
       url: baseUrl,
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
-      title: `${category.name} in Sri Lanka | Print Works.LK`,
+      title: `${baseTitle} | Print Works.LK`,
       description,
     },
   };
