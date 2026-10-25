@@ -516,7 +516,82 @@ export const CATEGORY_CONTENT: Record<string, CategoryContent> = {
         "a": "Engraving cuts the design into the metal itself rather than printing on the surface, so it cannot peel, wash or rub off. On stainless steel the marking stays crisp indefinitely; on brass it remains legible for the life of the plate, with the metal naturally developing character over time."
       }
     ]
-  }
+  },
+  "cnc-cutting-engraving": {
+    "intro": "Turn your artwork into custom signs, display components and decorative pieces with PrintWorks.lk. Our CNC cutting and engraving service brings together material cutting, wooden detailing and practical fabrication for business and interior projects. Explore the options below, then send your design, dimensions and quantity for a custom quotation.",
+    "sections": [
+      {
+        "heading": "What is CNC cutting & engraving?",
+        "paragraphs": [
+          "CNC stands for computer numerical control. A CNC router follows a digital design and uses rotating cutting tools to shape suitable materials. Through cutting separates a shape from a board, while engraving removes material to create recessed lettering, logos or patterns. Relief carving creates depth and raised details within a design. The result depends on the material, sheet thickness, cutter and artwork. CNC routing can produce repeatable components, but very small details and internal corners need design review. Tell us how the finished piece will be used so we can assess the appropriate process."
+        ]
+      },
+      {
+        "heading": "What's in the range",
+        "paragraphs": [
+          "MDF CNC Cutting — custom shapes, lettering, panels and display components cut from MDF. Share your dimensions and intended finish so the design can allow for edge preparation, joints and assembly where required.",
+          "Eco / PVC Foam Board CNC Cutting — lettering, signage components and decorative shapes from Eco / PVC foam board. Send the board specification, thickness and intended application so our team can assess the design, cutting details and required finish.",
+          "Plywood CNC Cutting — plywood panels, display parts, templates and interlocking components from your design. Specify the plywood grade, thickness and visible face. Fit requirements and grain direction are checked before production.",
+          "Cladding CNC Cutting — ACP/cladding (aluminium composite panels) cut into custom shapes for sign faces and decorative features. Confirm whether you need cutting only or additional V-grooving for folding. Grooving, folding and installation require separate confirmation.",
+          "Wood CNC Engraving & Carving — recessed lettering, logos, patterns or relief carving in suitable wood. The timber, engraving depth and level of detail influence the appearance. Send a reference image and dimensions for a feasibility review.",
+          "CNC Cut Letters & Logos — individual letters, numbers and brand logos for reception walls, shop displays and event features. Specify the material, letter depth, colour and mounting method so the quotation reflects the required finish.",
+          "Custom Wooden Signs & Nameplates — personalised wooden signs for businesses, homes, rooms and desks with names, logos or engraved details. Discuss the surface finish, installation position and exposure conditions before choosing the wood and treatment.",
+          "MDF & Plywood Product Display Racks — countertop or floor-standing display racks built around your products. Provide product dimensions, quantities and expected shelf loads. Confirm whether you need cut components, flat-packed parts or an assembled unit, with branding assessed separately.",
+          "CNC Decorative Panels & Partitions — patterned screens, wall features and decorative partitions for interior projects. Discuss pattern scale, open areas, framing and panel joins. Mounting arrangements and the strength of narrow details are reviewed before cutting.",
+          "Custom CNC Cutting from Your Design — submit your own drawing for custom CNC cutting of parts, templates and shapes. Include dimensions, material details, quantities and any fitting requirements. The artwork is reviewed before the production scope and price are confirmed."
+        ]
+      },
+      {
+        "heading": "Materials for CNC cutting & engraving",
+        "paragraphs": [
+          "MDF (medium-density fibreboard): custom cutting and suitable recessed details, subject to board grade and finishing needs. Plywood: cut panels and components; engraving quality depends on the face veneer and construction. Solid wood: lettering, patterns and carving, subject to timber condition and design. Eco / PVC foam board: selected grades and thicknesses for lettering, signage components and custom shapes. ACP/cladding (aluminium composite panels): cutting for signage and decorative applications; grooving is assessed separately. Not every material supports every operation. Confirm the exact grade, sheet thickness and required finish before purchasing or delivering material."
+        ]
+      },
+      {
+        "heading": "Working bed size & project dimensions",
+        "paragraphs": [
+          "CNC working bed: 8 x 4 feet (2438.4 x 1219.2 mm). Usable cutting area and material thickness are checked for each job. Include overall and component dimensions; larger designs may need joined sections."
+        ]
+      },
+      {
+        "heading": "Artwork & accepted file formats",
+        "paragraphs": [
+          "Accepted CNC production file formats are Adobe Illustrator (AI), CorelDRAW (CDR), DXF and EPS. Prepare vector artwork at actual size with units clearly stated. Convert fonts to outlines, close cutting paths and remove duplicate lines. Separate cutting and engraving instructions, and identify engraving depth, quantities and the visible face. A photograph, JPG, PNG or sketch can explain your idea, but it may require redrawing or modelling before machining. For relief carving, confirm the required 3D file or modelling brief with our team. Design preparation and file-conversion charges, where applicable, are identified in the quotation."
+        ]
+      },
+      {
+        "heading": "Lead time, quotations & ordering",
+        "paragraphs": [
+          "Lead time depends on the project and is stated in your quotation. Artwork readiness, material availability, machining complexity, order quantity and finishing affect the schedule. Share your required completion date when requesting a quote; urgent work is subject to capacity. Send your artwork or reference, finished dimensions, quantity, material details, finish and delivery location by WhatsApp or email. We review feasibility and confirm material supply, design preparation, cutting, engraving and any finishing or assembly in the quotation. Approve the final artwork, dimensions, scope and payment terms before production begins.",
+          "Collection or delivery is arranged according to the confirmed order. Large panels and assembled racks may need a dedicated transport arrangement. Pricing reflects setup, machining time, material use and agreed finishing. Ask whether sanding, painting, UV printing, hardware or assembly is available and included for your project."
+        ]
+      },
+      {
+        "heading": "Why choose PrintWorks.lk?",
+        "paragraphs": [
+          "PrintWorks.lk connects custom fabrication with established printing and signage services. Where the design and materials are suitable, your CNC components can be coordinated with UV printing, acrylic elements and branded signage for a complete project. Our approach starts with the intended result: the dimensions, appearance, fitting requirements and finish your project needs. A clearly defined quotation helps you understand whether you are receiving raw cut parts, finished components or an assembled product. Our team in Biyagama handles enquiries for projects across Sri Lanka, with transport arrangements confirmed for the finished size. Ready to discuss your project? Send your artwork, material details, size and quantity to request a CNC quotation. WhatsApp (text only): 070 666 8885. Email: sales@printworks.lk."
+        ]
+      }
+    ],
+    "faqs": [
+      {
+        "q": "Can I provide my own board or timber?",
+        "a": "Some materials are available through PrintWorks.lk, while others must be supplied by the customer. Check current material, grade, thickness and colour availability before ordering. For customer-supplied material, send the specification, dimensions and photographs before delivery. Suitability, condition and the quantity required are checked before acceptance. Agree on material allowances and whether usable offcuts should be returned."
+      },
+      {
+        "q": "Will my parts arrive painted or assembled?",
+        "a": "The quotation confirms the included scope: whether you receive raw cut parts, finished components or an assembled unit. Ask whether sanding, painting, UV printing, hardware or assembly is available and included for your project. Finishing scope is agreed in the quotation, not assumed."
+      },
+      {
+        "q": "Can you work from a photograph or sketch?",
+        "a": "A photograph, JPG, PNG or sketch can explain your idea, but it may require redrawing or modelling before machining. Design preparation and file-conversion charges, where applicable, are identified in the quotation."
+      },
+      {
+        "q": "How does CNC routing differ from laser cutting?",
+        "a": "CNC routing shapes material with rotating cutting tools and suits thicker boards, through cutting and relief carving. Laser cutting and engraving is a separate service with its own material and detail strengths. Tell us how the finished piece will be used and we will assess the appropriate process."
+      }
+    ]
+  },
 };
 
 export function getCategoryContent(slug: string): CategoryContent | undefined {

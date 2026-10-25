@@ -64,4 +64,66 @@ export const productSeoOverrides: Record<string, ProductSeoOverride> = {
       "Business card printing in Colombo, Sri Lanka — frosted translucent PVC cards with durable UV print. Quality prints, island-wide delivery.",
     h1: "PVC Translucent Business Cards — Business Card Printing in Colombo, Sri Lanka",
   },
+  // CNC category (Oct 2026 handover) — pages go live once the backend
+  // category + products exist; admin seo_title beats these overrides.
+  "mdf-cnc-cutting": {
+    title: "MDF CNC Cutting Sri Lanka",
+    description:
+      "Custom MDF shapes, lettering, panels and display components cut to your design. Send dimensions and finish for a quotation from PrintWorks.lk.",
+    h1: "MDF CNC Cutting Sri Lanka",
+  },
+  "foam-board-cnc-cutting": {
+    title: "Eco / PVC Foam Board CNC Cutting Sri Lanka",
+    description:
+      "Eco / PVC foam board lettering, signage components and decorative shapes cut to order. Send your specification for a quotation.",
+    h1: "Eco / PVC Foam Board CNC Cutting Sri Lanka",
+  },
+  "plywood-cnc-cutting": {
+    title: "Plywood CNC Cutting Sri Lanka",
+    description:
+      "Custom plywood panels, display parts, templates and interlocking components cut from your design. Send grade and thickness for a quotation.",
+    h1: "Plywood CNC Cutting Sri Lanka",
+  },
+  "cladding-cnc-cutting": {
+    title: "Cladding CNC Cutting Sri Lanka",
+    description:
+      "ACP/cladding cut into custom shapes for sign faces and decorative features. Confirm cutting or V-grooving needs for a quotation.",
+    h1: "Cladding CNC Cutting Sri Lanka",
+  },
+  "wood-cnc-engraving-carving": {
+    title: "Wood CNC Engraving & Carving Sri Lanka",
+    description:
+      "Recessed lettering, logos, patterns and relief carving in suitable wood. Send a reference image and dimensions for a feasibility review.",
+    h1: "Wood CNC Engraving & Carving Sri Lanka",
+  },
+  "cnc-cut-letters-logos": {
+    title: "CNC Cut Letters & Logos Sri Lanka",
+    description:
+      "Individual CNC-cut letters, numbers and brand logos for reception walls, shop displays and events. Send material and size for a quotation.",
+    h1: "CNC Cut Letters & Logos Sri Lanka",
+  },
+  "wooden-signs-nameplates": {
+    title: "Custom Wooden Signs & Nameplates Sri Lanka",
+    description:
+      "Personalised wooden signs and nameplates with names, logos or engraved details for businesses, homes, rooms and desks.",
+    h1: "Custom Wooden Signs & Nameplates Sri Lanka",
+  },
+  "mdf-plywood-display-racks": {
+    title: "MDF & Plywood Display Racks Sri Lanka",
+    description:
+      "Countertop or floor-standing display racks built around your products in MDF or plywood. Send product dimensions for a quotation.",
+    h1: "MDF & Plywood Display Racks Sri Lanka",
+  },
+  "cnc-decorative-panels-partitions": {
+    title: "CNC Decorative Panels & Partitions Sri Lanka",
+    description:
+      "Patterned CNC screens, wall features and decorative partitions for interior projects. Discuss pattern scale and framing for a quotation.",
+    h1: "CNC Decorative Panels & Partitions Sri Lanka",
+  },
+  "custom-cnc-cutting": {
+    title: "Custom CNC Cutting from Your Design Sri Lanka",
+    description:
+      "Submit your own drawing for custom CNC-cut parts, templates and shapes. Include dimensions, material and quantities for a quotation.",
+    h1: "Custom CNC Cutting from Your Design Sri Lanka",
+  },
 };
