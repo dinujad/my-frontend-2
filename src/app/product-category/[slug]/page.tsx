@@ -14,6 +14,7 @@ import { catalogImageSrc } from "@/lib/media-url";
 import { getCategoryContent } from "@/data/category-content";
 import { categorySeoOverrides } from "@/data/category-seo";
 import { PayzyInstallment } from "@/components/payzy/PayzyInstallment";
+import { htmlTitle, nonblank, socialTitle } from "@/lib/seo-metadata";
 
 const PRODUCTS_PER_PAGE = 12;
 
@@ -34,32 +35,31 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const baseUrl = `${SITE_URL}/product-category/${slug}`;
   const canonical = page === 1 ? baseUrl : `${baseUrl}?page=${page}`;
 
-  // Geo modifier (P1 SEO): "… in Sri Lanka" — the root layout template
-  // appends " | Print Works.LK". A category SEO override (if one exists)
-  // replaces the name-derived title and the backend description snippet.
+  // Admin SEO fields win, then curated overrides, then the category name.
+  // The root layout template appends " | Print Works.LK".
   const categorySeo = categorySeoOverrides[slug];
-  const baseTitle = categorySeo?.title ?? `${category.name} in Sri Lanka`;
-  const title =
-    page === 1 ? baseTitle : `${baseTitle} (Page ${page})`;
-  const descriptionText = categorySeo?.description ?? category.description ?? "";
+  const baseTitle = nonblank(category.seo_title) ?? categorySeo?.title ?? `${category.name} in Sri Lanka`;
+  const title = page === 1 ? baseTitle : `${baseTitle} (Page ${page})`;
+  const sharedTitle = page === 1 ? socialTitle(baseTitle) : `${socialTitle(baseTitle)} (Page ${page})`;
+  const descriptionText = nonblank(category.seo_description) ?? categorySeo?.description ?? category.description ?? "";
   const description =
     descriptionText.slice(0, 155) + (descriptionText.length > 155 ? "…" : "");
 
   return {
-    title,
+    title: page === 1 ? htmlTitle(title) : { absolute: sharedTitle },
     description,
     alternates: {
       canonical,
     },
     openGraph: {
-      title: `${baseTitle} | Print Works.LK`,
+      title: sharedTitle,
       description,
-      url: baseUrl,
+      url: canonical,
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
-      title: `${baseTitle} | Print Works.LK`,
+      title: sharedTitle,
       description,
     },
   };
@@ -75,6 +75,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const content = page === 1 ? getCategoryContent(slug) : undefined;
   const allProducts = await getProductsByCategorySlug(slug);
   const totalPages = Math.max(1, Math.ceil(allProducts.length / PRODUCTS_PER_PAGE));
+  if (page > totalPages) notFound();
   const start = (page - 1) * PRODUCTS_PER_PAGE;
   const products = allProducts.slice(start, start + PRODUCTS_PER_PAGE);
 

@@ -8,6 +8,8 @@ export type CategoryItem = {
   name: string;
   description?: string;
   image_url?: string;
+  seo_title?: string | null;
+  seo_description?: string | null;
 };
 
 export type TierPrice = {
@@ -242,22 +244,24 @@ function isNextDynamicServerError(e: unknown): boolean {
 /**
  * JSON array endpoints (categories list, products list, by-category).
  */
-async function apiFetchList<T>(endpoint: string): Promise<T[]> {
+async function apiFetchList<T>(endpoint: string, strict = false): Promise<T[]> {
   try {
-    const res = await fetch(apiUrl(endpoint), fetchOptions);
+    const res = await fetch(apiUrl(endpoint), { ...fetchOptions, signal: AbortSignal.timeout(10000) });
     // 404 is normal (empty list / missing category) — never log (Next.js dev overlay treats console.error as fatal-looking)
-    if (res.status === 404) {
+    if (res.status === 404 && !strict) {
       return [];
     }
     if (!res.ok) {
+      if (strict) throw new Error(`Catalogue API ${endpoint} returned ${res.status}`);
       const detail = await res.text().catch(() => "");
       console.warn(`[products-data] ${endpoint} → ${res.status}`, detail.slice(0, 300));
       return [];
     }
     const data: unknown = await res.json();
+    if (strict && !Array.isArray(data)) throw new Error(`Invalid catalogue response: ${endpoint}`);
     return Array.isArray(data) ? (data as T[]) : [];
   } catch (e) {
-    if (isNextDynamicServerError(e)) throw e;
+    if (strict || isNextDynamicServerError(e)) throw e;
     // ECONNREFUSED / DNS / TLS when API is down or wrong NEXT_PUBLIC_API_URL — do not crash SSR
     const code = e && typeof e === "object" && "cause" in e ? (e as { cause?: { code?: string } }).cause?.code : undefined;
     console.warn(`[products-data] ${endpoint} fetch failed`, code ?? e);
@@ -269,27 +273,28 @@ async function apiFetchList<T>(endpoint: string): Promise<T[]> {
  * Single resource (product or category by slug). Never returns [] on error — that broke callers that treated truthy [] as a product.
  */
 async function apiFetchOne<T extends object>(endpoint: string): Promise<T | null> {
-  try {
-    const res = await fetch(apiUrl(endpoint), fetchOptions);
-    if (res.status === 404) {
-      return null;
-    }
-    if (!res.ok) {
-      const detail = await res.text().catch(() => "");
-      console.warn(`[products-data] ${endpoint} → ${res.status}`, detail.slice(0, 300));
-      return null;
-    }
-    const data: unknown = await res.json();
-    if (!data || typeof data !== "object" || Array.isArray(data)) {
-      return null;
-    }
-    return data as T;
-  } catch (e) {
-    if (isNextDynamicServerError(e)) throw e;
-    const code = e && typeof e === "object" && "cause" in e ? (e as { cause?: { code?: string } }).cause?.code : undefined;
-    console.warn(`[products-data] ${endpoint} fetch failed`, code ?? e);
-    return null;
+  const res = await fetch(apiUrl(endpoint), { ...fetchOptions, signal: AbortSignal.timeout(10000) });
+  // Only an explicit 404 means the resource is gone. Outages must not deindex it.
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`Catalogue API ${endpoint} returned ${res.status}`);
+  const data: unknown = await res.json();
+  if (!data || typeof data !== "object" || Array.isArray(data) ||
+      !("slug" in data) || typeof data.slug !== "string" || !data.slug.trim()) {
+    throw new Error(`Invalid catalogue response: ${endpoint}`);
   }
+  return data as T;
+}
+
+/** Fail the sitemap request during an outage instead of publishing a truncated URL list. */
+export async function getSitemapCatalog() {
+  const [categories, products] = await Promise.all([
+    apiFetchList<CategoryItem>("/categories", true),
+    apiFetchList<ProductItem>("/products", true),
+  ]);
+  if ([...categories, ...products].some((item) => !item || typeof item.slug !== "string" || !item.slug.trim())) {
+    throw new Error("Invalid sitemap catalogue slug");
+  }
+  return { categories, products };
 }
 
 export async function getAllCategories(): Promise<CategoryItem[]> {

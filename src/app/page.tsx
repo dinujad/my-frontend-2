@@ -10,6 +10,8 @@ import { getClientLogos } from "@/lib/client-logos";
 import { getAllProducts } from "@/lib/products-data";
 import { HomePopup } from "@/components/home/HomePopup";
 
+export const metadata = { alternates: { canonical: "/" } };
+
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://printworks.lk";
 
 // Organization + WebSite structured data (SEO). Address matches the

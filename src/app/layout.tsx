@@ -24,9 +24,6 @@ export async function generateMetadata(): Promise<Metadata> {
       template: "%s | Print Works.LK",
     },
     description: site.description,
-    alternates: {
-      canonical: SITE_URL,
-    },
     // Site-wide social defaults; pages with their own openGraph override these.
     openGraph: {
       type: "website",
