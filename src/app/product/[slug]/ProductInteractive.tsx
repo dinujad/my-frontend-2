@@ -109,22 +109,17 @@ function deriveVariationAttributeKeys(product: ProductItem): string[] {
   return collectVariationAttributeKeys(product.variations);
 }
 
-function getOptionsForAttribute(
-  attrKey: string,
-  variations: ProductVariationItem[],
-  current: Record<string, string>,
-  allKeys: string[]
-): string[] {
-  const filtered = variations.filter((v) =>
-    allKeys.every((k) => {
-      if (k === attrKey) return true;
-      const sel = String(current[k] ?? "").trim();
-      if (!sel) return true;
-      return String(v.attributes?.[k] ?? "").trim() === sel;
-    })
-  );
+function getOptionsForAttribute(attrKey: string, variations: ProductVariationItem[]): string[] {
+    // Show every value that exists for this attribute across all variations.
+  // Filtering by the other attributes' current values deadlocks the dropdowns
+  // when the attribute matrix is sparse: e.g. on Acrylic Name Badges,
+  // Rectangle exists only in 60x20/70x20 while 40x40/45x45 exist only in
+  // Circle/Shield/Square, so the default variation (60x20/Rectangle) traps
+  // the user in its own subset and the other sizes/shapes can never be
+  // selected. pickVariationAfterAttributeChange already re-picks the closest
+  // matching variation when the user changes a value.
   const vals = new Set<string>();
-  for (const v of filtered) {
+  for (const v of variations) {
     const val = v.attributes?.[attrKey];
     if (val != null && String(val).trim() !== "") vals.add(String(val).trim());
   }
@@ -290,7 +285,7 @@ export default function ProductInteractive({ product }: { product: ProductItem }
     if (!v) return;
     const attrs = v.attributes || {};
     for (const k of variationAttributeKeys) {
-      const opts = getOptionsForAttribute(k, product.variations, attrs, variationAttributeKeys);
+      const opts = getOptionsForAttribute(k, product.variations);
       const cur = String(attrs[k] ?? "").trim();
       if (opts.length > 0 && cur && !opts.includes(cur)) {
         const pick = pickVariationAfterAttributeChange(k, opts[0], product.variations, attrs, variationAttributeKeys);
@@ -604,12 +599,7 @@ export default function ProductInteractive({ product }: { product: ProductItem }
             <div className="mt-4 space-y-4">
               {variationAttributeKeys.map((attrKey) => {
                 const attrs = selectedVariation?.attributes || {};
-                const options = getOptionsForAttribute(
-                  attrKey,
-                  product.variations!,
-                  attrs,
-                  variationAttributeKeys
-                );
+                const options = getOptionsForAttribute(attrKey, product.variations!);
                 const curRaw = String(attrs[attrKey] ?? "").trim();
                 const cur =
                   options.length === 0
