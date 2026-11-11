@@ -4,7 +4,8 @@ import Link from "next/link";
 import { FadeInSection } from "@/components/ui/FadeInSection";
 
 export const metadata: Metadata = {
-  title: "Our Full Story | About Us | Print Works.LK",
+  // Bare title: the root layout template appends " | Print Works.LK".
+  title: "Our Full Story | About Us",
   description:
     "Our story, mission, team, and why brands choose us. Sri Lanka's trusted online printing platform.",
 };

@@ -22,6 +22,7 @@ import { POLICY_LINKS } from "@/lib/policies";
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/products", label: "All Products" },
+  { href: "/blog", label: "Blog" },
   { href: "/contact", label: "Contact" },
   { href: "/about", label: "About us" },
   { href: "/quote", label: "Request a Quote" },

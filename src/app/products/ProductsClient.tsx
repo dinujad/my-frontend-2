@@ -207,11 +207,14 @@ function resolveCategoryNames(
   categories: CategoryItem[]
 ): string[] {
   if (!param || param === "all") return [];
-  const bySlug = categories.find((c) => c.slug === param);
+  const wanted = param.trim().toLowerCase();
+  const bySlug = categories.find((c) => c.slug.toLowerCase() === wanted);
   if (bySlug) return [bySlug.name];
-  const byName = categories.find((c) => c.name === param);
+  const byName = categories.find((c) => c.name.toLowerCase() === wanted);
   if (byName) return [byName.name];
-  return [param];
+  // Unknown value: no filter. The server redirects these to /products;
+  // this is the client-side fallback for the same case.
+  return [];
 }
 
 function ProductsClientInner({
@@ -285,7 +288,7 @@ function ProductsClientInner({
       selectedCategories.some(
         (sc) =>
           product.category === sc ||
-          product.category.includes(sc) ||
+          product.category.toLowerCase().includes(sc.toLowerCase()) ||
           (product.categorySlug && product.categorySlug === sc)
       );
     const passesSearch =

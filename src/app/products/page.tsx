@@ -7,6 +7,7 @@
 
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import { ProductsClient } from "./ProductsClient";
 import { getAllProducts, getAllCategories, type CategoryItem } from "@/lib/products-data";
 
@@ -50,9 +51,26 @@ export type Product = {
   variantsNote?: string;
 };
 
-export default async function ShopPage() {
+export default async function ShopPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ category?: string | string[] }>;
+}) {
   const allProducts = await getAllProducts();
   const allCategories = await getAllCategories();
+
+  // An unknown ?category= value (e.g. ?category=Acrylic) used to render a
+  // 200 with zero results — a soft 404. Redirect it to the plain listing
+  // instead; known slugs/names (any case) keep working through the filter.
+  const rawCategory = (await searchParams)?.category;
+  const categoryParam = Array.isArray(rawCategory) ? rawCategory[0] : rawCategory;
+  if (categoryParam && categoryParam !== "all") {
+    const wanted = categoryParam.trim().toLowerCase();
+    const known = allCategories.some(
+      (c) => c.slug.toLowerCase() === wanted || c.name.toLowerCase() === wanted
+    );
+    if (!known) redirect("/products");
+  }
   const products: Product[] = allProducts.map((p) => ({
     id: p.id,
     slug: p.slug,

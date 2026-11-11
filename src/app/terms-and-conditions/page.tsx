@@ -5,7 +5,8 @@ import { getPolicy } from "@/lib/policies";
 const policy = getPolicy("terms-and-conditions");
 
 export const metadata: Metadata = {
-  title: `${policy.title} | Print Works.LK`,
+  // Bare title: the root layout template appends " | Print Works.LK".
+  title: policy.title,
   description: policy.description,
 };
 

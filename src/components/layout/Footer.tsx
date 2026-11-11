@@ -99,6 +99,7 @@ export function Footer() {
                         <h4 className="text-sm font-bold tracking-widest uppercase text-brand-red">Quick Links</h4>
                         <nav className="flex flex-col space-y-3 text-sm font-light text-gray-400">
                             <Link href="/products" className="hover:text-white transition-colors w-fit">All Products</Link>
+                            <Link href="/blog" className="hover:text-white transition-colors w-fit">Blog</Link>
                             <Link href="/about" className="hover:text-white transition-colors w-fit">Our Story</Link>
                             <Link href="/career" className="hover:text-white transition-colors w-fit">Careers</Link>
                             <Link href="/contact" className="hover:text-white transition-colors w-fit">Contact</Link>

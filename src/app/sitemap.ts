@@ -1,8 +1,8 @@
-// Dynamic sitemap for SEO. Only indexable URLs: home, products, categories, product detail pages.
-// Blog entries can be added when blog exists.
+// Dynamic sitemap for SEO. Only indexable URLs: home, products, categories, product detail pages, blog.
 
 import type { MetadataRoute } from "next";
 import { SITE_URL, getSitemapCatalog } from "@/lib/products-data";
+import { blogPosts } from "@/data/blog-posts";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = SITE_URL;
@@ -10,12 +10,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [
     { url: base, changeFrequency: "daily", priority: 1 },
     { url: `${base}/products`, changeFrequency: "daily", priority: 0.9 },
+    { url: `${base}/blog`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${base}/about`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${base}/career`, changeFrequency: "weekly", priority: 0.65 },
     { url: `${base}/contact`, changeFrequency: "monthly", priority: 0.6 },
     // NOTE: /faq intentionally omitted — the route does not exist (404).
     // Re-add here only if an FAQ page (with FAQPage schema) is restored.
   ];
+
+  const blogPages: MetadataRoute.Sitemap = blogPosts.map((post) => ({
+    url: `${base}/blog/${post.slug}`,
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
 
   // Omit lastmod until reliable content modification dates are available.
   const { categories, products } = await getSitemapCatalog();
@@ -33,5 +40,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  return [...staticPages, ...categoryPages, ...productPages];
+  return [...staticPages, ...blogPages, ...categoryPages, ...productPages];
 }
