@@ -10,6 +10,8 @@ export type CategoryItem = {
   image_url?: string;
   seo_title?: string | null;
   seo_description?: string | null;
+  /** ISO 8601 last-modified date from the API (sitemap lastmod). */
+  updated_at?: string | null;
 };
 
 export type TierPrice = {
@@ -105,6 +107,8 @@ export type ProductItem = {
   /** Optional maximum quantity customer can order. */
   max_purchase?: number | null;
   review_summary?: ReviewSummary;
+  /** ISO 8601 last-modified date from the API (sitemap lastmod). */
+  updated_at?: string | null;
   /** Admin SEO fields. Null, empty, and whitespace are treated as unset by metadata resolution. */
   seo_title?: string | null;
   seo_description?: string | null;

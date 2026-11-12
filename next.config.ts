@@ -773,6 +773,56 @@ const nextConfig: NextConfig = {
         destination: "/products",
         permanent: true,
       },
+      // P1 SEO 2026-11-12: remaining GSC 404s (verified live 404 on 12 Nov).
+      // The /product/… variants below were missing — only the /product-category/…
+      // and root variants existed. Every destination is a live page.
+      {
+        source: "/product/sticker-printing-and-cutting",
+        destination: "/product-category/sticker-printing-cutting",
+        permanent: true,
+      },
+      {
+        source: "/product/badges-and-tags",
+        destination: "/product-category/badges-tags",
+        permanent: true,
+      },
+      {
+        source: "/product/badges-tags-printing-engraving-in-srilanka",
+        destination: "/product-category/badges-tags",
+        permanent: true,
+      },
+      {
+        source: "/product/flyers-in-sri-lanka",
+        destination: "/product-category/paper-material-printing",
+        permanent: true,
+      },
+      {
+        source: "/product/screen-printing-in-sri-lanka",
+        destination: "/product-category/digital-printing",
+        permanent: true,
+      },
+      {
+        source: "/product/store-digital-printing-uv-printing-laser-cutting-in-sri-lanka",
+        destination: "/products",
+        permanent: true,
+      },
+      // Feed URLs: skipped on purpose in the Oct 2026 batch, but Google keeps
+      // crawling these two — redirect them to the live category / product.
+      {
+        source: "/graphic-designing/feed",
+        destination: "/product-category/graphic-designing",
+        permanent: true,
+      },
+      {
+        source: "/product-category/graphic-designing/feed",
+        destination: "/product-category/graphic-designing",
+        permanent: true,
+      },
+      {
+        source: "/product/acrylic-suggestions-box-slim-series/feed",
+        destination: "/product/acrylic-suggestions-box-slim-series",
+        permanent: true,
+      },
     ];
   },
   async rewrites() {

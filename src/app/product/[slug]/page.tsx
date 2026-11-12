@@ -92,13 +92,22 @@ function schemaAvailability(p: ProductItem): string {
   return "https://schema.org/InStock";
 }
 
-function buildProductSchema(product: ProductItem): object {
+function buildProductSchema(product: ProductItem): object | null {
   const imageUrl = product.image?.trim()
     ? absolutePublicMediaUrl(product.image, SITE_URL)
     : "";
   const productUrl = `${SITE_URL}/product/${product.slug}`;
   const priceValue = product.numericPrice;
   const rs = product.review_summary;
+
+  // Quote-only products with no price AND no reviews carry none of the
+  // fields Google requires for Product rich results (offers / review /
+  // aggregateRating). Emitting the block anyway makes GSC flag the product
+  // as invalid, so emit no Product schema at all for those pages. As soon
+  // as a price or an approved review exists, the schema returns.
+  if (!(priceValue > 0) && !(rs && rs.count > 0)) {
+    return null;
+  }
 
   return {
     "@context": "https://schema.org",
@@ -172,10 +181,12 @@ export default async function ProductPage({ params }: Props) {
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-      />
+      {schema ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      ) : null}
       <main className="relative min-h-screen bg-[#f4f3f6] pb-40 md:pb-16">
         <div
           className="pointer-events-none absolute inset-x-0 top-0 h-[28rem] bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(220,38,38,0.07),transparent)]"

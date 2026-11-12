@@ -14,17 +14,19 @@ export const metadata = { alternates: { canonical: "/" } };
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://printworks.lk";
 
-// Organization + WebSite structured data (SEO). Address matches the
+// LocalBusiness + WebSite structured data (SEO). Address matches the
 // business details registered in Google Merchant Center.
 const homeSchema = {
   "@context": "https://schema.org",
   "@graph": [
     {
-      "@type": "Organization",
+      "@type": "LocalBusiness",
       "@id": `${SITE_URL}/#organization`,
       name: "Print Works.LK",
       url: SITE_URL,
       logo: `${SITE_URL}/images/logo.png`,
+      telephone: "+94-11-246-5555",
+      email: "sales@printworks.lk",
       address: {
         "@type": "PostalAddress",
         streetAddress: "1st Floor, No. 210/15, New Kandy Road",
@@ -32,6 +34,11 @@ const homeSchema = {
         postalCode: "11650",
         addressCountry: "LK",
       },
+      sameAs: [
+        "https://www.facebook.com/share/1QCFT42wL4/",
+        "https://www.instagram.com/print_works_sl",
+        "https://www.tiktok.com/@printworks.lk",
+      ],
     },
     {
       "@type": "WebSite",

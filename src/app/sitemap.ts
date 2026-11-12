@@ -17,21 +17,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Re-add here only if an FAQ page (with FAQPage schema) is restored.
   ];
 
-  // Omit lastmod until reliable content modification dates are available.
+  // lastmod from the API's updated_at where available. Static pages carry
+  // no reliable modification date, so they omit lastmod rather than
+  // inventing one.
   const { categories, products } = await getSitemapCatalog();
   const catSlugs = [...new Set(categories.map((c) => c.slug))];
-  const categoryPages: MetadataRoute.Sitemap = catSlugs.map((slug) => ({
-    url: `${base}/product-category/${slug}`,
-    changeFrequency: "weekly" as const,
-    priority: 0.85,
-  }));
+  const categoryPages: MetadataRoute.Sitemap = catSlugs.map((slug) => {
+    const cat = categories.find((c) => c.slug === slug);
+    return {
+      url: `${base}/product-category/${slug}`,
+      ...(cat?.updated_at ? { lastmod: new Date(cat.updated_at) } : {}),
+      changeFrequency: "weekly" as const,
+      priority: 0.85,
+    };
+  });
 
   const prodSlugs = [...new Set(products.map((p) => p.slug))];
-  const productPages: MetadataRoute.Sitemap = prodSlugs.map((slug) => ({
-    url: `${base}/product/${slug}`,
-    changeFrequency: "weekly" as const,
-    priority: 0.8,
-  }));
+  const productPages: MetadataRoute.Sitemap = prodSlugs.map((slug) => {
+    const prod = products.find((p) => p.slug === slug);
+    return {
+      url: `${base}/product/${slug}`,
+      ...(prod?.updated_at ? { lastmod: new Date(prod.updated_at) } : {}),
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+    };
+  });
 
   return [...staticPages, ...categoryPages, ...productPages];
 }
