@@ -33,6 +33,8 @@ export type BlogPost = {
   datePublished: string;
   excerpt: string;
   sections: BlogSection[];
+    /** Raw HTML body for posts that come from the admin API. Code posts use sections[] instead. */
+    contentHtml?: string | null;
   faqs: BlogFaq[];
   relatedLinks: BlogLink[];
 };
