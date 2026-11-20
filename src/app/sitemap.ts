@@ -1,9 +1,10 @@
 // Dynamic sitemap for SEO. Only indexable URLs: home, products, categories, product detail pages, blog.
-// Blog entries come from the posts data in src/lib/blog-posts.ts.
+// Blog entries come from the API, with the code posts in src/lib/blog-posts.ts as fallback.
 
 import type { MetadataRoute } from "next";
 import { SITE_URL, getSitemapCatalog } from "@/lib/products-data";
 import { blogPosts } from "@/lib/blog-posts";
+import { getApiBlogPosts } from "@/lib/blog-data";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = SITE_URL;
@@ -45,7 +46,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     };
   });
 
-  const blogPages: MetadataRoute.Sitemap = blogPosts.map((post) => ({
+    const apiBlogPosts = await getApiBlogPosts();
+    const blogPages: MetadataRoute.Sitemap = (apiBlogPosts ?? blogPosts).map((post) => ({
     url: `${base}/blog/${post.slug}`,
     lastModified: new Date(`${post.datePublished}T00:00:00+05:30`),
     changeFrequency: "weekly" as const,
