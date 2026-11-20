@@ -1,21 +1,22 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { blogPosts, formatBlogDate } from "@/lib/blog-posts";
+import { getApiBlogPosts } from "@/lib/blog-data";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://printworks.lk";
 
 export const metadata: Metadata = {
   // Bare title: the root layout template appends " | Print Works.LK".
-  title: "Blog",
+    title: "Printing Guides in Sri Lanka",
   description:
-    "Printing guides from Print Works.LK: sticker printing, prices and quotes, laptop stickers and more, for customers across Sri Lanka.",
+        "Printing guides from Print Works.LK: digital printing, stickers, acrylic badges and name plates, and more, for customers across Sri Lanka.",
   alternates: {
     canonical: `${SITE_URL}/blog`,
   },
   openGraph: {
-    title: "Blog | Print Works.LK",
+        title: "Printing Guides in Sri Lanka | Print Works.LK",
     description:
-      "Printing guides from Print Works.LK: sticker printing, prices and quotes, laptop stickers and more, for customers across Sri Lanka.",
+            "Printing guides from Print Works.LK: digital printing, stickers, acrylic badges and name plates, and more, for customers across Sri Lanka.",
     url: `${SITE_URL}/blog`,
     siteName: "Print Works.LK",
     type: "website",
@@ -23,8 +24,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default function BlogListingPage() {
-  const posts = [...blogPosts].sort((a, b) =>
+export default async function BlogListingPage() {
+    const apiPosts = await getApiBlogPosts();
+    const posts = [...(apiPosts ?? blogPosts)].sort((a, b) =>
     b.datePublished.localeCompare(a.datePublished),
   );
 
@@ -36,7 +38,7 @@ export default function BlogListingPage() {
             Print Works.LK
           </p>
           <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-            Blog
+            Printing Guides
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-gray-300 sm:text-base">
             Printing guides and buying advice from Print Works.LK, for
