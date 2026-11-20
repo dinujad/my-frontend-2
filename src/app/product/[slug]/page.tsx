@@ -151,6 +151,21 @@ function buildProductSchema(product: ProductItem): object | null {
   };
 }
 
+function buildFaqSchema(
+  faqs: { question: string; answer: string }[],
+): object | null {
+  if (faqs.length === 0) return null;
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: { "@type": "Answer", text: faq.answer },
+    })),
+  };
+}
+
 export default async function ProductPage({ params }: Props) {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
@@ -159,6 +174,10 @@ export default async function ProductPage({ params }: Props) {
   const category = await getCategoryBySlug(product.categorySlug || "");
   const related = await getRelatedProducts(product, 4);
   const schema = buildProductSchema(product);
+  const faqs = (product.faqs ?? []).filter(
+    (f) => f?.question?.trim() && f?.answer?.trim(),
+  );
+  const faqSchema = buildFaqSchema(faqs);
   const seo = productSeoOverrides[product.slug];
 
   const breadcrumbs = [
@@ -185,6 +204,12 @@ export default async function ProductPage({ params }: Props) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      ) : null}
+            {faqSchema ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
         />
       ) : null}
       <main className="relative min-h-screen bg-[#f4f3f6] pb-40 md:pb-16">
@@ -290,6 +315,25 @@ export default async function ProductPage({ params }: Props) {
             showDescription={showFullDesc}
           />
 
+                    {faqs.length > 0 ? (
+            <section className="mt-12 border-t border-gray-100 pt-8">
+              <h2 className="text-lg font-bold text-gray-900 sm:text-xl">
+                Frequently asked questions
+              </h2>
+              <div className="mt-4 space-y-6">
+                {faqs.map((faq) => (
+                  <div key={faq.question}>
+                    <h3 className="text-sm font-bold text-gray-900 sm:text-[15px]">
+                      {faq.question}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-gray-600 sm:text-[15px]">
+                      {faq.answer}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ) : null}
           {showRelated ? (
             <div className="mt-14 sm:mt-16">
               <RelatedProductsSection products={related} variant="footer" />
