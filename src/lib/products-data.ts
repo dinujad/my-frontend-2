@@ -75,6 +75,8 @@ export type ProductItem = {
   description: string;
   /** Quick summary from API (snake_case JSON) */
   short_description?: string;
+    /** FAQs from admin (question/answer pairs). Rendered as an FAQ section + FAQPage schema. */
+  faqs?: { question: string; answer: string }[] | null;
   price: string;
   priceRange?: boolean;
   priceMin?: number;
