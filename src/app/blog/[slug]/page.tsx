@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { BlogArticle } from "@/components/blog/BlogArticle";
 import { blogPosts, getBlogPost } from "@/lib/blog-posts";
+import { getApiBlogPost, type ApiBlogPostWithSeo } from "@/lib/blog-data";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://printworks.lk";
 
@@ -15,20 +16,25 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = getBlogPost(slug);
+    const post = (await getApiBlogPost(slug)) ?? getBlogPost(slug);
   if (!post) return {};
 
   const url = `${SITE_URL}/blog/${post.slug}`;
+    const seoPost = post as ApiBlogPostWithSeo;
+    const seoTitle = seoPost.seo_title?.trim() || undefined;
+    const seoDescription = seoPost.seo_description?.trim() || undefined;
+    const pageTitle = seoTitle ?? post.title;
+    const pageDescription = seoDescription ?? post.description;
   return {
     // Bare title: the root layout template appends " | Print Works.LK".
-    title: post.title,
-    description: post.description,
+        title: pageTitle,
+        description: pageDescription,
     alternates: {
       canonical: url,
     },
     openGraph: {
-      title: `${post.title} | Print Works.LK`,
-      description: post.description,
+            title: `${pageTitle} | Print Works.LK`,
+            description: pageDescription,
       url,
       siteName: "Print Works.LK",
       type: "article",
@@ -92,7 +98,7 @@ function buildFaqSchema(post: NonNullable<ReturnType<typeof getBlogPost>>) {
 
 export default async function BlogArticlePage({ params }: Props) {
   const { slug } = await params;
-  const post = getBlogPost(slug);
+    const post = (await getApiBlogPost(slug)) ?? getBlogPost(slug);
   if (!post) notFound();
 
   const schemas = [
