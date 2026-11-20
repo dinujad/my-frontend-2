@@ -4,7 +4,6 @@
 import type { BlogPost } from "./blog-posts";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
-
 const fetchOptions = { cache: "no-store" } as const;
 
 function apiUrl(endpoint: string): string {
@@ -56,7 +55,8 @@ export async function getApiBlogPosts(): Promise<BlogPost[] | null> {
     });
     if (!response.ok) return null;
     const data: unknown = await response.json();
-    if (!Array.isArray(data)) return null;
+    // An empty API list means no posts are in the admin yet — fall back to the code posts so the blog never goes blank.
+    if (!Array.isArray(data) || data.length === 0) return null;
     return (data as ApiBlogPost[]).map(normalizeApiBlogPost);
   } catch {
     return null;
