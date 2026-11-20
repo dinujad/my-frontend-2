@@ -56,6 +56,12 @@ export function BlogArticle({ post }: { post: BlogPost }) {
 
       <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:py-14">
         <article className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8 lg:p-10">
+          {post.contentHtml && post.contentHtml.trim() !== "" ? (
+                <div
+                              className="text-sm leading-relaxed text-gray-600 sm:text-[15px] [&_h2]:mt-6 [&_h2]:text-lg [&_h2]:font-bold [&_h2]:text-gray-900 sm:[&_h2]:text-xl [&_h2:first-child]:mt-0 [&_h3]:mt-6 [&_h3]:text-base [&_h3]:font-bold [&_h3]:text-gray-900 [&_p]:mt-3 [&_ul]:mt-3 [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-5 [&_ol]:mt-3 [&_ol]:list-decimal [&_ol]:space-y-2 [&_ol]:pl-5 [&_a]:font-semibold [&_a]:text-brand-red [&_a]:underline [&_a]:decoration-brand-red/40 [&_a]:underline-offset-2"
+                              dangerouslySetInnerHTML={{ __html: post.contentHtml }}
+                            />
+              ) : (
           <div className="space-y-8">
             {post.sections.map((section) => (
               <section key={section.heading} className="scroll-mt-28">
@@ -80,6 +86,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
               </section>
             ))}
           </div>
+              )}
 
           {post.faqs.length > 0 ? (
             <section className="mt-12 border-t border-gray-100 pt-8">
