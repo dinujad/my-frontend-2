@@ -324,6 +324,113 @@ export const blogPosts: BlogPost[] = [
       { label: "Request a Quote", href: "/quote" },
     ],
   },
+  {
+    slug: "digital-printing-sri-lanka",
+    title: "Digital Printing in Sri Lanka",
+    description:
+      "Digital printing in Sri Lanka: flex banners, backlit displays, synthetic paper and large format prints. How to choose the right print and request a quote.",
+    datePublished: "2026-11-20",
+    excerpt:
+      "From flex banners to backlit displays, here is how digital printing works, what it suits, and how to order it in Sri Lanka.",
+    sections: [
+      {
+        heading: "What digital printing covers",
+        paragraphs: [
+          "Digital printing prints your artwork directly onto a material, without a printing plate. That makes it a good choice for custom jobs in small or large quantities, from a single banner for a shop opening to a full set of prints for an event or office.",
+          "At Print Works, digital printing covers flex banners, backlit displays, synthetic paper prints and large format prints. You choose the size, material and quantity, send your artwork, and [request a quote](/quote) for your job. This guide explains the main options so you can ask for the right one. See the [digital printing category](/product-category/digital-printing) for the full range.",
+        ],
+      },
+      {
+        heading: "Flex banners",
+        paragraphs: [
+          "Flex banners are the most common digital print. They are printed on flexible PVC material, which is tough, weather resistant and easy to hang, and they work well for shop signs, promotions, events, exhibitions and outdoor advertising.",
+          "Flex suits any message that needs to be read from a distance: a shop name, a sale, an event, or a product launch. It can be printed in large sizes and finished for hanging. See [flex banner printing](/product/flex-banner-printing).",
+        ],
+      },
+      {
+        heading: "Backlit displays",
+        paragraphs: [
+          "Backlit prints are made for light boxes and illuminated displays. The print sits in front of a light source, so the colours glow and the message stays visible after dark. They suit shop fronts, mall displays, restaurants and exhibition stands.",
+          "If your sign needs to work at night as well as in the day, backlit is worth considering. The material is made to spread light evenly, so the whole print looks bright rather than patchy. See [backlit flex printing](/product/backlit-flex-printing).",
+        ],
+      },
+      {
+        heading: "Synthetic paper and durable prints",
+        paragraphs: [
+          "Synthetic paper looks and feels like paper, but it is made from plastic film, so it resists water and tearing. It suits menus, labels, notices, instruction sheets and outdoor signs that need to last longer than ordinary paper.",
+          "Because it does not tear easily and does not go soft when wet, synthetic paper is a good choice for anything that will be handled often or left outside. See [PP/PET synthetic paper printing](/product/pp-pet-synthetic-paper-printing).",
+        ],
+      },
+      {
+        heading: "Large format prints and stickers",
+        paragraphs: [
+          "Large format printing covers big prints for windows, walls, floors and displays. It includes [large format sticker printing](/product/large-format-sticker-printing) for windows and shop displays, [one-way vision sticker printing](/product/one-way-vision-sticker-printing) for glass that still lets light through, and [magnet stickers](/product/magnet-stickers) for vehicles and fridges.",
+          "Large prints are often the first thing a customer sees, so the artwork matters. A clear message, strong contrast and a simple layout read best from a distance, while fine detail suits prints that will be viewed up close.",
+        ],
+      },
+      {
+        heading: "Indoor or outdoor: choosing the right print",
+        paragraphs: [
+          "Where the print will live decides the material. Indoor prints sit in shops, offices and event halls, where they are sheltered from weather but seen up close. Outdoor prints face sun, rain and dust, so they need a tougher material and a finish that protects the print.",
+          "Tell us where the print will be used when you request a quote. A banner for a shop front, a display for an exhibition and a menu for a restaurant counter each need a different build.",
+        ],
+        bullets: [
+          "Indoor use: shop displays, office walls, event backdrops, menus and notices.",
+          "Outdoor use: shop signs, banners, hoardings, vehicles and event entrances.",
+          "Wet or handled surfaces: menus, labels and signs that are touched often need a material that resists moisture.",
+        ],
+      },
+      {
+        heading: "Artwork and file preparation",
+        paragraphs: [
+          "Print-ready artwork keeps a job simple. A clean, high-resolution file at the size it will be printed is quicker to set up than a low-resolution image that needs fixing. Vector files are best for logos and text, while high-resolution images suit photos.",
+          "If you do not have print-ready artwork, say so in your quote request. We can talk through what is needed and what can be prepared from the files you have.",
+        ],
+      },
+      {
+        heading: "How to order digital printing",
+        paragraphs: [
+          "Ordering is simple. Decide the size, material and quantity, prepare your artwork, and [request a quote](/quote) with those details. If you need a stand to go with your print, see [pull-up banner stands](/product/pull-up-banner-stands) for events and displays.",
+          "For inspiration, browse the [digital printing category](/product-category/digital-printing). If you have questions before ordering, [contact us](/contact).",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "What is digital printing?",
+        answer:
+          "Digital printing prints artwork directly onto a material using a digital printer, without a printing plate. It suits custom jobs in any quantity, from a single banner to a full set of prints, and it works on flex, backlit material, synthetic paper and more.",
+      },
+      {
+        question: "What is the difference between flex and backlit printing?",
+        answer:
+          "Flex printing is for standard banners and signs that are lit from the front. Backlit printing is for light boxes and illuminated displays, where the light sits behind the print and makes the colours glow. Backlit suits shop fronts and displays that need to be seen at night.",
+      },
+      {
+        question: "Can digital prints be used outdoors?",
+        answer:
+          "Yes, outdoor prints are made with tougher materials and a protective finish so they handle sun, rain and dust. Tell us the print will be used outdoors when you request a quote, so the right material is used.",
+      },
+      {
+        question: "What artwork file should I send?",
+        answer:
+          "Send your artwork as a high-resolution file at the size it will be printed. Vector files work best for logos and text, while high-resolution images suit photos and detailed designs. If you are unsure whether your file is good enough, mention it in your quote request and we can check it for you.",
+      },
+      {
+        question: "How do I order digital printing?",
+        answer:
+          "Send a quote request with the size, material, quantity and where the print will be used, plus your artwork file if you have one. We will confirm the details and prepare your order. You can request a quote from the quote page or contact us with any questions first.",
+      },
+    ],
+    relatedLinks: [
+      { label: "Digital Printing", href: "/product-category/digital-printing" },
+      { label: "Flex Banner Printing", href: "/product/flex-banner-printing" },
+      { label: "Backlit Flex Printing", href: "/product/backlit-flex-printing" },
+      { label: "PP/PET Synthetic Paper Printing", href: "/product/pp-pet-synthetic-paper-printing" },
+      { label: "Pull-up Banner Stands", href: "/product/pull-up-banner-stands" },
+      { label: "Request a Quote", href: "/quote" },
+    ],
+  },
 ];
 
 export function getBlogPost(slug: string): BlogPost | undefined {
