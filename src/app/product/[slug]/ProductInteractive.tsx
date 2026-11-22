@@ -187,9 +187,24 @@ export default function ProductInteractive({ product }: { product: ProductItem }
   const setVariationImage = useProductGalleryStore((s) => s.setVariationImage);
   const resetGallery = useProductGalleryStore((s) => s.reset);
   const hasVariations = Boolean(product.variations && product.variations.length > 0);
-  const [selectedVariationId, setSelectedVariationId] = useState<number | null>(
-    hasVariations ? product.variations![0].id : null
-  );
+  // Client request (L Shape leaflet holders): show the lowest prices first —
+  // default to the cheapest "Without Print" variation and list volume tiers
+  // cheapest-first. Scoped by slug so other products keep current behaviour.
+  const cheapestFirst = product.slug === "acrylic-l-shape-stands";
+  const defaultVariationId = (() => {
+    if (!hasVariations) return null;
+    if (!cheapestFirst) return product.variations![0].id;
+    const priceOf = (v: ProductVariationItem) =>
+      v.sale_price && v.sale_price > 0 ? v.sale_price : v.price;
+    const withoutPrint = product.variations!.filter((v) =>
+      Object.values(v.attributes ?? {}).some((val) =>
+        String(val).toLowerCase().includes("without print")
+      )
+    );
+    const pool = withoutPrint.length > 0 ? withoutPrint : product.variations!;
+    return [...pool].sort((a, b) => priceOf(a) - priceOf(b))[0].id;
+  })();
+  const [selectedVariationId, setSelectedVariationId] = useState<number | null>(defaultVariationId);
 
   // Sync gallery with first variation image on mount, then on change
   useEffect(() => {
@@ -361,6 +376,26 @@ export default function ProductInteractive({ product }: { product: ProductItem }
     () => [...activeTiers].sort((a, b) => a.min_qty - b.min_qty),
     [activeTiers]
   );
+
+  // Display rows for the volume table. Labels are computed on the ascending
+  // list; cheapest-first products render the same rows reversed.
+  const tierRows = useMemo(() => {
+    const rows = sortedTiers.map((tier, idx) => {
+      const isLast = idx === sortedTiers.length - 1;
+      const nextTier = !isLast ? sortedTiers[idx + 1] : null;
+      const maxDisplay = tier.max_qty
+        ? tier.max_qty
+        : nextTier
+          ? nextTier.min_qty - 1
+          : "+";
+      const isCurrentTier =
+        qty >= tier.min_qty &&
+        (!tier.max_qty || qty <= tier.max_qty) &&
+        (!nextTier || qty < nextTier.min_qty);
+      return { tier, maxDisplay, isCurrentTier };
+    });
+    return cheapestFirst ? [...rows].reverse() : rows;
+  }, [sortedTiers, qty, cheapestFirst]);
 
   const variationOOS =
     hasVariations &&
@@ -771,7 +806,7 @@ export default function ProductInteractive({ product }: { product: ProductItem }
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
-                    {sortedTiers[0].min_qty > 1 && (
+                    {!cheapestFirst && sortedTiers[0].min_qty > 1 && (
                       <tr>
                         <td className="px-5 py-3 text-gray-600">1 – {sortedTiers[0].min_qty - 1}</td>
                         <td className="px-5 py-3 text-right font-semibold tabular-nums text-gray-900">
@@ -779,19 +814,7 @@ export default function ProductInteractive({ product }: { product: ProductItem }
                         </td>
                       </tr>
                     )}
-                    {sortedTiers.map((tier, idx) => {
-                      const isLast = idx === sortedTiers.length - 1;
-                      const nextTier = !isLast ? sortedTiers[idx + 1] : null;
-                      const maxDisplay = tier.max_qty
-                        ? tier.max_qty
-                        : nextTier
-                          ? nextTier.min_qty - 1
-                          : "+";
-                      const isCurrentTier =
-                        qty >= tier.min_qty &&
-                        (!tier.max_qty || qty <= tier.max_qty) &&
-                        (!nextTier || qty < nextTier.min_qty);
-
+                    {tierRows.map(({ tier, maxDisplay, isCurrentTier }, idx) => {
                       return (
                         <tr
                           key={idx}
@@ -826,6 +849,14 @@ export default function ProductInteractive({ product }: { product: ProductItem }
                         </tr>
                       );
                     })}
+                    {cheapestFirst && sortedTiers[0].min_qty > 1 && (
+                      <tr>
+                        <td className="px-5 py-3 text-gray-600">1 – {sortedTiers[0].min_qty - 1}</td>
+                        <td className="px-5 py-3 text-right font-semibold tabular-nums text-gray-900">
+                          {fmtRs(basePrice)}
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
