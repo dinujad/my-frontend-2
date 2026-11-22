@@ -9,6 +9,8 @@ import { HomeStaticSections } from "@/components/sections/HomeStaticSections";
 import { getClientLogos } from "@/lib/client-logos";
 import { getAllProducts } from "@/lib/products-data";
 import { HomePopup } from "@/components/home/HomePopup";
+import { GoogleReviews } from "@/components/sections/GoogleReviews";
+import { getGoogleReviews } from "@/lib/google-reviews";
 
 export const metadata = { alternates: { canonical: "/" } };
 
@@ -51,11 +53,12 @@ const homeSchema = {
 };
 
 export default async function HomePage() {
-  const [products, clientLogos, heroSlides, promoBanners] = await Promise.all([
+  const [products, clientLogos, heroSlides, promoBanners, googleReviews] = await Promise.all([
     getAllProducts(),
     Promise.resolve(getClientLogos()),
     getHeroSlides(),
     getPromoBanners(),
+    getGoogleReviews(),
   ]);
 
   return (
@@ -104,6 +107,7 @@ export default async function HomePage() {
       <HomeStaticSections />
       <OurClientsSection logos={clientLogos} />
       <HomePopup />
+      <GoogleReviews reviews={googleReviews} />
     </main>
   );
 }
