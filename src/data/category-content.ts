@@ -16,6 +16,7 @@ export interface CategorySection {
 
 export interface CategoryContent {
   intro: string;
+    guideLink?: { label: string; href: string };
   sections: CategorySection[];
   faqs: CategoryFaq[];
 }
@@ -104,6 +105,7 @@ export const CATEGORY_CONTENT: Record<string, CategoryContent> = {
     ]
   },
   "sticker-printing-cutting": {
+        "guideLink": { "label": "Read our Sticker Printing Guide", "href": "/blog/sticker-printing-sri-lanka" },
     "intro": "Sticker Printing & Cutting in Sri Lanka — custom stickers, laptop stickers, logo stickers, vinyl decals and short-run packaging labels from Print Works. Choose die-cut stickers cut precisely to your design's shape, or kiss-cut stickers that peel easily from the backing sheet. Perfect for branding, product packaging, laptops, vehicles and promotions, every order is printed to order and supplied ready to apply. Whether you need a handful of laptop stickers or a full set of branded packaging labels, short runs and custom shapes are no problem.",
     "sections": [
       {
@@ -268,6 +270,7 @@ export const CATEGORY_CONTENT: Record<string, CategoryContent> = {
     ]
   },
   "digital-printing": {
+        "guideLink": { "label": "Read our Digital Printing Guide", "href": "/blog/digital-printing-sri-lanka" },
     "intro": "Digital Printing in Sri Lanka — flex banners, backlit displays, large-format stickers and one-way vision film printed by Print Works. From shopfront banners and event backdrops to window graphics and reusable magnet stickers, we handle digital and large-format printing for businesses of every size. Your designs are printed in vivid full colour at sizes that get noticed, on materials chosen for indoor or outdoor use. Whether it is a single banner or a full set of prints, we deliver sharp, professional results.",
     "sections": [
       {
