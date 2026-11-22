@@ -192,6 +192,16 @@ export default async function CategoryPage({ params, searchParams }: Props) {
               {category.name} in Sri Lanka
             </h2>
             <p className="mt-4 max-w-3xl leading-relaxed text-gray-600">{content.intro}</p>
+            {content.guideLink && (
+              <p className="mt-4 max-w-3xl leading-relaxed">
+                <Link
+                  href={content.guideLink.href}
+                  className="font-semibold text-brand-red hover:underline"
+                >
+                  {content.guideLink.label} →
+                </Link>
+              </p>
+            )}
 
             {content.sections.map((s) => (
               <div key={s.heading} className="mt-8">
