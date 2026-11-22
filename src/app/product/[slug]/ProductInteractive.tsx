@@ -187,13 +187,13 @@ export default function ProductInteractive({ product }: { product: ProductItem }
   const setVariationImage = useProductGalleryStore((s) => s.setVariationImage);
   const resetGallery = useProductGalleryStore((s) => s.reset);
   const hasVariations = Boolean(product.variations && product.variations.length > 0);
-  // Client request (L Shape leaflet holders): show the lowest prices first —
-  // default to the cheapest "Without Print" variation and list volume tiers
-  // cheapest-first. Scoped by slug so other products keep current behaviour.
-  const cheapestFirst = product.slug === "acrylic-l-shape-stands";
+  // Client request: lowest price first on every product — volume tiers list
+  // the cheapest rate at the top, and where a "Without Print" option exists
+  // the default variation is its cheapest one (other products keep their
+  // existing default variation).
+  const cheapestFirst = true;
   const defaultVariationId = (() => {
     if (!hasVariations) return null;
-    if (!cheapestFirst) return product.variations![0].id;
     const priceOf = (v: ProductVariationItem) =>
       v.sale_price && v.sale_price > 0 ? v.sale_price : v.price;
     const withoutPrint = product.variations!.filter((v) =>
@@ -201,8 +201,10 @@ export default function ProductInteractive({ product }: { product: ProductItem }
         String(val).toLowerCase().includes("without print")
       )
     );
-    const pool = withoutPrint.length > 0 ? withoutPrint : product.variations!;
-    return [...pool].sort((a, b) => priceOf(a) - priceOf(b))[0].id;
+    if (withoutPrint.length > 0) {
+      return [...withoutPrint].sort((a, b) => priceOf(a) - priceOf(b))[0].id;
+    }
+    return product.variations![0].id;
   })();
   const [selectedVariationId, setSelectedVariationId] = useState<number | null>(defaultVariationId);
 
