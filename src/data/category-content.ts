@@ -17,6 +17,8 @@ export interface CategorySection {
 export interface CategoryContent {
   intro: string;
     guideLink?: { label: string; href: string };
+  /** Optional H1 override; falls back to the category name. */
+  h1?: string;
   sections: CategorySection[];
   faqs: CategoryFaq[];
 }
@@ -521,6 +523,7 @@ export const CATEGORY_CONTENT: Record<string, CategoryContent> = {
     ]
   },
   "cnc-cutting-engraving": {
+    "h1": "CNC Cutting & Engraving in Sri Lanka",
     "intro": "Turn your artwork into custom signs, display components and decorative pieces with PrintWorks.lk. Our CNC cutting and engraving service brings together material cutting, wooden detailing and practical fabrication for business and interior projects. Explore the options below, then send your design, dimensions and quantity for a custom quotation.",
     "sections": [
       {
@@ -542,6 +545,12 @@ export const CATEGORY_CONTENT: Record<string, CategoryContent> = {
           "MDF & Plywood Product Display Racks — countertop or floor-standing display racks built around your products. Provide product dimensions, quantities and expected shelf loads. Confirm whether you need cut components, flat-packed parts or an assembled unit, with branding assessed separately.",
           "CNC Decorative Panels & Partitions — patterned screens, wall features and decorative partitions for interior projects. Discuss pattern scale, open areas, framing and panel joins. Mounting arrangements and the strength of narrow details are reviewed before cutting.",
           "Custom CNC Cutting from Your Design — submit your own drawing for custom CNC cutting of parts, templates and shapes. Include dimensions, material details, quantities and any fitting requirements. The artwork is reviewed before the production scope and price are confirmed."
+        ]
+      },
+      {
+        "heading": "Use cases & related industries",
+        "paragraphs": [
+          "These services suit advertising agencies and sign makers producing letters and branded panels; retailers planning point-of-sale displays; interior designers developing decorative screens; hotels and restaurants ordering signs and room details; event companies creating branded features; and furniture workshops needing selected components or templates. Architects and model makers can also submit suitable project parts for assessment."
         ]
       },
       {

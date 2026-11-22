@@ -73,6 +73,8 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const page = Math.max(1, parseInt((await searchParams).page ?? "1", 10) || 1);
   // SEO buying-guide + FAQ content (page 1 only), from src/data/category-content.ts.
   const content = page === 1 ? getCategoryContent(slug) : undefined;
+  // Optional H1 override from category content (all pages); falls back to the category name.
+  const h1 = getCategoryContent(slug)?.h1 ?? category.name;
   const allProducts = await getProductsByCategorySlug(slug);
   const totalPages = Math.max(1, Math.ceil(allProducts.length / PRODUCTS_PER_PAGE));
   if (page > totalPages) notFound();
@@ -92,7 +94,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
 
         <header className="mb-10">
           <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-            {category.name}
+            {h1}
           </h1>
           {category.description && (
             <p className="mt-4 max-w-2xl text-gray-600 leading-relaxed">
