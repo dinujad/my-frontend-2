@@ -9,13 +9,15 @@ function lineTotal(item: CartItem): number {
   return cartLineTotal(item);
 }
 
-export default function CartPageClient() {
+export default function CartPageClient({ priceOnRequestIds }: { priceOnRequestIds: number[] }) {
   const items = useCartStore((s) => s.items);
   const removeItem = useCartStore((s) => s.removeItem);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const clearCart = useCartStore((s) => s.clearCart);
 
-  const subtotal = items.reduce((sum, i) => sum + lineTotal(i), 0);
+  const quoteOnlyIds = new Set(priceOnRequestIds);
+  const hasQuoteOnlyItems = items.some((item) => quoteOnlyIds.has(item.product_id));
+  const subtotal = items.reduce((sum, item) => quoteOnlyIds.has(item.product_id) ? sum : sum + lineTotal(item), 0);
 
   if (items.length === 0) {
     return (
@@ -63,127 +65,134 @@ export default function CartPageClient() {
 
         <div className="grid gap-8 lg:grid-cols-3">
           <ul className="space-y-4 lg:col-span-2">
-            {items.map((item) => (
-              <li
-                key={item.id}
-                className="flex gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm"
-              >
-                <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-xl bg-gray-100">
-                  {item.image?.trim() ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={catalogImageSrc(item.image)}
-                      alt=""
-                      className="h-full w-full object-contain p-2"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center text-gray-400">
-                      <i className="bi bi-image text-2xl" aria-hidden />
-                    </div>
-                  )}
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <h2 className="font-semibold text-gray-900">{item.name}</h2>
-                  <p className="mt-1 text-sm text-gray-600">
-                    Rs. {item.price.toLocaleString(undefined, { minimumFractionDigits: 2 })} each
-                    {item.customization_fee > 0 && (
-                      <span className="text-brand-red">
-                        {" "}
-                        + Rs.{" "}
-                        {item.customization_fee.toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                        })}{" "}
-                        customization / unit
-                      </span>
+            {items.map((item) => {
+              const priceOnRequest = quoteOnlyIds.has(item.product_id);
+              return (
+                <li
+                  key={item.id}
+                  className="flex gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm"
+                >
+                  <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-xl bg-gray-100">
+                    {item.image?.trim() ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={catalogImageSrc(item.image)}
+                        alt=""
+                        className="h-full w-full object-contain p-2"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-gray-400">
+                        <i className="bi bi-image text-2xl" aria-hidden />
+                      </div>
                     )}
-                    {(item.additional_services_fee ?? 0) > 0 && (
-                      <span className="text-brand-red">
-                        {" "}
-                        + Rs.{" "}
-                        {(item.additional_services_fee ?? 0).toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                        })}{" "}
-                        add-on services / unit
-                      </span>
-                    )}
-                  </p>
-
-                  {item.additional_services && item.additional_services.length > 0 && (
-                    <ul className="mt-2 space-y-0.5 text-xs text-gray-500">
-                      {item.additional_services.map((s) => (
-                        <li key={s.id}>
-                          <span className="font-medium text-gray-600">{s.name}</span>
-                          {" · "}
-                          Rs. {s.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                          {s.pricing_type === "per_order" ? " (once)" : " (× qty)"}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-
-                  {item.customizations && Object.keys(item.customizations).length > 0 && (
-                    <ul className="mt-2 space-y-0.5 text-xs text-gray-500">
-                      {Object.entries(item.customizations).map(([k, v]) => (
-                        <li key={k}>
-                          <span className="font-medium text-gray-600">{k}:</span> {v}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                  {item.customization_files && item.customization_files.length > 0 && (
-                    <p className="mt-2 text-xs text-gray-500">
-                      <i className="bi bi-paperclip me-1" aria-hidden />
-                      {item.customization_files.length} file(s) attached for printing
-                    </p>
-                  )}
-
-                  <div className="mt-4 flex flex-wrap items-center gap-3">
-                    <div className="flex items-center rounded-lg border border-gray-200">
-                      <button
-                        type="button"
-                        aria-label="Decrease quantity"
-                        className="px-3 py-1.5 text-gray-600 hover:bg-gray-50"
-                        onClick={() =>
-                          updateQuantity(item.id, Math.max(1, item.quantity - 1))
-                        }
-                      >
-                        −
-                      </button>
-                      <span className="min-w-[2rem] text-center text-sm font-semibold">
-                        {item.quantity}
-                      </span>
-                      <button
-                        type="button"
-                        aria-label="Increase quantity"
-                        className="px-3 py-1.5 text-gray-600 hover:bg-gray-50"
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      >
-                        +
-                      </button>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => removeItem(item.id)}
-                      className="text-sm font-medium text-red-600 hover:text-red-700"
-                    >
-                      Remove
-                    </button>
                   </div>
-                </div>
 
-                <div className="shrink-0 text-right">
-                  <p className="text-sm font-semibold text-gray-900">
-                    Rs.{" "}
-                    {lineTotal(item).toLocaleString(undefined, {
-                      minimumFractionDigits: 2,
-                    })}
-                  </p>
-                </div>
-              </li>
-            ))}
+                  <div className="min-w-0 flex-1">
+                    <h2 className="font-semibold text-gray-900">{item.name}</h2>
+                    {priceOnRequest ? (
+                      <p className="mt-1 text-sm font-semibold text-brand-red">Price on request</p>
+                    ) : (
+                      <p className="mt-1 text-sm text-gray-600">
+                        Rs. {item.price.toLocaleString(undefined, { minimumFractionDigits: 2 })} each
+                        {item.customization_fee > 0 && (
+                          <span className="text-brand-red">
+                            {" "}
+                            + Rs.{" "}
+                            {item.customization_fee.toLocaleString(undefined, {
+                              minimumFractionDigits: 2,
+                            })}{" "}
+                            customization / unit
+                          </span>
+                        )}
+                        {(item.additional_services_fee ?? 0) > 0 && (
+                          <span className="text-brand-red">
+                            {" "}
+                            + Rs.{" "}
+                            {(item.additional_services_fee ?? 0).toLocaleString(undefined, {
+                              minimumFractionDigits: 2,
+                            })}{" "}
+                            add-on services / unit
+                          </span>
+                        )}
+                      </p>
+                    )}
+
+                    {!priceOnRequest && item.additional_services && item.additional_services.length > 0 && (
+                      <ul className="mt-2 space-y-0.5 text-xs text-gray-500">
+                        {item.additional_services.map((s) => (
+                          <li key={s.id}>
+                            <span className="font-medium text-gray-600">{s.name}</span>
+                            {" · "}
+                            Rs. {s.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            {s.pricing_type === "per_order" ? " (once)" : " (× qty)"}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+
+                    {item.customizations && Object.keys(item.customizations).length > 0 && (
+                      <ul className="mt-2 space-y-0.5 text-xs text-gray-500">
+                        {Object.entries(item.customizations).map(([k, v]) => (
+                          <li key={k}>
+                            <span className="font-medium text-gray-600">{k}:</span> {v}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    {item.customization_files && item.customization_files.length > 0 && (
+                      <p className="mt-2 text-xs text-gray-500">
+                        <i className="bi bi-paperclip me-1" aria-hidden />
+                        {item.customization_files.length} file(s) attached for printing
+                      </p>
+                    )}
+
+                    <div className="mt-4 flex flex-wrap items-center gap-3">
+                      <div className="flex items-center rounded-lg border border-gray-200">
+                        <button
+                          type="button"
+                          aria-label="Decrease quantity"
+                          className="px-3 py-1.5 text-gray-600 hover:bg-gray-50"
+                          onClick={() =>
+                            updateQuantity(item.id, Math.max(1, item.quantity - 1))
+                          }
+                        >
+                          −
+                        </button>
+                        <span className="min-w-[2rem] text-center text-sm font-semibold">
+                          {item.quantity}
+                        </span>
+                        <button
+                          type="button"
+                          aria-label="Increase quantity"
+                          className="px-3 py-1.5 text-gray-600 hover:bg-gray-50"
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        >
+                          +
+                        </button>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeItem(item.id)}
+                        className="text-sm font-medium text-red-600 hover:text-red-700"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+
+                  {!priceOnRequest && <div className="shrink-0 text-right">
+                    <p className="text-sm font-semibold text-gray-900">
+                      Rs.{" "}
+                      {lineTotal(item).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                      })}
+                    </p>
+                  </div>}
+                </li>
+              );
+            })}
           </ul>
 
           <aside className="lg:col-span-1">
@@ -198,13 +207,19 @@ export default function CartPageClient() {
               <p className="mt-3 text-xs text-gray-500">
                 Shipping and taxes calculated at checkout.
               </p>
-              <Link
-                href="/checkout"
-                className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-brand-red py-3.5 font-semibold text-white shadow-lg shadow-brand-red/25 transition hover:bg-red-700"
-              >
-                Proceed to checkout
-                <i className="bi bi-arrow-right" aria-hidden />
-              </Link>
+              {hasQuoteOnlyItems ? (
+                <p className="mt-4 text-sm font-medium text-gray-700">
+                  Remove price-on-request items to continue to checkout.
+                </p>
+              ) : (
+                <Link
+                  href="/checkout"
+                  className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-brand-red py-3.5 font-semibold text-white shadow-lg shadow-brand-red/25 transition hover:bg-red-700"
+                >
+                  Proceed to checkout
+                  <i className="bi bi-arrow-right" aria-hidden />
+                </Link>
+              )}
               <Link
                 href="/products"
                 className="mt-3 block w-full text-center text-sm font-medium text-brand-red hover:underline"

@@ -180,9 +180,10 @@ function DistrictCombobox({
 }
 
 // ─── Main Component ───────────────────────────────────────────────────────────
-export default function CheckoutClient() {
+export default function CheckoutClient({ priceOnRequestIds }: { priceOnRequestIds: number[] }) {
   const router = useRouter();
   const items = useCartStore((s) => s.items);
+  const hasQuoteOnlyItems = items.some((item) => priceOnRequestIds.includes(item.product_id));
   const clearCart = useCartStore((s) => s.clearCart);
   const { showToast } = useToast();
 
@@ -243,9 +244,10 @@ export default function CheckoutClient() {
   }, [subtotal]);
 
   useEffect(() => {
+    if (hasQuoteOnlyItems) return;
     if (district) fetchShipping(district);
     else { setShippingMethods([]); setSelectedMethodId(null); }
-  }, [district, fetchShipping]);
+  }, [district, fetchShipping, hasQuoteOnlyItems]);
 
   // Fetch allowed payment methods for cart items
   useEffect(() => {
@@ -271,13 +273,13 @@ export default function CheckoutClient() {
   }, [items]);
 
   useEffect(() => {
-    if (!success && items.length === 0) router.replace("/cart");
-  }, [items.length, success, router]);
+    if (!success && (items.length === 0 || hasQuoteOnlyItems)) router.replace("/cart");
+  }, [items.length, hasQuoteOnlyItems, success, router]);
 
   // GA4 begin_checkout — once, when the checkout first has items
   const checkoutTracked = useRef(false);
   useEffect(() => {
-    if (checkoutTracked.current || items.length === 0) return;
+    if (checkoutTracked.current || items.length === 0 || hasQuoteOnlyItems) return;
     checkoutTracked.current = true;
     trackGa4Event("begin_checkout", {
       currency: "LKR",
@@ -285,7 +287,7 @@ export default function CheckoutClient() {
       items: ga4ItemsFromCart(items),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items.length > 0]);
+  }, [items.length > 0, hasQuoteOnlyItems]);
 
   const {
     register,
@@ -310,7 +312,7 @@ export default function CheckoutClient() {
   };
 
   const onSubmit = async (values: FormValues) => {
-    if (items.length === 0) return;
+    if (items.length === 0 || hasQuoteOnlyItems) return;
     if (!selectedPaymentCode) {
       showToast("Please select a payment method.", "error");
       return;
@@ -481,7 +483,7 @@ export default function CheckoutClient() {
     );
   }
 
-  if (items.length === 0) {
+  if (items.length === 0 || hasQuoteOnlyItems) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center bg-gray-50">
         <p className="text-gray-500">Redirecting to cart…</p>

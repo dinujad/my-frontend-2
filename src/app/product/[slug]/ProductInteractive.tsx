@@ -255,7 +255,9 @@ export default function ProductInteractive({ product }: { product: ProductItem }
   const custSettings = product.customization_settings;
   const isCustomizationEnabled =
     custSettings?.enabled == 1 || custSettings?.enabled === "1" || custSettings?.enabled === true;
-  const customizationFee = isCustomizationEnabled ? parseFloat(String(custSettings?.flat_fee ?? "0")) : 0;
+  const customizationFee = isCustomizationEnabled && !product.price_on_request
+    ? parseFloat(String(custSettings?.flat_fee ?? "0"))
+    : 0;
   const useCustomizationPopup =
     isCustomizationEnabled &&
     (custSettings?.use_popup === true ||
@@ -338,11 +340,9 @@ export default function ProductInteractive({ product }: { product: ProductItem }
     return applicableTier ? applicableTier.unit_price : basePrice;
   }, [activeTiers, qty, basePrice]);
 
-  // Quote-only products have no price at all (unit price 0 / null):
-  // show “Price on request” and the Request Quote CTA only, never Rs. 0.00.
-  const isQuoteOnly = currentPricePerUnit <= 0;
+  const isQuoteOnly = Boolean(product.price_on_request) || currentPricePerUnit <= 0;
 
-  const availableServices = product.additional_services ?? [];
+  const availableServices = product.price_on_request ? [] : product.additional_services ?? [];
 
   const selectedServices = useMemo(
     () => availableServices.filter((s) => selectedServiceIds.includes(s.id)),
@@ -416,6 +416,7 @@ export default function ProductInteractive({ product }: { product: ProductItem }
   const stock = stockBadge(product, selectedVariation, hasVariations);
 
   const handleAddToCart = (): boolean => {
+    if (isQuoteOnly) return false;
     if (cannotBuy) {
       showToast("This product is currently unavailable.", "error");
       return false;
@@ -521,7 +522,7 @@ export default function ProductInteractive({ product }: { product: ProductItem }
     addWishlist({
       id: wishlistId,
       name: optLabel ? `${product.title} (${optLabel})` : product.title,
-      price: currentPricePerUnit,
+      price: isQuoteOnly ? 0 : currentPricePerUnit,
       slug: product.slug,
       image: selectedVariation?.image || product.image,
     });

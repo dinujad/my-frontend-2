@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import CartPageClient from "./CartPageClient";
+import { getPriceOnRequestProductIds } from "@/lib/products-data";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://printworks.lk";
 
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function CartPage() {
-  return <CartPageClient />;
+export default async function CartPage() {
+  const priceOnRequestIds = await getPriceOnRequestProductIds();
+  return <CartPageClient priceOnRequestIds={priceOnRequestIds} />;
 }

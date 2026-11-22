@@ -78,6 +78,7 @@ export type ProductItem = {
     /** FAQs from admin (question/answer pairs). Rendered as an FAQ section + FAQPage schema. */
   faqs?: { question: string; answer: string }[] | null;
   price: string;
+  price_on_request?: boolean;
   priceRange?: boolean;
   priceMin?: number;
   priceMax?: number;
@@ -229,6 +230,31 @@ export function normalizeProduct(p: ProductItem): ProductItem {
     })),
   };
 
+  if (normalized.price_on_request) {
+    return {
+      ...normalized,
+      price: "Price on request",
+      numericPrice: 0,
+      oldPrice: null,
+      offer_price: null,
+      priceRange: false,
+      priceMin: 0,
+      priceMax: 0,
+      priceTiers: [],
+      variations: normalized.variations?.map((variation) => ({
+        ...variation,
+        price: 0,
+        sale_price: null,
+        priceTiers: [],
+      })),
+      additional_services: [],
+      customization_settings: normalized.customization_settings && {
+        ...normalized.customization_settings,
+        flat_fee: 0,
+      },
+    };
+  }
+
   return applyVariationListingPrice(normalized);
 }
 
@@ -321,6 +347,10 @@ export async function getAllCategorySlugs(): Promise<string[]> {
 export async function getAllProducts(): Promise<ProductItem[]> {
   const list = await apiFetchList<ProductItem>("/products");
   return list.map(normalizeProduct);
+}
+
+export async function getPriceOnRequestProductIds(): Promise<number[]> {
+  return apiFetchList<number>("/product-pricing/price-on-request");
 }
 
 export async function getProductBySlug(slug: string): Promise<ProductItem | undefined> {

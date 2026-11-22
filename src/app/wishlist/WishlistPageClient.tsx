@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useWishlistStore } from "@/stores/wishlist-store";
 import { catalogImageSrc } from "@/lib/media-url";
 
-export default function WishlistPageClient() {
+export default function WishlistPageClient({ priceOnRequestIds }: { priceOnRequestIds: number[] }) {
   const items = useWishlistStore((s) => s.items);
   const remove = useWishlistStore((s) => s.remove);
 
@@ -73,7 +73,9 @@ export default function WishlistPageClient() {
                   <span className="font-semibold text-gray-900">{item.name}</span>
                 )}
                 <p className="mt-1 text-sm text-gray-600">
-                  Rs. {item.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  {priceOnRequestIds.includes(Number(item.id)) || item.price <= 0
+                    ? "Price on request"
+                    : `Rs. ${item.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {item.slug && (

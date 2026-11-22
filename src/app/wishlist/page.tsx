@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import WishlistPageClient from "./WishlistPageClient";
+import { getPriceOnRequestProductIds } from "@/lib/products-data";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://printworks.lk";
 
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function WishlistPage() {
-  return <WishlistPageClient />;
+export default async function WishlistPage() {
+  const priceOnRequestIds = await getPriceOnRequestProductIds();
+  return <WishlistPageClient priceOnRequestIds={priceOnRequestIds} />;
 }

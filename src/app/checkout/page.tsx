@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import CheckoutClient from "./CheckoutClient";
+import { getPriceOnRequestProductIds } from "@/lib/products-data";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://printworks.lk";
 
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function CheckoutPage() {
-  return <CheckoutClient />;
+export default async function CheckoutPage() {
+  const priceOnRequestIds = await getPriceOnRequestProductIds();
+  return <CheckoutClient priceOnRequestIds={priceOnRequestIds} />;
 }

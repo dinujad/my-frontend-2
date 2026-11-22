@@ -96,6 +96,7 @@ function ProductGridCard({ product }: { product: Product }) {
   const handleQuickAdd = (e: MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (product.numericPrice <= 0) return;
     addCart({
       id: `product-${product.id}`,
       product_id: product.id,
