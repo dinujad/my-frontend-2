@@ -206,10 +206,10 @@ export default async function ProductPage({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
         />
       ) : null}
-            {faqSchema ? (
+      {faqSchema ? (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, "\\u003c") }}
         />
       ) : null}
       <main className="relative min-h-screen bg-[#f4f3f6] pb-40 md:pb-16">
@@ -315,21 +315,33 @@ export default async function ProductPage({ params }: Props) {
             showDescription={showFullDesc}
           />
 
-                    {faqs.length > 0 ? (
-            <section className="mt-12 border-t border-gray-100 pt-8">
-              <h2 className="text-lg font-bold text-gray-900 sm:text-xl">
-                Frequently asked questions
-              </h2>
-              <div className="mt-4 space-y-6">
-                {faqs.map((faq) => (
-                  <div key={faq.question}>
-                    <h3 className="text-sm font-bold text-gray-900 sm:text-[15px]">
-                      {faq.question}
-                    </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-gray-600 sm:text-[15px]">
+          {faqs.length > 0 ? (
+            <section
+              aria-labelledby="product-faq-heading"
+              className="mt-10 rounded-2xl border border-gray-200/80 bg-gray-50/80 p-4 sm:mt-12 sm:rounded-3xl sm:p-7"
+            >
+              <div className="flex items-center gap-3">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-red/10 text-lg text-brand-red">
+                  <i className="bi bi-question-circle" aria-hidden />
+                </span>
+                <h2 id="product-faq-heading" className="text-lg font-bold tracking-tight text-gray-900 sm:text-2xl">
+                  Frequently asked questions
+                </h2>
+              </div>
+              <div className="mt-4 space-y-2.5 sm:mt-5">
+                {faqs.map((faq, index) => (
+                  <details
+                    key={`${index}-${faq.question}`}
+                    className="group rounded-xl border border-gray-200 bg-white open:border-brand-red/20"
+                  >
+                    <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-4 rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-red sm:px-5 sm:text-base [&::-webkit-details-marker]:hidden">
+                      <span className="min-w-0 break-words">{faq.question}</span>
+                      <i className="bi bi-chevron-down shrink-0 text-brand-red motion-safe:transition-transform group-open:rotate-180" aria-hidden />
+                    </summary>
+                    <p className="whitespace-pre-line break-words px-4 pb-4 text-sm leading-relaxed text-gray-600 sm:px-5 sm:text-base">
                       {faq.answer}
                     </p>
-                  </div>
+                  </details>
                 ))}
               </div>
             </section>
