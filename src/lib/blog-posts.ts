@@ -33,11 +33,37 @@ export type BlogPost = {
   datePublished: string;
   excerpt: string;
   sections: BlogSection[];
-    /** Raw HTML body for posts that come from the admin API. Code posts use sections[] instead. */
-    contentHtml?: string | null;
+  /** Raw HTML body for posts that come from the admin API. Code posts use sections[] instead. */
+  contentHtml?: string | null;
   faqs: BlogFaq[];
   relatedLinks: BlogLink[];
+  // Optional fields, filled for admin (API) posts.
+  featuredImage?: string | null;
+  featuredImageAlt?: string | null;
+  dateModified?: string | null;
+  readingTime?: number;
+  wordCount?: number;
+  category?: { name: string; slug: string } | null;
+  tags?: string[];
+  author?: string | null;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  metaKeywords?: string | null;
+  canonicalUrl?: string | null;
+  ogImage?: string | null;
+  noindex?: boolean;
+  relatedPosts?: BlogPost[];
 };
+
+/** Minutes to read at ~200 wpm, for code posts that do not carry readingTime. */
+export function getReadingTime(post: BlogPost): number {
+  if (post.readingTime) return post.readingTime;
+  const text = post.contentHtml
+    ? post.contentHtml.replace(/<[^>]+>/g, " ")
+    : post.sections.map((s) => [s.heading, ...s.paragraphs, ...(s.bullets ?? [])].join(" ")).join(" ");
+  const words = text.split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.ceil(words / 200));
+}
 
 export const blogPosts: BlogPost[] = [
   {
@@ -440,7 +466,7 @@ export function getBlogPost(slug: string): BlogPost | undefined {
 }
 
 export function formatBlogDate(datePublished: string): string {
-  const date = new Date(`${datePublished}T00:00:00+05:30`);
+  const date = new Date(`${datePublished.slice(0, 10)}T00:00:00+05:30`);
   return date.toLocaleDateString("en-GB", {
     day: "numeric",
     month: "long",

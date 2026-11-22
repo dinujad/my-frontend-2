@@ -47,12 +47,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   });
 
     const apiBlogPosts = await getApiBlogPosts();
-    const blogPages: MetadataRoute.Sitemap = (apiBlogPosts ?? blogPosts).map((post) => ({
-    url: `${base}/blog/${post.slug}`,
-    lastModified: new Date(`${post.datePublished}T00:00:00+05:30`),
-    changeFrequency: "weekly" as const,
-    priority: 0.7,
-  }));
+    const blogPages: MetadataRoute.Sitemap = (apiBlogPosts ?? blogPosts)
+      .filter((post) => !post.noindex && (!post.canonicalUrl || post.canonicalUrl === `${base}/blog/${post.slug}`))
+      .map((post) => ({
+        url: `${base}/blog/${post.slug}`,
+        lastModified: post.dateModified
+          ? new Date(post.dateModified)
+          : new Date(`${post.datePublished.slice(0, 10)}T00:00:00+05:30`),
+        changeFrequency: "weekly" as const,
+        priority: 0.7,
+        ...(post.featuredImage ? { images: [post.featuredImage] } : {}),
+      }));
 
   return [...staticPages, ...categoryPages, ...productPages, ...blogPages];
 }

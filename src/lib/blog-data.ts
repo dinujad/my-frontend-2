@@ -10,22 +10,41 @@ function apiUrl(endpoint: string): string {
   return `${API_BASE_URL}/api/v1${endpoint}`;
 }
 
+/** Make API media paths absolute (e.g. "/storage/blog/x.jpg" → API host). */
+function absoluteMediaUrl(url?: string | null): string | null {
+  if (!url) return null;
+  if (/^https?:\/\//i.test(url)) return url;
+  return `${API_BASE_URL.replace(/\/$/, "")}/${url.replace(/^\//, "")}`;
+}
+
 export type ApiBlogPost = {
   slug: string;
   title: string;
-  description: string;
-  excerpt: string;
-  content: string;
+  description: string | null;
+  excerpt: string | null;
+  content?: string;
   featured_image?: string | null;
+  featured_image_alt?: string | null;
   datePublished: string;
+  dateModified?: string | null;
+  readingTime?: number;
+  wordCount?: number;
   seo_title?: string | null;
   seo_description?: string | null;
+  focus_keyword?: string | null;
+  meta_keywords?: string | null;
+  canonical_url?: string | null;
+  og_image?: string | null;
+  noindex?: boolean;
+  tags?: string[];
+  author?: string | null;
   faqs?: { question: string; answer: string }[];
   relatedLinks?: { label: string; href: string }[];
   category?: { name: string; slug: string } | null;
+  relatedPosts?: ApiBlogPost[];
 };
 
-/** An API post normalised to a BlogPost, carrying its SEO fields with it. */
+/** Kept for callers that still import it; BlogPost now carries the SEO fields itself. */
 export type ApiBlogPostWithSeo = BlogPost & {
   seo_title?: string | null;
   seo_description?: string | null;
@@ -35,13 +54,28 @@ function normalizeApiBlogPost(post: ApiBlogPost): ApiBlogPostWithSeo {
   return {
     slug: post.slug,
     title: post.title,
-    description: post.description,
+    description: post.description ?? post.excerpt ?? "",
     datePublished: post.datePublished,
-    excerpt: post.excerpt,
+    dateModified: post.dateModified ?? null,
+    excerpt: post.excerpt ?? "",
     sections: [],
     faqs: post.faqs ?? [],
     relatedLinks: post.relatedLinks ?? [],
-    contentHtml: post.content,
+    contentHtml: post.content ?? null,
+    featuredImage: absoluteMediaUrl(post.featured_image),
+    featuredImageAlt: post.featured_image_alt ?? post.title,
+    readingTime: post.readingTime,
+    wordCount: post.wordCount,
+    category: post.category ?? null,
+    tags: post.tags ?? [],
+    author: post.author ?? null,
+    seoTitle: post.seo_title ?? null,
+    seoDescription: post.seo_description ?? null,
+    metaKeywords: post.meta_keywords ?? null,
+    canonicalUrl: post.canonical_url ?? null,
+    ogImage: absoluteMediaUrl(post.og_image),
+    noindex: Boolean(post.noindex),
+    relatedPosts: (post.relatedPosts ?? []).map(normalizeApiBlogPost),
     seo_title: post.seo_title ?? null,
     seo_description: post.seo_description ?? null,
   };
