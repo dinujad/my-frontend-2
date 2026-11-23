@@ -12,7 +12,9 @@ import { catalogImageSrc, onCatalogImageError } from "@/lib/media-url";
 import { PRODUCT_IMAGE_PLACEHOLDER, type ProductItem } from "@/lib/products-data";
 import { PayzyInstallment } from "@/components/payzy/PayzyInstallment";
 
-function ProductCard({ product }: { product: any }) {
+function ProductCard({ product }: { product: ProductItem }) {
+    const oldPrice = product.numericPrice > 0 ? product.oldPrice : null;
+
     return (
         <Link href={`/product/${product.slug}`} className="group block flex w-[88vw] max-w-[340px] shrink-0 items-center rounded-xl border border-gray-100 bg-white p-2 transition-transform duration-300 hover:-translate-y-1 sm:w-[400px] sm:max-w-none sm:rounded-none sm:border-0 sm:p-0">
             {/* Left Image Area */}
@@ -43,13 +45,13 @@ function ProductCard({ product }: { product: any }) {
 
                 <div className="flex items-center justify-between mt-auto">
                     <div className="flex flex-col">
-                        {product.oldPrice && (
+                        {oldPrice && (
                             <span className="text-[11px] text-gray-400 line-through leading-none">
-                                {product.oldPrice}
+                                {oldPrice}
                             </span>
                         )}
-                        <span className={`text-[15px] font-medium sm:text-[16px] ${product.oldPrice ? 'text-brand-red' : 'text-gray-700'}`}>
-                            {product.price}
+                        <span className={`text-[15px] font-medium sm:text-[16px] ${oldPrice ? 'text-brand-red' : 'text-gray-700'}`}>
+                            {product.numericPrice > 0 ? product.price : "Price on request"}
                         </span>
                         <PayzyInstallment goods={product.numericPrice} />
                     </div>

@@ -47,9 +47,29 @@ export function HeroSlider({ slides }: Props) {
   return (
     <section
       id="home-hero"
-      className={`${styles.hero} flex overflow-hidden lg:min-h-[var(--home-hero-height)]`}
+      className={`${styles.hero} relative flex overflow-hidden lg:min-h-[var(--home-hero-height)]`}
       aria-label="Hero"
     >
+      <div aria-hidden="true" className={styles.treeGutter}>
+        <div className={styles.tree}>
+          <div className={styles.treeTopper}>
+            <div className={styles.treeLogo}>
+              <Image src="/images/logo.png" alt="" width={688} height={363} unoptimized />
+              <span className={`${headerStyles.logoHat} ${styles.treeHat}`}>
+                <span className={headerStyles.hatBrim} />
+              </span>
+            </div>
+          </div>
+          <Image
+            src="/images/printworks-christmas-tree.webp"
+            alt=""
+            width={540}
+            height={810}
+            unoptimized
+            className={styles.treeImage}
+          />
+        </div>
+      </div>
       <div className="mx-auto flex w-full max-w-7xl lg:justify-end">
         <div className="flex w-full items-center px-5 py-10 sm:px-8 sm:py-12 lg:w-[calc(100%-280px)] lg:px-8 xl:px-10">
           <div className="grid w-full min-w-0 gap-9 lg:grid-cols-2 lg:items-center xl:gap-12">

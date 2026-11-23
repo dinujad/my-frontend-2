@@ -183,13 +183,13 @@ export function FeaturedProducts({ products = [] }: { products: ProductItem[] })
 
                       <div className="mt-auto flex items-end justify-between">
                         <div className="flex flex-col">
-                          {product.oldPrice && (
+                          {product.numericPrice > 0 && product.oldPrice && (
                             <span className="text-[13px] text-gray-400 line-through mb-0.5">
                               {product.oldPrice}
                             </span>
                           )}
-                          <span className={`text-lg font-bold ${product.oldPrice ? "text-brand-red" : "text-gray-800"}`}>
-                            {product.price}
+                          <span className={`text-lg font-bold ${product.numericPrice > 0 && product.oldPrice ? "text-brand-red" : "text-gray-800"}`}>
+                            {product.numericPrice > 0 ? product.price : "Price on request"}
                           </span>
                           <PayzyInstallment goods={product.numericPrice} />
                         </div>
