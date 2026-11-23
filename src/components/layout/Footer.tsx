@@ -102,6 +102,7 @@ export function Footer() {
                             <Link href="/about" className="hover:text-white transition-colors w-fit">Our Story</Link>
                             <Link href="/career" className="hover:text-white transition-colors w-fit">Careers</Link>
                             <Link href="/contact" className="hover:text-white transition-colors w-fit">Contact</Link>
+                          <Link href="/blog" className="hover:text-white transition-colors w-fit">Blog</Link>
                             <Link href="/quote" className="hover:text-white transition-colors w-fit">Request a Quote</Link>
                         </nav>
                     </div>
