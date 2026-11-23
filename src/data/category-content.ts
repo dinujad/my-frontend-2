@@ -127,7 +127,7 @@ export const CATEGORY_CONTENT: Record<string, CategoryContent> = {
         "heading": "How to choose and order",
         "paragraphs": [
           "Match the sticker to where it will be used: floor stickers for short-term in-store promotions, logo stickers and kiss-cut sheets for packaging and giveaways, laptop stickers for personal and brand use, windscreen stickers for vehicles, and photoluminescent stickers where visibility in the dark matters. For artwork, vector files are ideal, or supply a high-resolution image of your design; tell us the shape and size you want. We confirm a proof before printing, then produce your stickers and deliver across Sri Lanka, ready to apply. For repeat orders — such as packaging labels you use every month — keep your artwork on file with us and reordering is quick.",
-          "If you want to understand what goes into a quote, read our sticker printing price guide. For laptop stickers, read our laptop stickers guide. When you are ready, request a quote with the size, quantity and material you need."
+          "If you want to understand what goes into a quote, read our [sticker printing price guide](/blog/sticker-printing-price-sri-lanka). For laptop stickers, read our [laptop stickers guide](/blog/laptop-stickers-sri-lanka). When you are ready, [request a quote](/quote) with the size, quantity and material you need."
         ]
       }
     ],
