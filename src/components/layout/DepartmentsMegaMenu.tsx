@@ -32,6 +32,7 @@ export function DepartmentsMegaMenu({ categories, open, isHomePage, onNavigate }
   const [mobilePreviewSlug, setMobilePreviewSlug] = useState<string | null>(null);
   const cacheRef = useRef<Record<string, PreviewProduct[]>>({});
   const loadIdRef = useRef(0);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const activeCategory = categories.find((c) => c.slug === activeSlug);
   const showProductPanel = activeSlug !== null && (isHomePage ? hovered : open);
@@ -111,25 +112,49 @@ export function DepartmentsMegaMenu({ categories, open, isHomePage, onNavigate }
   };
 
   // Mobile: menu only when user taps "All Departments" (open).
-  // Desktop home: sidebar always visible beside hero (md:block).
+  // Large desktop home: sidebar always visible beside the hero.
   const homeSidebarOnly = isHomePage && !showProductPanel;
+
+  useEffect(() => {
+    if (!isHomePage) return;
+    const menu = menuRef.current;
+    const anchor = menu?.parentElement;
+    const hero = document.getElementById("home-hero");
+    if (!menu || !anchor || !hero) return;
+
+    const syncHeight = () => {
+      const height = hero.getBoundingClientRect().bottom - anchor.getBoundingClientRect().bottom;
+      menu.style.setProperty("--home-departments-height", `${height}px`);
+    };
+    syncHeight();
+    const observer = new ResizeObserver(syncHeight);
+    observer.observe(hero);
+    observer.observe(anchor);
+    return () => {
+      observer.disconnect();
+      menu.style.removeProperty("--home-departments-height");
+    };
+  }, [isHomePage]);
 
   return (
     <div
       id="departments-menu"
+      ref={menuRef}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={handleMenuLeave}
       className={`absolute left-0 top-full z-50 border border-gray-100 bg-white text-sm shadow-[0_12px_40px_rgb(0,0,0,0.12)] ${
         open ? "block" : "hidden"
-      } ${isHomePage ? "md:block" : ""} w-full max-h-[min(75vh,560px)] overflow-hidden ${
-        homeSidebarOnly ? "md:w-[280px]" : "md:w-[min(920px,calc(100vw-2rem))] md:max-h-[min(70vh,520px)]"
+      } ${isHomePage ? "lg:block lg:h-[var(--home-departments-height,var(--home-hero-height))] lg:max-h-none" : ""} w-full max-h-[min(75vh,560px)] overflow-hidden ${
+        homeSidebarOnly
+          ? "md:w-[280px]"
+          : "md:w-[min(920px,calc(100vw-2rem))] md:max-h-[min(70vh,520px)]"
       }`}
     >
       <div
         className={`flex flex-col md:flex-row ${
           homeSidebarOnly
-            ? "lg:h-[var(--home-hero-height)]"
-            : "md:max-h-[min(70vh,520px)]"
+            ? "lg:h-full"
+            : `md:max-h-[min(70vh,520px)] ${isHomePage ? "lg:h-full lg:max-h-none" : ""}`
         }`}
       >
         {/* Categories */}

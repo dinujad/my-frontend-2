@@ -1,5 +1,7 @@
 "use client";
 
+import styles from "./Header.module.css";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -203,9 +205,10 @@ export function HeaderSearchBar({ categories, className = "" }: Props) {
         <div className="p-1">
           <button
             type="submit"
-            className="flex h-full w-12 items-center justify-center rounded-full bg-brand-red text-white shadow-sm transition-all hover:bg-brand-red-dark hover:shadow-md active:scale-95"
+            className="relative isolate flex h-full w-12 items-center justify-center overflow-hidden rounded-full bg-brand-red text-white shadow-sm transition-all hover:bg-brand-red-dark hover:shadow-md active:scale-95"
             aria-label="Search"
           >
+            <span aria-hidden="true" className={`hidden motion-safe:block ${styles.snow}`} />
             <SearchIcon className="h-5 w-5" />
           </button>
         </div>

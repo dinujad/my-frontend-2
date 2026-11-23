@@ -1,0 +1,153 @@
+.logoHat {
+  position: absolute;
+  top: 30%;
+  left: 16%;
+  width: 24px;
+  height: 20px;
+  pointer-events: none;
+  transform: translate(-50%, -87%) rotate(-17deg);
+  transform-origin: 50% 87%;
+  filter: drop-shadow(0 1px 1px rgb(121 0 26 / 25%));
+}
+
+.hatBrim {
+  position: absolute;
+  inset: auto 0 0;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(white, #eceefa);
+}
+
+.hatBrim::before,
+.hatBrim::after {
+  position: absolute;
+  content: "";
+}
+
+.hatBrim::before {
+  width: 24px;
+  height: 17px;
+  bottom: 4px;
+  left: -1px;
+  background: linear-gradient(115deg, #ff4160, #c80028);
+  clip-path: path("M 4 17 C 5 9 8 2 14 1 C 20 0 23 4 24 9 C 21 6 19 5 17 6 L 23 17 Z");
+}
+
+.hatBrim::after {
+  right: -3px;
+  bottom: 11px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.announcement {
+  text-shadow: 0 1px 2px rgb(116 0 26 / 85%);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .logoHat {
+    animation: hat-sway 5s ease-in-out infinite;
+  }
+
+  .topBar {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+
+  .topBar::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    pointer-events: none;
+    content: "";
+    background: linear-gradient(108deg, transparent 39%, rgb(255 255 255 / 36%) 50%, transparent 61%);
+    animation: top-bar-highlight 5s linear infinite;
+  }
+
+  .topBar::after {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    pointer-events: none;
+    content: "";
+    background-image: linear-gradient(116deg, transparent 46%, rgb(255 255 255 / 18%) 50%, transparent 54%);
+    background-size: 24px 100%;
+    animation: top-bar-lines 7s linear infinite;
+  }
+
+  .announcement {
+    animation: announcement-drift 5s ease-in-out infinite;
+  }
+
+  .snow {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(circle at 14px 13px, rgb(255 255 255 / 65%) 1px, transparent 2px),
+      radial-gradient(circle at 48px 32px, rgb(255 255 255 / 40%) 1.5px, transparent 2.5px),
+      radial-gradient(circle at 73px 49px, rgb(255 255 255 / 55%) 1px, transparent 2px);
+    background-size: 89px 64px, 127px 83px, 173px 67px;
+    animation: snow-fall 8s linear infinite;
+  }
+}
+
+@keyframes hat-sway {
+  0%, 65%, 100% {
+    transform: translate(-50%, -87%) rotate(-17deg);
+  }
+  76% {
+    transform: translate(-50%, -87%) rotate(-25deg);
+  }
+  87% {
+    transform: translate(-50%, -87%) rotate(-12deg);
+  }
+}
+
+@keyframes snow-fall {
+  from {
+    background-position: 0 0, 0 0, 0 0;
+  }
+  to {
+    background-position: 89px 128px, 127px 83px, 173px 134px;
+  }
+}
+
+@keyframes announcement-drift {
+  0%, 50%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-8px);
+  }
+  75% {
+    transform: translateX(8px);
+  }
+}
+
+@keyframes top-bar-lines {
+  0% {
+    background-position: 0 0;
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 0.65;
+  }
+  100% {
+    background-position: 24px 0;
+    opacity: 0.25;
+  }
+}
+
+@keyframes top-bar-highlight {
+  0%, 12% {
+    transform: translateX(-100%);
+  }
+  72%, 100% {
+    transform: translateX(100%);
+  }
+}

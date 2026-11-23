@@ -18,6 +18,7 @@ import { HeaderSearchBar } from "@/components/layout/HeaderSearchBar";
 import { SocialIconLinks } from "@/components/layout/SocialIconLinks";
 import { DepartmentsMegaMenu } from "@/components/layout/DepartmentsMegaMenu";
 import { POLICY_LINKS } from "@/lib/policies";
+import styles from "./Header.module.css";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -50,7 +51,7 @@ function isNavLinkActive(href: string, pathname: string | null): boolean {
 }
 
 const navLinkClass = (active: boolean) =>
-  `block py-3 text-sm font-bold transition-colors duration-200 ${
+  `whitespace-nowrap py-3 text-sm font-bold transition-colors duration-200 ${
     active
       ? "text-brand-red relative after:absolute after:bottom-1 after:left-0 after:right-0 after:h-0.5 after:rounded-full after:bg-brand-red after:content-['']"
       : "text-gray-700 hover:text-brand-red"
@@ -166,7 +167,7 @@ export function Header() {
   // Close menu on resize to desktop
   useEffect(() => {
     const handler = () => {
-      if (window.innerWidth >= 768) setMenuOpen(false);
+      if (window.matchMedia("(min-width: 64rem)").matches) setMenuOpen(false);
     };
     window.addEventListener("resize", handler);
     return () => window.removeEventListener("resize", handler);
@@ -208,25 +209,34 @@ export function Header() {
       {/* Top info bar - hidden on mobile */}
       {/* suppressHydrationWarning: some browser extensions inject attrs (e.g. bis_skin_checked) and cause false hydration mismatches */}
       <div
-        className="hidden bg-gradient-to-r from-gray-900 via-nav-dark to-gray-900 text-white md:block border-b border-white/10"
+        className={`hidden border-b border-white/20 bg-brand-red text-white md:block ${styles.topBar}`}
         suppressHydrationWarning
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5 text-xs font-medium tracking-wide">
-          <div className="flex items-center gap-3">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-red/20 text-brand-red">
+        <div aria-hidden="true" className={`hidden motion-safe:block ${styles.snow}`} />
+        <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 px-4 py-2.5 text-xs font-medium tracking-wide lg:gap-4">
+          <div className="flex items-center gap-2 justify-self-start rounded-full bg-brand-red-dark px-2.5 py-1">
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-brand-red-dark">
               <BuildingIcon className="h-3.5 w-3.5" />
             </span>
-            <span className="text-gray-200">Hello, Welcome to Print Works.LK website</span>
+            <span className="font-bold">Hello, Welcome to Print Works.LK website</span>
           </div>
-          <div className="flex items-center gap-5">
-            <SocialIconLinks variant="header" />
-            <div className="h-4 w-px bg-white/20" />
+          <p className={`flex items-center gap-2 whitespace-nowrap px-3 font-extrabold text-white ${styles.announcement}`}>
+            <span aria-hidden className="text-amber-200">✦</span>
+            Christmas Offers Coming Soon
+            <span aria-hidden className="text-amber-200">✦</span>
+          </p>
+          <div className="flex items-center gap-2 justify-self-end lg:gap-5">
+            <SocialIconLinks
+              variant="header"
+              className="[&_a]:bg-white [&_a]:text-brand-red-dark [&_a]:hover:bg-brand-red-dark [&_a]:hover:text-white"
+            />
+            <div className="h-4 w-px bg-white/50" />
             <Link
               href="/consultation"
-              className="group flex items-center gap-2 rounded-full bg-brand-red/10 px-4 py-1.5 text-brand-red transition hover:bg-brand-red hover:text-white"
+              className="group flex items-center gap-2 whitespace-nowrap rounded-full bg-white px-4 py-1.5 text-brand-red-dark transition-colors hover:bg-brand-red-dark hover:text-white"
             >
               <span className="font-bold">Free Consultation</span>
-              <svg className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <svg className="h-3.5 w-3.5 motion-safe:transition-transform motion-safe:group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </Link>
@@ -242,7 +252,7 @@ export function Header() {
             <button
               type="button"
               onClick={() => setMenuOpen((o) => !o)}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-nav-dark transition hover:bg-gray-200 md:hidden"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-nav-dark transition hover:bg-gray-200 lg:hidden"
               aria-label={menuOpen ? "Close menu" : "Open menu"}
               aria-expanded={menuOpen}
             >
@@ -250,7 +260,7 @@ export function Header() {
             </button>
             <Link
               href="/"
-              className="flex shrink-0 transition-opacity hover:opacity-90"
+              className="relative flex shrink-0 transition-opacity hover:opacity-90"
             >
               {/* Direct file — /_next/image returns 500 for this logo */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -261,6 +271,9 @@ export function Header() {
                 height={72}
                 className="h-[3.25rem] w-auto max-w-[11rem] object-contain object-left sm:h-12 sm:max-w-none md:h-14"
               />
+              <span aria-hidden="true" className={styles.logoHat}>
+                <span className={styles.hatBrim} />
+              </span>
             </Link>
           </div>
 
@@ -303,8 +316,9 @@ export function Header() {
                   </Link>
                   <Link
                     href="/register"
-                    className="rounded-full bg-brand-red px-5 py-2 text-sm font-bold text-white shadow-sm shadow-brand-red/30 transition-all hover:bg-red-700 hover:shadow-md active:scale-95"
+                    className="relative isolate overflow-hidden rounded-full bg-brand-red px-5 py-2 text-sm font-bold text-white shadow-sm shadow-brand-red/30 transition-all hover:bg-red-700 hover:shadow-md active:scale-95"
                   >
+                    <span aria-hidden="true" className={`hidden motion-safe:block ${styles.snow}`} />
                     Register
                   </Link>
                 </>
@@ -378,11 +392,12 @@ export function Header() {
           >
             <button
               type="button"
-              className="flex h-full w-full items-center gap-3 border-r border-gray-100 bg-brand-red px-6 py-3.5 text-sm font-bold text-white transition-colors hover:bg-brand-red-dark md:text-base"
+              className="relative isolate flex h-full w-full items-center gap-3 overflow-hidden border-r border-gray-100 bg-brand-red px-6 py-3.5 text-sm font-bold text-white transition-colors hover:bg-brand-red-dark md:text-base"
               aria-expanded={shopCategoriesOpen}
               aria-controls="departments-menu"
               onClick={() => setShopCategoriesOpen((o) => !o)}
             >
+              <span aria-hidden="true" className={`hidden motion-safe:block ${styles.snow}`} />
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
               All Departments
             </button>
@@ -396,13 +411,13 @@ export function Header() {
           </div>
 
           {/* Desktop nav links */}
-          <div className="hidden flex-1 items-center justify-between pl-8 md:flex pr-4">
-            <ul className="flex items-center gap-5 lg:gap-6">
+          <div className="hidden flex-1 items-center justify-between gap-4 px-4 lg:flex xl:pl-6">
+            <ul className="flex shrink-0 items-center gap-4 xl:gap-5">
               {navLinks.map((item) => {
                 const active = isNavLinkActive(item.href, pathname);
                 return (
                   <li key={item.href}>
-                    <Link href={item.href} className={navLinkClass(active)} aria-current={active ? "page" : undefined}>
+                    <Link href={item.href} className={`block ${navLinkClass(active)}`} aria-current={active ? "page" : undefined}>
                       {item.label}
                     </Link>
                   </li>
@@ -425,7 +440,7 @@ export function Header() {
                   />
                 </button>
                 <div
-                  className={`absolute left-0 top-full z-50 min-w-[220px] pt-1 ${
+                  className={`absolute right-0 top-full z-50 min-w-[220px] pt-1 ${
                     policiesOpen ? "block" : "hidden"
                   }`}
                 >
@@ -446,33 +461,30 @@ export function Header() {
               </li>
             </ul>
 
-            <div className="flex flex-col items-end gap-1.5 border-l border-gray-200 pl-5">
-              <span className="text-xs font-medium text-gray-500">Support</span>
-              <div className="flex flex-col items-end gap-1 sm:flex-row sm:items-end sm:gap-4">
-                <div className="flex flex-col items-end gap-0.5">
-                  <span className="text-[10px] font-medium text-gray-500">Text only</span>
-                  <a
-                    href="https://wa.me/94706668885"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-800 transition-colors hover:text-[#25D366]"
-                  >
-                    <svg className="h-4 w-4 shrink-0 text-[#25D366]" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
-                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
-                    </svg>
-                    070 666 8885
-                  </a>
-                </div>
-                <a
-                  href="mailto:sales@printworks.lk"
-                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-800 transition-colors hover:text-brand-red"
-                >
-                  <svg className="h-4 w-4 shrink-0 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                  sales@printworks.lk
-                </a>
-              </div>
+            <div role="group" aria-label="Support" className="flex shrink-0 items-center gap-2 border-l border-gray-200 pl-3">
+              <a
+                href="https://wa.me/94706668885"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="WhatsApp (text only)"
+                aria-label="WhatsApp (text only), 070 666 8885"
+                className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full bg-gray-50 px-2.5 text-sm font-semibold text-gray-800 transition-colors hover:bg-green-50 hover:text-green-800"
+              >
+                <svg className="h-4 w-4 shrink-0 text-[#25D366]" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                </svg>
+                <span className="sr-only xl:not-sr-only xl:whitespace-nowrap">070 666 8885</span>
+              </a>
+              <a
+                href="mailto:sales@printworks.lk"
+                title="sales@printworks.lk"
+                className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full bg-gray-50 px-2.5 text-sm font-semibold text-gray-800 transition-colors hover:bg-red-50 hover:text-brand-red"
+              >
+                <svg className="h-4 w-4 shrink-0 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <span className="sr-only xl:not-sr-only xl:whitespace-nowrap">sales@printworks.lk</span>
+              </a>
             </div>
           </div>
         </nav>
@@ -480,7 +492,7 @@ export function Header() {
 
       {/* Mobile menu overlay */}
       <div
-        className={`fixed inset-0 z-40 bg-black/50 transition-opacity duration-200 md:hidden ${menuOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+        className={`fixed inset-0 z-40 bg-black/50 transition-opacity duration-200 lg:hidden ${menuOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
           }`}
         aria-hidden
         onClick={() => setMenuOpen(false)}
@@ -488,7 +500,7 @@ export function Header() {
 
       {/* Mobile menu panel */}
       <div
-        className={`fixed left-0 top-0 z-50 h-full w-full max-w-sm overflow-y-auto bg-white shadow-xl transition-transform duration-200 ease-out md:hidden ${menuOpen ? "translate-x-0" : "-translate-x-full"
+        className={`fixed left-0 top-0 z-50 h-full w-full max-w-sm overflow-y-auto bg-white shadow-xl transition-transform duration-200 ease-out lg:hidden ${menuOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         role="dialog"
         aria-modal="true"
@@ -536,8 +548,9 @@ export function Header() {
                  <Link
                    href="/register"
                    onClick={() => setMenuOpen(false)}
-                   className="block w-full rounded-xl bg-brand-red px-4 py-2.5 text-center text-sm font-bold text-white shadow-lg shadow-brand-red/30 transition hover:bg-red-700 active:scale-95"
+                   className="relative isolate block w-full overflow-hidden rounded-xl bg-brand-red px-4 py-2.5 text-center text-sm font-bold text-white shadow-lg shadow-brand-red/30 transition hover:bg-red-700 active:scale-95"
                  >
+                   <span aria-hidden="true" className={`hidden motion-safe:block ${styles.snow}`} />
                    Register
                  </Link>
                </>
