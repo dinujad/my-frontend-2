@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import * as Dialog from "@radix-ui/react-dialog";
-import type { ProductItem, ProductVariationItem } from "@/lib/products-data";
+import type { ProductAttributeConfig, ProductItem, ProductVariationItem } from "@/lib/products-data";
 import { useCartStore } from "@/stores/cart-store";
 import { trackGa4Event } from "@/lib/analytics";
 import { useWishlistStore } from "@/stores/wishlist-store";
@@ -109,7 +109,18 @@ function deriveVariationAttributeKeys(product: ProductItem): string[] {
   return collectVariationAttributeKeys(product.variations);
 }
 
-function getOptionsForAttribute(attrKey: string, variations: ProductVariationItem[]): string[] {
+/**
+ * Option values for one variation attribute, ordered by the admin
+ * `attributes_config` values order for that attribute (e.g. an admin
+ * reorder of "Without Print|With Print" puts Without Print first),
+ * with any value missing from the config falling back to alphabetical.
+ * Without the config, plain alphabetical order (previous behaviour).
+ */
+function getOptionsForAttribute(
+  attrKey: string,
+  variations: ProductVariationItem[],
+  attributesConfig?: ProductAttributeConfig[] | null
+): string[] {
     // Show every value that exists for this attribute across all variations.
   // Filtering by the other attributes' current values deadlocks the dropdowns
   // when the attribute matrix is sparse: e.g. on Acrylic Name Badges,
@@ -123,7 +134,23 @@ function getOptionsForAttribute(attrKey: string, variations: ProductVariationIte
     const val = v.attributes?.[attrKey];
     if (val != null && String(val).trim() !== "") vals.add(String(val).trim());
   }
-  return Array.from(vals).sort((a, b) => a.localeCompare(b));
+  const options = Array.from(vals);
+  const configOrder = (attributesConfig ?? [])
+    .find((a) => a && String(a.name ?? "").trim() === attrKey)
+    ?.valuesStr?.split("|")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (configOrder && configOrder.length > 0) {
+    const rank = new Map(configOrder.map((value, i) => [value, i]));
+    options.sort((a, b) => {
+      const ra = rank.has(a) ? rank.get(a)! : Number.POSITIVE_INFINITY;
+      const rb = rank.has(b) ? rank.get(b)! : Number.POSITIVE_INFINITY;
+      if (ra !== rb) return ra - rb;
+      return a.localeCompare(b);
+    });
+    return options;
+  }
+  return options.sort((a, b) => a.localeCompare(b));
 }
 
 function pickVariationAfterAttributeChange(
@@ -304,7 +331,7 @@ export default function ProductInteractive({ product }: { product: ProductItem }
     if (!v) return;
     const attrs = v.attributes || {};
     for (const k of variationAttributeKeys) {
-      const opts = getOptionsForAttribute(k, product.variations);
+      const opts = getOptionsForAttribute(k, product.variations, product.attributes_config);
       const cur = String(attrs[k] ?? "").trim();
       if (opts.length > 0 && cur && !opts.includes(cur)) {
         const pick = pickVariationAfterAttributeChange(k, opts[0], product.variations, attrs, variationAttributeKeys);
@@ -637,7 +664,7 @@ export default function ProductInteractive({ product }: { product: ProductItem }
             <div className="mt-4 space-y-4">
               {variationAttributeKeys.map((attrKey) => {
                 const attrs = selectedVariation?.attributes || {};
-                const options = getOptionsForAttribute(attrKey, product.variations!);
+                const options = getOptionsForAttribute(attrKey, product.variations!, product.attributes_config);
                 const curRaw = String(attrs[attrKey] ?? "").trim();
                 const cur =
                   options.length === 0
