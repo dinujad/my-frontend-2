@@ -64,6 +64,25 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
     },
   };
 }
+/* Render [text](url) markdown links inside a category paragraph as links. Paragraphs without such markup render exactly as before. */
+function renderParagraphLinks(text: string) {
+  const parts = text.split(/\[([^\]]+)\]\(([^)]+)\)/g);
+  return parts.map((part, i) => {
+    if (i % 3 === 1) {
+      return (
+        <Link
+          key={i}
+          href={parts[i + 1]}
+          className="font-semibold text-brand-red hover:underline"
+      >        
+          {part}
+        </Link>
+      );
+    }
+    if (i % 3 === 2) return null;
+    return part;
+  });
+}
 
 export default async function CategoryPage({ params, searchParams }: Props) {
   const { slug } = await params;
@@ -210,7 +229,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
                 <h3 className="text-lg font-semibold text-gray-900">{s.heading}</h3>
                 {s.paragraphs.map((p, i) => (
                   <p key={i} className="mt-3 max-w-3xl leading-relaxed text-gray-600">
-                    {p}
+                    {renderParagraphLinks(p)}
                   </p>
                 ))}
               </div>
